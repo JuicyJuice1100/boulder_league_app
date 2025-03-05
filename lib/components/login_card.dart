@@ -1,16 +1,24 @@
 import 'package:boulder_league_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
-class LogicCardForm extends StatefulWidget {
-  const LogicCardForm({super.key});
+class LoginCardForm extends StatefulWidget {
+  const LoginCardForm({super.key});
+
 
   @override
-  State<LogicCardForm> createState() => LoginCardFormState();
+  State<LoginCardForm> createState() => LoginCardFormState();
 }
 
-class LoginCardFormState extends State<LogicCardForm> {
+class LoginCardFormState extends State<LoginCardForm> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  bool isLoading = false;
+
+  void setIsLoading(bool value) {
+    setState(() {
+      isLoading = value;
+    });
+  }
 
   @override
   void dispose() {
@@ -48,31 +56,30 @@ class LoginCardFormState extends State<LogicCardForm> {
               SizedBox(height: 10),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    if(await LoginService().login(emailController.text, passwordController.text)) {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text('Login Test'),
-                            content: Text('Login successful!')
-                          );
+                child: ElevatedButton.icon(
+                  onPressed: isLoading ? null : ()  {
+                    setIsLoading(true);
+                    
+                    LoginService().login(emailController.text, passwordController.text).then(
+                      (success) => {
+                        if(success) {
+                          print('Login successful.')
+                        } else {
+                          print('Login failed.')
                         }
-                      );
-                    } else {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text('Login Test'),
-                            content: Text('Login failed.')
-                          );
-                        }
-                      );
-                    }
-                  }, 
-                  child: Text('Login'),
+                      }
+                    ).whenComplete(() => setIsLoading(false));
+                  },
+                  icon: isLoading ?
+                    SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        strokeWidth: 2.0
+                      )
+                    ) : Icon(Icons.login), 
+                  label: Text('Login'),
                 )
               )
             ],

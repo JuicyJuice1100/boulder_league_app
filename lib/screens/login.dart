@@ -11,7 +11,7 @@ class LoginScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            LogicCardForm(),
+            LoginCardForm(),
             Text('Don\'t have an account?'),
             TextButton(onPressed: () {
               // Add navigation logic here
