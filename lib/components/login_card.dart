@@ -1,3 +1,4 @@
+import 'package:boulder_league_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class LogicCardForm extends StatefulWidget {
@@ -48,16 +49,28 @@ class LoginCardFormState extends State<LogicCardForm> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                     showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text('Login Test'),
-                          content: Text('Email: ${emailController.text} Password: ${passwordController.text}')
-                        );
-                      }
-                    );
+                  onPressed: () async {
+                    if(await LoginService().login(emailController.text, passwordController.text)) {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Login Test'),
+                            content: Text('Login successful!')
+                          );
+                        }
+                      );
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Login Test'),
+                            content: Text('Login failed.')
+                          );
+                        }
+                      );
+                    }
                   }, 
                   child: Text('Login'),
                 )
