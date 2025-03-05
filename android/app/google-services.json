@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "822562274761",
+    "project_id": "boulder-league-app",
+    "storage_bucket": "boulder-league-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:822562274761:android:a71a7fd2d78c1eb20bfc18",
+        "android_client_info": {
+          "package_name": "com.boulder_league_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCxp5maPru3iL1Ukcd0sAjIzU0Ja1qlhm8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
