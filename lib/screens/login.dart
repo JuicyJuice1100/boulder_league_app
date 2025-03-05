@@ -8,13 +8,20 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: LoginCard()
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            LoginCard(),
+            Text('Don\'t have an account?'),
+            TextButton(onPressed: () {
+              // Add navigation logic here
+            }, child: Text(
+              'Create an Account'
+              )
+            )
+          ]
+        )
       ),
-      bottomNavigationBar: 
-        BottomAppBar(
-          color: Color.fromARGB(0, 255, 255, 255),
-          child: Text('Don\'t have an account? Sign up here!')
-        ),
     );
   }
 }
