@@ -11,10 +11,19 @@ class LoginScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            LoginCard(),
+            LogicCardForm(),
             Text('Don\'t have an account?'),
             TextButton(onPressed: () {
               // Add navigation logic here
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Create an Account'),
+                    content: Text('This feature is not yet implemented.')
+                  );
+                }
+              );
             }, child: Text(
               'Create an Account'
               )

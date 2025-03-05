@@ -1,7 +1,22 @@
 import 'package:flutter/material.dart';
 
-class LoginCard extends StatelessWidget {
-  const LoginCard({super.key});
+class LogicCardForm extends StatefulWidget {
+  const LogicCardForm({super.key});
+
+  @override
+  State<LogicCardForm> createState() => LoginCardFormState();
+}
+
+class LoginCardFormState extends State<LogicCardForm> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,6 +29,7 @@ class LoginCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               TextField(
+                controller: emailController,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(), 
                   labelText: 'Email'
@@ -21,6 +37,7 @@ class LoginCard extends StatelessWidget {
               ),
               SizedBox(height: 10),
               TextField(
+                controller: passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(), 
@@ -32,7 +49,15 @@ class LoginCard extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Add login logic here
+                     showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Login Test'),
+                          content: Text('Email: ${emailController.text} Password: ${passwordController.text}')
+                        );
+                      }
+                    );
                   }, 
                   child: Text('Login'),
                 )
