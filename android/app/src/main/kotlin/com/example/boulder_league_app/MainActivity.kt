@@ -1,4 +1,4 @@
-package com.example.boulder_league_app
+package com.boulder_league_app
 
 import io.flutter.embedding.android.FlutterActivity
 
