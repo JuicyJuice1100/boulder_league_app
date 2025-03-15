@@ -74,12 +74,8 @@ class SignUpCardFormState extends State<SignUpCardForm> {
                     setIsLoading(true);
                     
                     LoginService().createAccount(emailController.text, passwordController.text).then(
-                      (success) => {
-                        if(success) {
-                          print('Login successful.')
-                        } else {
-                          print('Login failed.')
-                        }
+                      (result) => {
+                        print(result.message)
                       }
                     ).whenComplete(() => setIsLoading(false));
                   },
