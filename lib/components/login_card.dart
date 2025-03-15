@@ -1,11 +1,14 @@
+import 'package:boulder_league_app/app_global.dart';
+import 'package:boulder_league_app/helpers/toast_notification.dart';
 import 'package:boulder_league_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
 class LoginCardForm extends StatefulWidget {
-  const LoginCardForm({super.key});
+  const LoginCardForm({super.key, this.email});
 
+  final String? email;
 
   @override
   State<LoginCardForm> createState() => LoginCardFormState();
@@ -26,8 +29,13 @@ class LoginCardFormState extends State<LoginCardForm> {
     setIsLoading(true);
     AuthService().login(values['email'], values['password']).then(
       (result) => {
-        debugPrint(result.message)
-      }
+          if(result.success) {
+            ToastNotification.success(result.message, null),
+            AppGlobal.navigatorKey.currentState!.pushNamed('/')
+          } else {
+            ToastNotification.error(result.message, null)
+          }
+        }
     ).whenComplete(() => setIsLoading(false));
   }
 
@@ -44,6 +52,7 @@ class LoginCardFormState extends State<LoginCardForm> {
               children: [
                 FormBuilderTextField(
                   name: 'email',
+                  initialValue: widget.email ?? '',
                   decoration: InputDecoration(
                     border: OutlineInputBorder(), 
                     labelText: 'Email'

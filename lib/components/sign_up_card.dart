@@ -1,3 +1,6 @@
+import 'package:boulder_league_app/app_global.dart';
+import 'package:boulder_league_app/helpers/toast_notification.dart';
+import 'package:boulder_league_app/screens/login.dart';
 import 'package:boulder_league_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -6,7 +9,6 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 
 class SignUpCardForm extends StatefulWidget {
   const SignUpCardForm({super.key});
-
 
   @override
   State<SignUpCardForm> createState() => SignUpCardFormState();
@@ -28,7 +30,12 @@ class SignUpCardFormState extends State<SignUpCardForm> {
       setIsLoading(true);
       AuthService().createAccount(fields['email']!.value, fields['password']!.value, fields['confirmPassword']!.value).then(
         (result) => {
-          debugPrint(result.message)
+          if(result.success) {
+            ToastNotification.success(result.message, null),
+            AppGlobal.navigatorKey.currentState!.pushNamed(LoginScreen.routeName, arguments: LoginScreenArgs(email: fields['email']!.value))
+          } else {
+            ToastNotification.error(result.message, null)
+          }
         }
       ).whenComplete(() => setIsLoading(false));
     } else {
@@ -61,14 +68,14 @@ class SignUpCardFormState extends State<SignUpCardForm> {
                 SizedBox(height: 10),
                 FormBuilderTextField(
                   name: 'password',
-                  // obscureText: true,
+                  obscureText: true,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(), 
                     labelText: 'Password'
                   ),
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(),
-                    FormBuilderValidators.range(6, 12),
+                    FormBuilderValidators.range(6, 24),
                     FormBuilderValidators.hasLowercaseChars(),
                     FormBuilderValidators.hasUppercaseChars(),
                     FormBuilderValidators.hasNumericChars(),
@@ -78,14 +85,14 @@ class SignUpCardFormState extends State<SignUpCardForm> {
                 SizedBox(height: 10),
                 FormBuilderTextField(
                   name: 'confirmPassword',
-                  // obscureText: true,
+                  obscureText: true,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(), 
                     labelText: 'Confirm Password'
                   ),
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(),
-                    FormBuilderValidators.range(6, 12),
+                    FormBuilderValidators.range(6, 24),
                     FormBuilderValidators.hasLowercaseChars(),
                     FormBuilderValidators.hasUppercaseChars(),
                     FormBuilderValidators.hasNumericChars(),

@@ -1,6 +1,10 @@
+import 'package:boulder_league_app/app_global.dart';
+import 'package:boulder_league_app/components/login_card.dart';
 import 'package:boulder_league_app/screens/login.dart';
+import 'package:boulder_league_app/screens/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:toastification/toastification.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -19,27 +23,26 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Boulder League',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+    return ToastificationWrapper(
+      config: ToastificationConfig(
+        maxTitleLines: 2,
+        maxDescriptionLines: 6,
+        marginBuilder: (context, alignment) =>
+            const EdgeInsets.fromLTRB(0, 16, 0, 110),
       ),
-      home: LoginScreen(),
+      child: MaterialApp(
+        title: 'Boulder League',
+        navigatorKey: AppGlobal.navigatorKey,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        ),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => LoginScreen(),
+          LoginScreen.routeName: (context) => LoginScreen(),
+          SignUpScreen.routeName: (context) => SignUpScreen(),
+        }
+      )
     );
   }
 }

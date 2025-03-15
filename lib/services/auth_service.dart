@@ -16,7 +16,7 @@ class AuthService {
     } on FirebaseAuthException catch (error) {
       return BaseReturnObject(
         success: false,
-        message: error.message
+        message: error.message ?? 'Unknown Firebase Auth Error'
       );
     } catch (error) {
       return BaseReturnObject(
@@ -40,7 +40,7 @@ class AuthService {
     } on FirebaseAuthException catch (error) {
       return BaseReturnObject(
         success: false, 
-        message: error.message
+        message: error.message ?? 'Unknown Firebase Auth Error'
       );
     } catch (error) {
       return BaseReturnObject(
@@ -62,7 +62,7 @@ class AuthService {
     } on FirebaseAuthException catch (error) {
       return BaseReturnObject(
         success: false,
-        message: error.message
+        message: error.message ?? 'Unknown Firebase Auth Error'
       );
     } catch (error) {
       return BaseReturnObject(
