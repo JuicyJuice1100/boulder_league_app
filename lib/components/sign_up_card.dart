@@ -1,5 +1,4 @@
 import 'package:boulder_league_app/services/auth_service.dart';
-import 'package:boulder_league_app/services/create_account_validation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -25,7 +24,7 @@ class SignUpCardFormState extends State<SignUpCardForm> {
   }
 
   void onSave(Map<String, FormBuilderFieldState<FormBuilderField<dynamic>, dynamic>> fields) {
-    if(fields['password'] == fields['confirmPassword']) {
+    if(fields['password']!.value == fields['confirmPassword']!.value) {
       setIsLoading(true);
       AuthService().createAccount(fields['email']!.value, fields['password']!.value, fields['confirmPassword']!.value).then(
         (result) => {
@@ -35,12 +34,6 @@ class SignUpCardFormState extends State<SignUpCardForm> {
     } else {
       _signUpFormKey.currentState!.fields['confirmPassword']?.invalidate('Passwords do not match');
     }
-  }
-
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   @override
