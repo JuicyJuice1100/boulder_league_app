@@ -1,7 +1,7 @@
 import 'package:boulder_league_app/models/base_return_object.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class LoginService {
+class AuthService {
   Future<BaseReturnObject> login(String email, String password) async {
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -26,7 +26,7 @@ class LoginService {
     }
   }
 
-  Future<BaseReturnObject> createAccount(String email, String password) async {
+  Future<BaseReturnObject> createAccount(String email, String password, String confirmPassword) async {
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
