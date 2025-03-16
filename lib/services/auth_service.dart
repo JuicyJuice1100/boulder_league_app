@@ -2,9 +2,11 @@ import 'package:boulder_league_app/models/base_return_object.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+
   Future<BaseReturnObject> login(String email, String password) async {
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password
       );
@@ -28,7 +30,7 @@ class AuthService {
 
   Future<BaseReturnObject> createAccount(String email, String password, String confirmPassword) async {
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password
       );
@@ -53,7 +55,7 @@ class AuthService {
 
   Future<BaseReturnObject> logout() async {
     try {
-      await FirebaseAuth.instance.signOut();
+      await _firebaseAuth.signOut();
       
       return BaseReturnObject(
         success: true,
@@ -70,5 +72,11 @@ class AuthService {
         message: 'Uknown Generic Error'
       );
     }
+  }
+
+  Stream<User?> get onAuthStateChanged => _firebaseAuth.authStateChanges();
+
+  Future<String?> getCurrentUserId() async {
+    return _firebaseAuth.currentUser?.uid;
   }
 }
