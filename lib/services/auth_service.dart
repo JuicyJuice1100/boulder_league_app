@@ -1,37 +1,82 @@
+import 'package:boulder_league_app/models/base_return_object.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class LoginService {
-  Future<bool> login(String email, String password) async {
+class AuthService {
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+
+  Future<BaseReturnObject> login(String email, String password) async {
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password
       );
-      return true;
+      
+      return BaseReturnObject(
+        success: true,
+        message: 'Login successful'
+      );
     } on FirebaseAuthException catch (error) {
-      if(error.code == 'weak-password') {
-        print('The password provided is too weak.');
-      } else if (error.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
-      }
-      return false;
+      return BaseReturnObject(
+        success: false,
+        message: error.message ?? 'Unknown Firebase Auth Error'
+      );
     } catch (error) {
-      print(error);
-      return false;
+      return BaseReturnObject(
+        success: false,
+        message: 'Unknown Generic Error'
+      );
     }
   }
 
-  Future<bool> createAccount(String email, String password) async {
-    throw UnimplementedError();
-  }
-
-  Future<bool> logout() async {
+  Future<BaseReturnObject> createAccount(String email, String password, String confirmPassword) async {
     try {
-      await FirebaseAuth.instance.signOut();
-      return true;
+      await _firebaseAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password
+      );
+      
+      return BaseReturnObject(
+        success: true,
+        message: 'Account created successfully'
+      );
+    } on FirebaseAuthException catch (error) {
+      return BaseReturnObject(
+        success: false, 
+        message: error.message ?? 'Unknown Firebase Auth Error'
+      );
     } catch (error) {
-      print(error);
-      return false;
+      return BaseReturnObject(
+        success: false, 
+        message: 'Uknown Generic Error'
+      );
     }
+
+  }
+
+  Future<BaseReturnObject> logout() async {
+    try {
+      await _firebaseAuth.signOut();
+      
+      return BaseReturnObject(
+        success: true,
+        message: 'Logout successful'
+      );
+    } on FirebaseAuthException catch (error) {
+      return BaseReturnObject(
+        success: false,
+        message: error.message ?? 'Unknown Firebase Auth Error'
+      );
+    } catch (error) {
+      return BaseReturnObject(
+        success: false,
+        message: 'Uknown Generic Error'
+      );
+    }
+  }
+
+  Stream<User?> get onAuthStateChanged => _firebaseAuth.authStateChanges();
+
+  Future<String?> getCurrentUserId() async {
+    return _firebaseAuth.currentUser?.uid;
   }
 }
