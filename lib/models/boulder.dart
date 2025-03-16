@@ -1,14 +1,14 @@
 class Boulder {
   final String id;
   final String name;
-  final String grade;
+  final String? grade;
   final DateTime setAt;
   final DateTime removedAt;
 
   Boulder({
     required this.id,
     required this.name,
-    required this.grade,
+    this.grade,
     required this.setAt,
     required this.removedAt
   });

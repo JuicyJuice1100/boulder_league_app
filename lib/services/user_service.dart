@@ -17,7 +17,7 @@ class UserService {
   Future<BaseReturnObject> createUser(User user) async {
     try {
       await userRef.add(user);
-      
+
       return BaseReturnObject(
         success: true,
         message: 'User created successfully'
@@ -33,14 +33,9 @@ class UserService {
         message: 'Unknown Generic Error'
       );
     }
-
   }
 
-  Future<BaseReturnObject> deleteUserById(String id) async {
-    throw('Not implemented');
-  }
-
-  Future<BaseReturnObject> updateUser(User user) async {
+  Future<BaseReturnObject> deleteUserDataByEmail(String email) async {
     throw('Not implemented');
   }
 }
