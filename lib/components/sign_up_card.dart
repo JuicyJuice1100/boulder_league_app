@@ -55,6 +55,30 @@ class SignUpCardFormState extends State<SignUpCardForm> {
             child: Column(
               children: [
                 FormBuilderTextField(
+                  name: 'firstName',
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(), 
+                    labelText: 'First Name'
+                  ),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                    FormBuilderValidators.firstName()
+                  ])
+                ),
+                SizedBox(height: 10),
+                FormBuilderTextField(
+                  name: 'lastName',
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(), 
+                    labelText: 'Last Name'
+                  ),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                    FormBuilderValidators.lastName()
+                  ])
+                ),
+                SizedBox(height: 10),
+                FormBuilderTextField(
                   name: 'email',
                   decoration: InputDecoration(
                     border: OutlineInputBorder(), 

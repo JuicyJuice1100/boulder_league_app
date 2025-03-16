@@ -39,6 +39,7 @@ dependencies:
   flutter_form_builder: ^10.0.1
   form_builder_validators: ^11.1.2
   toastification: ^3.0.2
+  cloud_firestore: ^5.6.5
 
 dev_dependencies:
   flutter_test:
