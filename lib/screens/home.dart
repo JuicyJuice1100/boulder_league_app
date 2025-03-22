@@ -15,14 +15,14 @@ class HomeScreen extends StatelessWidget {
           children: <Widget>[
             Text('Home Screen'),
             SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: ()  {
-                      AuthService().logout();
-                    }, 
-                    label: Text('Logout')
-                  )
-                )
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: ()  {
+                  AuthService().logout();
+                }, 
+                label: Text('Logout')
+              )
+            ),
           ]
         )
       ),
