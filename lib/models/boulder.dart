@@ -1,29 +1,28 @@
 class Boulder {
   final String id;
   final String name;
-  final String? grade;
   final DateTime setAt;
   final DateTime removedAt;
 
   Boulder({
     required this.id,
     required this.name,
-    this.grade,
     required this.setAt,
     required this.removedAt
   });
-}
 
-class CompletedBoulder {
-  final String boulderId;
-  final DateTime completedAt;
-  final int attempts;
-  final num score;
-
-  CompletedBoulder({
-    required this.boulderId,
-    required this.completedAt,
-    required this.attempts,
-    required this.score
-  });
+  Boulder.fromJson(Map<String, dynamic> json)
+    : id = json['id'] as String,
+      name = json['name'] as String,
+      setAt = json['setAt'] as DateTime,
+      removedAt = json['removedAt'] as DateTime;
+  
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'setAt': setAt,
+      'removedAt': removedAt
+    };
+  }
 }
