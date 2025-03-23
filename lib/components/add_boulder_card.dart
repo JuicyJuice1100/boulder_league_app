@@ -34,46 +34,49 @@ class AddBoulderCardFormState extends State<AddBoulderCardForm> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Center(
-              child: Card(
-                margin: EdgeInsets.all(20.0),
-                child: Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: FormBuilder(
-                    key: _addBoulderFormKey,
-                    child: Column(
-                      children: [
-                        FormBuilderTextField(
-                          name: 'name',
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(), 
-                            labelText: 'Name'
+              child: SingleChildScrollView(
+                physics: ClampingScrollPhysics(),
+                child: Card(
+                  margin: EdgeInsets.all(20.0),
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: FormBuilder(
+                      key: _addBoulderFormKey,
+                      child: Column(
+                        spacing: 10,
+                        children: [
+                          FormBuilderTextField(
+                            name: 'name',
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(), 
+                              labelText: 'Name'
+                            ),
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required()
+                            ])
                           ),
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required()
-                          ])
-                        ),
-                        SizedBox(height: 10),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
-                            onPressed: isLoading ? null : ()  {
-                              if (_addBoulderFormKey.currentState!.validate()) {
-                                onSave(_addBoulderFormKey.currentState!.fields);
-                              }
-                            },
-                            icon: isLoading ?
-                              SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                  strokeWidth: 2.0
-                                )
-                              ) : Icon(Icons.add), 
-                            label: Text('Add'),
+                          SizedBox(
+                            width: double.infinity,
+                            child: FilledButton.icon(
+                              onPressed: isLoading ? null : ()  {
+                                if (_addBoulderFormKey.currentState!.validate()) {
+                                  onSave(_addBoulderFormKey.currentState!.fields);
+                                }
+                              },
+                              icon: isLoading ?
+                                SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    strokeWidth: 2.0
+                                  )
+                                ) : Icon(Icons.add), 
+                              label: Text('Add'),
+                            )
                           )
-                        )
-                      ]
+                        ]
+                      )
                     )
                   )
                 )

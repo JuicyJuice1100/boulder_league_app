@@ -1,18 +1,20 @@
+import 'package:boulder_league_app/auth_provider.dart';
 import 'package:boulder_league_app/helpers/toast_notification.dart';
+import 'package:boulder_league_app/services/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
-
-class RecordScoreCardForm extends StatefulWidget {
-  const RecordScoreCardForm({super.key});
+class UpdateEmailCardForm extends StatefulWidget {
+  const UpdateEmailCardForm({super.key});
 
   @override
-  State<RecordScoreCardForm> createState() => RecordScoreCardFormState();
+  State<UpdateEmailCardForm> createState() => UpdateEmailCardFormState();
 }
 
-class RecordScoreCardFormState extends State<RecordScoreCardForm> {
-  final _recordScoreFormKey = GlobalKey<FormBuilderState>();
+class UpdateEmailCardFormState extends State<UpdateEmailCardForm> {
+  final _emailFormKey = GlobalKey<FormBuilderState>();
 
   bool isLoading = false;
 
@@ -22,61 +24,49 @@ class RecordScoreCardFormState extends State<RecordScoreCardForm> {
     });
   }
 
-  void onSave(Map<String, FormBuilderFieldState<FormBuilderField<dynamic>, dynamic>> fields) {
-    ToastNotification.success('Save Button Clicked', 'Saved');
+  void onSave(Map<String, dynamic> values) {
+    ToastNotification.success('Save Password Clicked', 'Clicked');
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Center(
-              child: SingleChildScrollView(
-                physics: ClampingScrollPhysics(),
+    final AuthService auth = Provider.of(context)!.auth;
+
+    return StreamBuilder(
+      stream: auth.onAuthStateChanged,
+      builder: (context, AsyncSnapshot<User?> snapshot) {
+        _emailFormKey.currentState?.fields['email']?.didChange(snapshot.data?.email);
+
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Center(
                 child: Card(
                   margin: EdgeInsets.all(20.0),
                   child: Padding(
                     padding: EdgeInsets.all(16.0),
                     child: FormBuilder(
-                      key: _recordScoreFormKey,
+                      key: _emailFormKey,
                       child: Column(
                         spacing: 10,
                         children: [
-                          FormBuilderDropdown(
-                            name: 'boulder',
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(), 
-                              labelText: 'Boulder'
-                            ),
-                            validator: FormBuilderValidators.compose([
-                              FormBuilderValidators.required()
-                            ]), 
-                            items: [
-                              // TODO: update this to grab from boulders
-                              DropdownMenuItem(
-                                child: Text('test')
-                              )
-                            ],
-                          ),
                           FormBuilderTextField(
-                            name: 'attempts',
+                            name: 'email',
                             decoration: InputDecoration(
                               border: OutlineInputBorder(), 
-                              labelText: 'Attempts'
+                              labelText: 'Email *'
                             ),
                             validator: FormBuilderValidators.compose([
                               FormBuilderValidators.required()
-                            ]), 
+                            ])
                           ),
                           SizedBox(
                             width: double.infinity,
                             child: FilledButton.icon(
                               onPressed: isLoading ? null : ()  {
-                                if (_recordScoreFormKey.currentState!.validate()) {
-                                  onSave(_recordScoreFormKey.currentState!.fields);
+                                if (_emailFormKey.currentState!.validate()) {
+                                  onSave(_emailFormKey.currentState!.fields);
                                 }
                               },
                               icon: isLoading ?
@@ -87,8 +77,8 @@ class RecordScoreCardFormState extends State<RecordScoreCardForm> {
                                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                     strokeWidth: 2.0
                                   )
-                                ) : Icon(Icons.playlist_add), 
-                              label: Text('Record'),
+                                ) : Icon(Icons.save), 
+                              label: Text('Update Email'),
                             )
                           )
                         ]
@@ -97,10 +87,10 @@ class RecordScoreCardFormState extends State<RecordScoreCardForm> {
                   )
                 )
               )
-            )
-          ]
-        )
-      ),
+            ]
+          )
+        );
+      },
     );
   }
 }

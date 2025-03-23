@@ -53,6 +53,7 @@ class SignUpCardFormState extends State<SignUpCardForm> {
           child: FormBuilder(
             key: _signUpFormKey,
             child: Column(
+              spacing: 10,
               children: [
                 FormBuilderTextField(
                   name: 'username',
@@ -61,7 +62,6 @@ class SignUpCardFormState extends State<SignUpCardForm> {
                     labelText: 'Username'
                   ),
                 ),
-                SizedBox(height: 10),
                 FormBuilderTextField(
                   name: 'email',
                   decoration: InputDecoration(
@@ -73,7 +73,6 @@ class SignUpCardFormState extends State<SignUpCardForm> {
                     FormBuilderValidators.email()
                   ])
                 ),
-                SizedBox(height: 10),
                 FormBuilderTextField(
                   name: 'password',
                   obscureText: true,
@@ -90,7 +89,6 @@ class SignUpCardFormState extends State<SignUpCardForm> {
                     FormBuilderValidators.hasSpecialChars(),
                   ])
                 ),
-                SizedBox(height: 10),
                 FormBuilderTextField(
                   name: 'confirmPassword',
                   obscureText: true,
@@ -107,10 +105,9 @@ class SignUpCardFormState extends State<SignUpCardForm> {
                     FormBuilderValidators.hasSpecialChars(),
                   ])
                 ),
-                SizedBox(height: 10),
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton.icon(
+                  child: FilledButton.icon(
                     onPressed: isLoading ? null : ()  {
                       if (_signUpFormKey.currentState!.validate()) {
                         onSave(_signUpFormKey.currentState!.fields);

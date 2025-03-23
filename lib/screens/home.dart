@@ -2,6 +2,7 @@ import 'package:boulder_league_app/app_global.dart';
 import 'package:boulder_league_app/components/add_boulder_card.dart';
 import 'package:boulder_league_app/components/leaderboard_card.dart';
 import 'package:boulder_league_app/components/record_score_card.dart';
+import 'package:boulder_league_app/screens/account.dart';
 import 'package:boulder_league_app/screens/user.dart';
 import 'package:boulder_league_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
@@ -30,8 +31,6 @@ class HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  var currentUser = AuthService().getCurrentUser();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,8 +51,23 @@ class HomeScreenState extends State<HomeScreen> {
         child: ListView(
           children: [
             const DrawerHeader(
-              decoration: BoxDecoration(color: Colors.green),
+              decoration: BoxDecoration(
+                color: Colors.green,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey,
+                    blurRadius: 5
+                  )
+                ]
+              ),
               child: UserScreen(),
+            ),
+            ListTile(
+              leading: const Icon(Icons.account_box),
+              title: const Text('Account Info'),
+              onTap: () {
+                AppGlobal.navigatorKey.currentState!.pushNamed(AccountScreen.routeName);
+              },
             ),
             ListTile(
               leading: const Icon(Icons.logout),
@@ -87,7 +101,6 @@ class HomeScreenState extends State<HomeScreen> {
         currentIndex: selectedIndex,
         onTap: onItemTapped,
       ),
-      resizeToAvoidBottomInset: false,
     );
   }
 }

@@ -1,21 +1,17 @@
-import 'package:boulder_league_app/app_global.dart';
 import 'package:boulder_league_app/helpers/toast_notification.dart';
-import 'package:boulder_league_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
-class LoginCardForm extends StatefulWidget {
-  const LoginCardForm({super.key, this.email});
-
-  final String? email;
+class UpdatePasswordCardForm extends StatefulWidget {
+  const UpdatePasswordCardForm({super.key});
 
   @override
-  State<LoginCardForm> createState() => LoginCardFormState();
+  State<UpdatePasswordCardForm> createState() => UpdatePasswordCardFormState();
 }
 
-class LoginCardFormState extends State<LoginCardForm> {
-  final _loginFormKey = GlobalKey<FormBuilderState>();
+class UpdatePasswordCardFormState extends State<UpdatePasswordCardForm> {
+  final _passwordFormKey = GlobalKey<FormBuilderState>();
 
   bool isLoading = false;
 
@@ -26,50 +22,38 @@ class LoginCardFormState extends State<LoginCardForm> {
   }
 
   void onSave(Map<String, dynamic> values) {
-    setIsLoading(true);
-    AuthService().login(values['email'], values['password']).then(
-      (result) => {
-        if(result.success) {
-          ToastNotification.success(result.message, null),
-          AppGlobal.navigatorKey.currentState!.pushNamed('/')
-        } else {
-          ToastNotification.error(result.message, null)
-        }
-      }
-    ).whenComplete(() => setIsLoading(false));
+    ToastNotification.success('Save Password Clicked', 'Clicked');
   }
 
   @override
   Widget build(BuildContext context) {
-    _loginFormKey.currentState?.fields['email']?.didChange(widget.email);
-
     return Center(
       child: Card(
         margin: EdgeInsets.all(20.0),
         child: Padding(
           padding: EdgeInsets.all(16.0),
           child: FormBuilder(
-            key: _loginFormKey,
+            key: _passwordFormKey,
             child: Column(
               spacing: 10,
               children: [
                 FormBuilderTextField(
-                  name: 'email',
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(), 
-                    labelText: 'Email *'
-                  ),
-                  validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(),
-                    FormBuilderValidators.email()
-                  ])
-                ),
-                FormBuilderTextField(
-                  name: 'password',
+                  name: 'currentPassword',
                   obscureText: true,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(), 
-                    labelText: 'Password *'
+                    labelText: 'Current Password *'
+                  ),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                  ])
+                ),
+                FormBuilderTextField(
+                  name: 'newPassword',
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(), 
+                    labelText: 'New Password *'
                   ),
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(),
@@ -79,8 +63,8 @@ class LoginCardFormState extends State<LoginCardForm> {
                   width: double.infinity,
                   child: FilledButton.icon(
                     onPressed: isLoading ? null : ()  {
-                      if (_loginFormKey.currentState!.saveAndValidate()) {
-                        onSave(_loginFormKey.currentState!.value);
+                      if (_passwordFormKey.currentState!.saveAndValidate()) {
+                        onSave(_passwordFormKey.currentState!.value);
                       }
                     },
                     icon: isLoading ?
@@ -91,8 +75,8 @@ class LoginCardFormState extends State<LoginCardForm> {
                           valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                           strokeWidth: 2.0
                         )
-                      ) : Icon(Icons.login), 
-                    label: Text('Login'),
+                      ) : Icon(Icons.save), 
+                    label: Text('Update Password'),
                   )
                 )
               ]
