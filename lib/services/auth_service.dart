@@ -28,11 +28,13 @@ class AuthService {
     }
   }
 
-  Future<BaseReturnObject> createAccount(String username, String email, String password) async {
+  Future<BaseReturnObject> createAccount(String? username, String email, String password) async {
     try {
       await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password
+      ).then((result) => 
+        result.user?.updateDisplayName(username)
       );
       
       return BaseReturnObject(

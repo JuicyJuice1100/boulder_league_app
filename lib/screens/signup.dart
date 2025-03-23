@@ -12,7 +12,8 @@ class SignUpScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sign up')
+        title: Text('Sign up'),
+        automaticallyImplyLeading: false
       ),
       body: Center(
         child: Column(
@@ -30,6 +31,7 @@ class SignUpScreen extends StatelessWidget {
           ]
         )
       ),
+      resizeToAvoidBottomInset: false,
     );
   }
 }

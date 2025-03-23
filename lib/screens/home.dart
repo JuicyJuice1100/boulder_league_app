@@ -87,6 +87,7 @@ class HomeScreenState extends State<HomeScreen> {
         currentIndex: selectedIndex,
         onTap: onItemTapped,
       ),
+      resizeToAvoidBottomInset: false,
     );
   }
 }

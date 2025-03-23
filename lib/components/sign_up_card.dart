@@ -28,7 +28,7 @@ class SignUpCardFormState extends State<SignUpCardForm> {
   void onSave(Map<String, FormBuilderFieldState<FormBuilderField<dynamic>, dynamic>> fields) {
     if(fields['password']!.value == fields['confirmPassword']!.value) {
       setIsLoading(true);
-      AuthService().createAccount(fields['username']!.value, fields['email']!.value, fields['password']!.value).then(
+      AuthService().createAccount(fields['username']?.value, fields['email']!.value, fields['password']!.value).then(
         (result) => {
           if(result.success) {
             ToastNotification.success(result.message, null),
@@ -61,11 +61,12 @@ class SignUpCardFormState extends State<SignUpCardForm> {
                     labelText: 'Username'
                   ),
                 ),
+                SizedBox(height: 10),
                 FormBuilderTextField(
                   name: 'email',
                   decoration: InputDecoration(
                     border: OutlineInputBorder(), 
-                    labelText: 'Email'
+                    labelText: 'Email *',
                   ),
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(),
@@ -78,7 +79,7 @@ class SignUpCardFormState extends State<SignUpCardForm> {
                   obscureText: true,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(), 
-                    labelText: 'Password'
+                    labelText: 'Password *'
                   ),
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(),
@@ -95,7 +96,7 @@ class SignUpCardFormState extends State<SignUpCardForm> {
                   obscureText: true,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(), 
-                    labelText: 'Confirm Password'
+                    labelText: 'Confirm Password *'
                   ),
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(),
@@ -124,7 +125,7 @@ class SignUpCardFormState extends State<SignUpCardForm> {
                           strokeWidth: 2.0
                         )
                       ) : Icon(Icons.login), 
-                    label: Text('Login'),
+                    label: Text('Create Account'),
                   )
                 )
               ]

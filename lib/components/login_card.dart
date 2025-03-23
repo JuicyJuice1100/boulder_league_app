@@ -55,7 +55,7 @@ class LoginCardFormState extends State<LoginCardForm> {
                   initialValue: widget.email ?? '',
                   decoration: InputDecoration(
                     border: OutlineInputBorder(), 
-                    labelText: 'Email'
+                    labelText: 'Email *'
                   ),
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(),
@@ -68,7 +68,7 @@ class LoginCardFormState extends State<LoginCardForm> {
                   obscureText: true,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(), 
-                    labelText: 'Password'
+                    labelText: 'Password *'
                   ),
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(),

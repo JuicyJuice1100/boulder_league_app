@@ -21,7 +21,8 @@ class LoginScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login')
+        title: Text('Login'),
+        automaticallyImplyLeading: false
       ),
       body: Center(
         child: Column(
@@ -39,6 +40,7 @@ class LoginScreen extends StatelessWidget {
           ]
         )
       ),
+      resizeToAvoidBottomInset: false,
     );
   }
 }
