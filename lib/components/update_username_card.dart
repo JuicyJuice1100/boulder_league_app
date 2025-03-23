@@ -35,6 +35,8 @@ class UpdateUsernameCardFormState extends State<UpdateUsernameCardForm> {
     return StreamBuilder(
       stream: auth.onAuthStateChanged,
       builder: (context, AsyncSnapshot<User?> snapshot) {
+        _usernameFormKey.currentState?.fields['username']?.didChange(snapshot.data?.displayName);
+
         return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -50,10 +52,9 @@ class UpdateUsernameCardFormState extends State<UpdateUsernameCardForm> {
                         children: [
                           FormBuilderTextField(
                             name: 'username',
-                            initialValue: snapshot.data?.displayName,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(), 
-                              labelText: 'Username'
+                              labelText: 'Username *'
                             ),
                             validator: FormBuilderValidators.compose([
                               FormBuilderValidators.required()

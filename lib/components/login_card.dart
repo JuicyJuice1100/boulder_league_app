@@ -41,6 +41,8 @@ class LoginCardFormState extends State<LoginCardForm> {
 
   @override
   Widget build(BuildContext context) {
+    _loginFormKey.currentState?.fields['email']?.didChange(widget.email);
+
     return Center(
       child: Card(
         margin: EdgeInsets.all(20.0),
@@ -52,7 +54,6 @@ class LoginCardFormState extends State<LoginCardForm> {
               children: [
                 FormBuilderTextField(
                   name: 'email',
-                  initialValue: widget.email ?? '',
                   decoration: InputDecoration(
                     border: OutlineInputBorder(), 
                     labelText: 'Email *'

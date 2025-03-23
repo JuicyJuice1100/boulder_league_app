@@ -38,6 +38,7 @@ class UpdatePasswordCardFormState extends State<UpdatePasswordCardForm> {
               children: [
                 FormBuilderTextField(
                   name: 'currentPassword',
+                  obscureText: true,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(), 
                     labelText: 'Current Password *'

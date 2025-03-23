@@ -35,6 +35,8 @@ class UpdateEmailCardFormState extends State<UpdateEmailCardForm> {
     return StreamBuilder(
       stream: auth.onAuthStateChanged,
       builder: (context, AsyncSnapshot<User?> snapshot) {
+        _emailFormKey.currentState?.fields['email']?.didChange(snapshot.data?.email);
+
         return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -50,7 +52,6 @@ class UpdateEmailCardFormState extends State<UpdateEmailCardForm> {
                         children: [
                           FormBuilderTextField(
                             name: 'email',
-                            initialValue: snapshot.data?.email,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(), 
                               labelText: 'Email *'
