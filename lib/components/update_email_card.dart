@@ -63,7 +63,7 @@ class UpdateEmailCardFormState extends State<UpdateEmailCardForm> {
                           ),
                           SizedBox(
                             width: double.infinity,
-                            child: ElevatedButton.icon(
+                            child: FilledButton.icon(
                               onPressed: isLoading ? null : ()  {
                                 if (_emailFormKey.currentState!.validate()) {
                                   onSave(_emailFormKey.currentState!.fields);
@@ -78,7 +78,7 @@ class UpdateEmailCardFormState extends State<UpdateEmailCardForm> {
                                     strokeWidth: 2.0
                                   )
                                 ) : Icon(Icons.save), 
-                              label: Text('Update Username'),
+                              label: Text('Update Email'),
                             )
                           )
                         ]

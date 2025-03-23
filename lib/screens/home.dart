@@ -51,7 +51,15 @@ class HomeScreenState extends State<HomeScreen> {
         child: ListView(
           children: [
             const DrawerHeader(
-              decoration: BoxDecoration(color: Colors.green),
+              decoration: BoxDecoration(
+                color: Colors.green,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey,
+                    blurRadius: 5
+                  )
+                ]
+              ),
               child: UserScreen(),
             ),
             ListTile(

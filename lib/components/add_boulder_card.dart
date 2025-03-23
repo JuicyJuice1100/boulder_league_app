@@ -57,7 +57,7 @@ class AddBoulderCardFormState extends State<AddBoulderCardForm> {
                           ),
                           SizedBox(
                             width: double.infinity,
-                            child: ElevatedButton.icon(
+                            child: FilledButton.icon(
                               onPressed: isLoading ? null : ()  {
                                 if (_addBoulderFormKey.currentState!.validate()) {
                                   onSave(_addBoulderFormKey.currentState!.fields);

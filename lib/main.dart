@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
           navigatorKey: AppGlobal.navigatorKey,
           theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
           ),
           initialRoute: '/',
           routes: {

@@ -61,7 +61,7 @@ class UpdatePasswordCardFormState extends State<UpdatePasswordCardForm> {
                 ),
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton.icon(
+                  child: FilledButton.icon(
                     onPressed: isLoading ? null : ()  {
                       if (_passwordFormKey.currentState!.saveAndValidate()) {
                         onSave(_passwordFormKey.currentState!.value);

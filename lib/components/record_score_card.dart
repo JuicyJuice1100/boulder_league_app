@@ -73,7 +73,7 @@ class RecordScoreCardFormState extends State<RecordScoreCardForm> {
                           ),
                           SizedBox(
                             width: double.infinity,
-                            child: ElevatedButton.icon(
+                            child: FilledButton.icon(
                               onPressed: isLoading ? null : ()  {
                                 if (_recordScoreFormKey.currentState!.validate()) {
                                   onSave(_recordScoreFormKey.currentState!.fields);

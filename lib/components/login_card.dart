@@ -77,7 +77,7 @@ class LoginCardFormState extends State<LoginCardForm> {
                 ),
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton.icon(
+                  child: FilledButton.icon(
                     onPressed: isLoading ? null : ()  {
                       if (_loginFormKey.currentState!.saveAndValidate()) {
                         onSave(_loginFormKey.currentState!.value);

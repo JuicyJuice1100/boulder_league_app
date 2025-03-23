@@ -63,7 +63,7 @@ class UpdateUsernameCardFormState extends State<UpdateUsernameCardForm> {
                           ),
                           SizedBox(
                             width: double.infinity,
-                            child: ElevatedButton.icon(
+                            child: FilledButton.icon(
                               onPressed: isLoading ? null : ()  {
                                 if (_usernameFormKey.currentState!.validate()) {
                                   onSave(_usernameFormKey.currentState!.fields);

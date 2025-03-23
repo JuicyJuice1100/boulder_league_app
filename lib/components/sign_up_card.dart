@@ -107,7 +107,7 @@ class SignUpCardFormState extends State<SignUpCardForm> {
                 ),
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton.icon(
+                  child: FilledButton.icon(
                     onPressed: isLoading ? null : ()  {
                       if (_signUpFormKey.currentState!.validate()) {
                         onSave(_signUpFormKey.currentState!.fields);
