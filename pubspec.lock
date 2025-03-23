@@ -41,6 +41,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.2"
+  cloud_firestore:
+    dependency: "direct main"
+    description:
+      name: cloud_firestore
+      sha256: "6b5d0ca6b62830ca5bcf98c5e0c882df32dea3cb523b635db3626333e1c29090"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.6.5"
+  cloud_firestore_platform_interface:
+    dependency: transitive
+    description:
+      name: cloud_firestore_platform_interface
+      sha256: "149c7d2d634178aff8e25eba6cbbbc76bd92f37e0e63727a31952c72bbcb77fb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.6.5"
+  cloud_firestore_web:
+    dependency: transitive
+    description:
+      name: cloud_firestore_web
+      sha256: "05a3c02a7edb3fadeb3f14f491c3a0bbad3ea2c9f22842acbf1d73bceeb93e77"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.4.5"
   collection:
     dependency: transitive
     description:
@@ -65,6 +89,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.8"
+  dartx:
+    dependency: "direct main"
+    description:
+      name: dartx
+      sha256: "8b25435617027257d43e6508b5fe061012880ddfdaa75a71d607c3de2a13d244"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
   equatable:
     dependency: transitive
     description:
@@ -354,6 +386,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.4"
+  time:
+    dependency: transitive
+    description:
+      name: time
+      sha256: "370572cf5d1e58adcb3e354c47515da3f7469dac3a95b447117e728e7be6f461"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.5"
   toastification:
     dependency: "direct main"
     description:

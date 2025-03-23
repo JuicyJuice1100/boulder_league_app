@@ -1,10 +1,10 @@
 import 'package:boulder_league_app/app_global.dart';
 import 'package:boulder_league_app/auth_provider.dart';
-import 'package:boulder_league_app/components/login_card.dart';
 import 'package:boulder_league_app/screens/home.dart';
 import 'package:boulder_league_app/screens/login.dart';
 import 'package:boulder_league_app/screens/signup.dart';
 import 'package:boulder_league_app/services/auth_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -16,6 +16,10 @@ void main() async {
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true
   );
 
   runApp(const MyApp());
@@ -37,7 +41,6 @@ class MyApp extends StatelessWidget {
               const EdgeInsets.fromLTRB(0, 16, 0, 110),
         ),
         child: MaterialApp(
-          title: 'Boulder League',
           navigatorKey: AppGlobal.navigatorKey,
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
@@ -47,7 +50,7 @@ class MyApp extends StatelessWidget {
             '/': (context) => HomeController(),
             LoginScreen.routeName: (context) => LoginScreen(),
             SignUpScreen.routeName: (context) => SignUpScreen(),
-          }
+          },
         )
       )
     );
