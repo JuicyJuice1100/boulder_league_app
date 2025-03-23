@@ -28,7 +28,7 @@ class SignUpCardFormState extends State<SignUpCardForm> {
   void onSave(Map<String, FormBuilderFieldState<FormBuilderField<dynamic>, dynamic>> fields) {
     if(fields['password']!.value == fields['confirmPassword']!.value) {
       setIsLoading(true);
-      AuthService().createAccount(fields['email']!.value, fields['password']!.value, fields['confirmPassword']!.value).then(
+      AuthService().createAccount(fields['username']!.value, fields['email']!.value, fields['password']!.value).then(
         (result) => {
           if(result.success) {
             ToastNotification.success(result.message, null),
@@ -54,6 +54,13 @@ class SignUpCardFormState extends State<SignUpCardForm> {
             key: _signUpFormKey,
             child: Column(
               children: [
+                FormBuilderTextField(
+                  name: 'username',
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(), 
+                    labelText: 'Username'
+                  ),
+                ),
                 FormBuilderTextField(
                   name: 'email',
                   decoration: InputDecoration(

@@ -20,10 +20,14 @@ class LoginScreen extends StatelessWidget {
     final args = ModalRoute.of(context)!.settings.arguments as LoginScreenArgs?;
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Login')
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Text(AppGlobal.title),
             LoginCardForm(email: args?.email),
             Text('Don\'t have an account?'),
             TextButton(onPressed: () {

@@ -41,7 +41,6 @@ class MyApp extends StatelessWidget {
               const EdgeInsets.fromLTRB(0, 16, 0, 110),
         ),
         child: MaterialApp(
-          title: 'Boulder League',
           navigatorKey: AppGlobal.navigatorKey,
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
@@ -51,7 +50,7 @@ class MyApp extends StatelessWidget {
             '/': (context) => HomeController(),
             LoginScreen.routeName: (context) => LoginScreen(),
             SignUpScreen.routeName: (context) => SignUpScreen(),
-          }
+          },
         )
       )
     );

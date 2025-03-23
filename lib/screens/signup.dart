@@ -11,10 +11,14 @@ class SignUpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Sign up')
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Text(AppGlobal.title),
             SignUpCardForm(),
             Text('Already have an account?'),
             TextButton(onPressed: () {

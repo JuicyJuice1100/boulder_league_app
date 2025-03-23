@@ -2,7 +2,7 @@ class Boulder {
   final String id;
   final String name;
   final DateTime setAt;
-  final DateTime removedAt;
+  final DateTime? removedAt;
   final String createdByUid;
 
   Boulder({
