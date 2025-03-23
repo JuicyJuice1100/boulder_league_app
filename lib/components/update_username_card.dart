@@ -25,7 +25,7 @@ class UpdateUsernameCardFormState extends State<UpdateUsernameCardForm> {
   }
 
   void onSave(Map<String, FormBuilderFieldState<FormBuilderField<dynamic>, dynamic>> fields) {
-    ToastNotification.success('Save Button Clicked', 'Saved');
+    ToastNotification.success('Update Username Clicked', 'Clicked');
   }
 
   @override

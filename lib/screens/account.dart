@@ -1,3 +1,4 @@
+import 'package:boulder_league_app/components/update_password_card.dart';
 import 'package:boulder_league_app/components/update_username_card.dart';
 import 'package:flutter/material.dart';
 
@@ -18,10 +19,12 @@ class AccountScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             // Text('test')
-            UpdateUsernameCardForm()
+            UpdateUsernameCardForm(),
+            UpdatePasswordCardForm()
           ]
         )
       ),
+      resizeToAvoidBottomInset: false,
     );
   }
 }
