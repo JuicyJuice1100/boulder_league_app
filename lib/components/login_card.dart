@@ -51,6 +51,7 @@ class LoginCardFormState extends State<LoginCardForm> {
           child: FormBuilder(
             key: _loginFormKey,
             child: Column(
+              spacing: 10,
               children: [
                 FormBuilderTextField(
                   name: 'email',
@@ -63,7 +64,6 @@ class LoginCardFormState extends State<LoginCardForm> {
                     FormBuilderValidators.email()
                   ])
                 ),
-                SizedBox(height: 10),
                 FormBuilderTextField(
                   name: 'password',
                   obscureText: true,
@@ -75,7 +75,6 @@ class LoginCardFormState extends State<LoginCardForm> {
                     FormBuilderValidators.required(),
                   ])
                 ),
-                SizedBox(height: 10),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(

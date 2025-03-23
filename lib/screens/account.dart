@@ -16,16 +16,19 @@ class AccountScreen extends StatelessWidget {
         title: Text('Account Info'),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            UpdateUsernameCardForm(),
-            UpdateEmailCardForm(),
-            UpdatePasswordCardForm()
-          ]
-        )
-      ),
-      resizeToAvoidBottomInset: false,
+        child: SingleChildScrollView(
+          physics: ClampingScrollPhysics(),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              UpdateUsernameCardForm(),
+              UpdateEmailCardForm(),
+              UpdatePasswordCardForm()
+            ]
+          )
+        ),
+      )
+      
     );
   }
 }

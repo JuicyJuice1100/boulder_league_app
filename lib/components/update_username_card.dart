@@ -49,6 +49,7 @@ class UpdateUsernameCardFormState extends State<UpdateUsernameCardForm> {
                     child: FormBuilder(
                       key: _usernameFormKey,
                       child: Column(
+                        spacing: 10,
                         children: [
                           FormBuilderTextField(
                             name: 'username',
@@ -60,7 +61,6 @@ class UpdateUsernameCardFormState extends State<UpdateUsernameCardForm> {
                               FormBuilderValidators.required()
                             ])
                           ),
-                          SizedBox(height: 10),
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton.icon(

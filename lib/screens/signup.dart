@@ -10,28 +10,35 @@ class SignUpScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sign up'),
-        automaticallyImplyLeading: false
+        automaticallyImplyLeading: false,
+        title: Text(
+          AppGlobal.title,
+          style: textTheme.headlineSmall
+        ),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(AppGlobal.title),
-            SignUpCardForm(),
-            Text('Already have an account?'),
-            TextButton(onPressed: () {
-              AppGlobal.navigatorKey.currentState!.pushNamed(LoginScreen.routeName);
-            }, child: Text(
-              'Sign In'
+        child: SingleChildScrollView(
+          physics: ClampingScrollPhysics(),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              SignUpCardForm(),
+              Text('Already have an account?'),
+              TextButton(onPressed: () {
+                AppGlobal.navigatorKey.currentState!.pushNamed(LoginScreen.routeName);
+              }, child: Text(
+                'Sign In'
+                )
               )
-            )
-          ]
-        )
-      ),
-      resizeToAvoidBottomInset: false,
+            ]
+          )
+        ),
+      )
     );
   }
 }

@@ -16,29 +16,37 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
 
     final args = ModalRoute.of(context)!.settings.arguments as LoginScreenArgs?;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login'),
-        automaticallyImplyLeading: false
+        automaticallyImplyLeading: false,
+        title: Text(
+          AppGlobal.title,
+          style: textTheme.headlineSmall
+        ),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            LoginCardForm(email: args?.email),
-            Text('Don\'t have an account?'),
-            TextButton(onPressed: () {
-              AppGlobal.navigatorKey.currentState!.pushNamed(SignUpScreen.routeName);
-            }, child: Text(
-              'Create an Account'
+        child: SingleChildScrollView(
+          physics: ClampingScrollPhysics(),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              LoginCardForm(email: args?.email),
+              Text('Don\'t have an account?'),
+              TextButton(onPressed: () {
+                AppGlobal.navigatorKey.currentState!.pushNamed(SignUpScreen.routeName);
+              }, child: Text(
+                'Create an Account'
+                )
               )
-            )
-          ]
-        )
-      ),
+            ]
+          )
+        ),
+      ) 
     );
   }
 }

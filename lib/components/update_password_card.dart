@@ -35,6 +35,7 @@ class UpdatePasswordCardFormState extends State<UpdatePasswordCardForm> {
           child: FormBuilder(
             key: _passwordFormKey,
             child: Column(
+              spacing: 10,
               children: [
                 FormBuilderTextField(
                   name: 'currentPassword',
@@ -47,7 +48,6 @@ class UpdatePasswordCardFormState extends State<UpdatePasswordCardForm> {
                     FormBuilderValidators.required(),
                   ])
                 ),
-                SizedBox(height: 10),
                 FormBuilderTextField(
                   name: 'newPassword',
                   obscureText: true,
@@ -59,7 +59,6 @@ class UpdatePasswordCardFormState extends State<UpdatePasswordCardForm> {
                     FormBuilderValidators.required(),
                   ])
                 ),
-                SizedBox(height: 10),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
