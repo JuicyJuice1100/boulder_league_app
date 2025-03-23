@@ -28,7 +28,6 @@ class LoginScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(AppGlobal.title),
             LoginCardForm(email: args?.email),
             Text('Don\'t have an account?'),
             TextButton(onPressed: () {
@@ -40,7 +39,6 @@ class LoginScreen extends StatelessWidget {
           ]
         )
       ),
-      resizeToAvoidBottomInset: false,
     );
   }
 }

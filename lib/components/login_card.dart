@@ -29,13 +29,13 @@ class LoginCardFormState extends State<LoginCardForm> {
     setIsLoading(true);
     AuthService().login(values['email'], values['password']).then(
       (result) => {
-          if(result.success) {
-            ToastNotification.success(result.message, null),
-            AppGlobal.navigatorKey.currentState!.pushNamed('/')
-          } else {
-            ToastNotification.error(result.message, null)
-          }
+        if(result.success) {
+          ToastNotification.success(result.message, null),
+          AppGlobal.navigatorKey.currentState!.pushNamed('/')
+        } else {
+          ToastNotification.error(result.message, null)
         }
+      }
     ).whenComplete(() => setIsLoading(false));
   }
 

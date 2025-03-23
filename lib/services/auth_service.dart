@@ -33,9 +33,13 @@ class AuthService {
       await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password
-      ).then((result) => 
-        result.user?.updateDisplayName(username)
-      );
+      ).then((result) {
+        if(username != null) {
+          result.user?.updateDisplayName(username);
+        }
+
+        result.user?.sendEmailVerification();
+      });
       
       return BaseReturnObject(
         success: true,
@@ -52,7 +56,6 @@ class AuthService {
         message: 'Uknown Generic Error'
       );
     }
-
   }
 
   Future<BaseReturnObject> logout() async {
@@ -76,9 +79,95 @@ class AuthService {
     }
   }
 
-  Stream<User?> get onAuthStateChanged => _firebaseAuth.authStateChanges();
-
-  Future<User?> getCurrentUser() async {
-    return _firebaseAuth.currentUser;
+  Future<BaseReturnObject> updateUsername(String username) async {
+    try {
+      await _firebaseAuth.currentUser?.updateDisplayName(username);
+      
+      return BaseReturnObject(
+        success: true,
+        message: 'Username Updated Successfully'
+      );
+    } on FirebaseAuthException catch (error) {
+      return BaseReturnObject(
+        success: false,
+        message: error.message ?? 'Unknown Firebase Auth Error'
+      );
+    } catch (error) {
+      return BaseReturnObject(
+        success: false,
+        message: 'Uknown Generic Error'
+      );
+    }
   }
+
+  Future<BaseReturnObject> updateEmail(String email) async {
+    try {
+      await _firebaseAuth.currentUser?.verifyBeforeUpdateEmail(email);
+      
+      return BaseReturnObject(
+        success: true,
+        message: 'Username Updated Successfully'
+      );
+    } on FirebaseAuthException catch (error) {
+      return BaseReturnObject(
+        success: false,
+        message: error.message ?? 'Unknown Firebase Auth Error'
+      );
+    } catch (error) {
+      return BaseReturnObject(
+        success: false,
+        message: 'Uknown Generic Error'
+      );
+    }
+  }
+
+  Future<BaseReturnObject> updatePassword(String currentPassword, String newPassword) async {
+    try {
+      final credentials = EmailAuthProvider.credential(
+        email: _firebaseAuth.currentUser!.email ?? '', password: currentPassword
+      );
+
+      _firebaseAuth.currentUser?.reauthenticateWithCredential(credentials).then((result) {
+        _firebaseAuth.currentUser?.updatePassword(newPassword);
+      });
+      
+      return BaseReturnObject(
+        success: true,
+        message: 'Password Updated Successfully'
+      );
+    } on FirebaseAuthException catch (error) {
+      return BaseReturnObject(
+        success: false,
+        message: error.message ?? 'Unknown Firebase Auth Error'
+      );
+    } catch (error) {
+      return BaseReturnObject(
+        success: false,
+        message: 'Uknown Generic Error'
+      );
+    }
+  }
+
+  Future<BaseReturnObject> sendPasswordReset(String email) async {
+    try {
+      await _firebaseAuth.sendPasswordResetEmail(email: email);
+      
+      return BaseReturnObject(
+        success: true,
+        message: 'Logout successful'
+      );
+    } on FirebaseAuthException catch (error) {
+      return BaseReturnObject(
+        success: false,
+        message: error.message ?? 'Unknown Firebase Auth Error'
+      );
+    } catch (error) {
+      return BaseReturnObject(
+        success: false,
+        message: 'Uknown Generic Error'
+      );
+    }
+  }
+
+  Stream<User?> get onAuthStateChanged => _firebaseAuth.authStateChanges();
 }
