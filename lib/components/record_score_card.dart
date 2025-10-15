@@ -1,7 +1,17 @@
 import 'package:boulder_league_app/helpers/toast_notification.dart';
+import 'package:boulder_league_app/models/boulder.dart';
+import 'package:boulder_league_app/models/boulder_filters.dart';
+import 'package:boulder_league_app/models/scored_boulder.dart';
+import 'package:boulder_league_app/services/boulder_scoring_service.dart';
+import 'package:boulder_league_app/services/boulder_service.dart';
+import 'package:boulder_league_app/static/weeks.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:intl/intl.dart';
 
 
 class RecordScoreCardForm extends StatefulWidget {
@@ -13,8 +23,15 @@ class RecordScoreCardForm extends StatefulWidget {
 
 class RecordScoreCardFormState extends State<RecordScoreCardForm> {
   final _recordScoreFormKey = GlobalKey<FormBuilderState>();
+  final BoulderFilters filters = BoulderFilters(
+    // TODO: save seasons in a collection
+    season: '1', 
+  );
 
+  String? selectedWeek;
+  List<Boulder> filteredBoulders = [];
   bool isLoading = false;
+  bool showFlashedCheckbox = false;
 
   void setIsLoading(bool value) {
     setState(() {
@@ -22,8 +39,53 @@ class RecordScoreCardFormState extends State<RecordScoreCardForm> {
     });
   }
 
+  void updateBouldersForWeek(String? week) {
+    if (week == null) return;
+
+    setState(() {
+      isLoading = true;
+      selectedWeek = week;
+    });
+
+    BoulderService()
+      .getBoulders(BoulderFilters(season: filters.season, week: week))
+      .listen((boulders) {
+        setState(() {
+          filteredBoulders = boulders;
+          isLoading = false;
+        });
+      });
+  }
+
   void onSave(Map<String, FormBuilderFieldState<FormBuilderField<dynamic>, dynamic>> fields) {
-    ToastNotification.success('Save Button Clicked', 'Saved');
+    try {
+      setIsLoading(true);
+
+      var boulder = ScoredBoulder(
+        uid: FirebaseAuth.instance.currentUser!.uid,
+        boulderId: fields['boulder']!.value,
+        boulderName: filteredBoulders.firstWhere((b) => b.id == fields['boulder']!.value).name,
+        attempts: int.parse(fields['attempts']!.value),
+        top: fields['Top']?.value ?? false,
+        lastUpdated: Timestamp.now(),
+        score: 0,
+      );
+
+      boulder.calculateScore();
+
+      BoulderScoringService().scoreBoulder(boulder).then((value) => {
+        if(value.success) {
+          ToastNotification.success(value.message, null),
+          _recordScoreFormKey.currentState?.reset()
+        } else {
+          ToastNotification.error(value.message, null)
+        }
+      });
+    } catch (e) {
+      ToastNotification.error('Failed to add boulder: $e', null);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   @override
@@ -46,6 +108,23 @@ class RecordScoreCardFormState extends State<RecordScoreCardForm> {
                         spacing: 10,
                         children: [
                           FormBuilderDropdown(
+                            name: 'week',
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(), 
+                              labelText: 'Week'
+                            ),
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required()
+                            ]), 
+                            items: weeksList.map((week) => DropdownMenuItem(
+                              value: week,
+                              child: Text(week)
+                            )).toList(),
+                            onChanged: (val) {
+                              updateBouldersForWeek(val as String?);
+                            },
+                          ),
+                          FormBuilderDropdown(
                             name: 'boulder',
                             decoration: InputDecoration(
                               border: OutlineInputBorder(), 
@@ -54,12 +133,10 @@ class RecordScoreCardFormState extends State<RecordScoreCardForm> {
                             validator: FormBuilderValidators.compose([
                               FormBuilderValidators.required()
                             ]), 
-                            items: [
-                              // TODO: update this to grab from boulders
-                              DropdownMenuItem(
-                                child: Text('test')
-                              )
-                            ],
+                            items: filteredBoulders.map((boulder) => DropdownMenuItem(
+                              value: boulder.id,
+                              child: Text(boulder.name),
+                            )).toList(),
                           ),
                           FormBuilderTextField(
                             name: 'attempts',
@@ -68,8 +145,18 @@ class RecordScoreCardFormState extends State<RecordScoreCardForm> {
                               labelText: 'Attempts'
                             ),
                             validator: FormBuilderValidators.compose([
-                              FormBuilderValidators.required()
+                              FormBuilderValidators.required(),
+                              FormBuilderValidators.integer(),
+                              FormBuilderValidators.min(0), 
                             ]), 
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
+                          ),
+                          FormBuilderCheckbox(
+                            name: 'Top',  
+                            title: Text('Top'),
+                            initialValue: false,
                           ),
                           SizedBox(
                             width: double.infinity,

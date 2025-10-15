@@ -1,20 +1,20 @@
 import 'package:boulder_league_app/models/base_return_object.dart';
-import 'package:boulder_league_app/models/completed_boulder.dart';
+import 'package:boulder_league_app/models/scored_boulder.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class BoulderService {
-  final completedBoulderRef = FirebaseFirestore.instance
-    .collection('completed_boulder')
-    .withConverter<CompletedBoulder>(
-      fromFirestore: (snapshot, options) => CompletedBoulder.fromJson(snapshot.data()!),
+class BoulderScoringService {
+  final userRef = FirebaseFirestore.instance
+    .collection(FirebaseAuth.instance.currentUser!.uid)
+    .withConverter<ScoredBoulder>(
+      fromFirestore: (snapshot, options) => ScoredBoulder.fromJson(snapshot.data()!, snapshot.id),
       toFirestore: (completedBoulder, options) => completedBoulder.toJson()
     );
 
 
-  Future<BaseReturnObject> createCompletedBoulder(CompletedBoulder completedBoulder) async {
+  Future<BaseReturnObject> scoreBoulder(ScoredBoulder scoredBoulder) async {
     try{
-      await completedBoulderRef.add(completedBoulder);
+      await userRef.doc(scoredBoulder.boulderId).set(scoredBoulder, SetOptions(merge: true));
 
       return BaseReturnObject(
         success: true,
@@ -28,7 +28,7 @@ class BoulderService {
     } catch (error) {
       return BaseReturnObject(
         success: false, 
-        message: 'Uknown Generic Error'
+        message: error.toString()
       );
     }
   }

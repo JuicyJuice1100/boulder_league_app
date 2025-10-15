@@ -53,7 +53,7 @@ class AuthService {
     } catch (error) {
       return BaseReturnObject(
         success: false, 
-        message: 'Uknown Generic Error'
+        message: 'Unknown Generic Error'
       );
     }
   }
@@ -74,7 +74,7 @@ class AuthService {
     } catch (error) {
       return BaseReturnObject(
         success: false,
-        message: 'Uknown Generic Error'
+        message: 'Unknown Generic Error'
       );
     }
   }
@@ -95,7 +95,7 @@ class AuthService {
     } catch (error) {
       return BaseReturnObject(
         success: false,
-        message: 'Uknown Generic Error'
+        message: 'Unknown Generic Error'
       );
     }
   }
@@ -116,7 +116,7 @@ class AuthService {
     } catch (error) {
       return BaseReturnObject(
         success: false,
-        message: 'Uknown Generic Error'
+        message: 'Unknown Generic Error'
       );
     }
   }
@@ -143,7 +143,7 @@ class AuthService {
     } catch (error) {
       return BaseReturnObject(
         success: false,
-        message: 'Uknown Generic Error'
+        message: 'Unknown Generic Error'
       );
     }
   }
@@ -164,7 +164,7 @@ class AuthService {
     } catch (error) {
       return BaseReturnObject(
         success: false,
-        message: 'Uknown Generic Error'
+        message: error.toString()
       );
     }
   }
