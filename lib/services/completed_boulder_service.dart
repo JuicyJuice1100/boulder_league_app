@@ -1,4 +1,5 @@
 import 'package:boulder_league_app/models/base_return_object.dart';
+import 'package:boulder_league_app/models/boulder_filters.dart';
 import 'package:boulder_league_app/models/completed_boulder.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';

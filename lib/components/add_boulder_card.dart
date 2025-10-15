@@ -1,14 +1,13 @@
 import 'package:boulder_league_app/helpers/toast_notification.dart';
 import 'package:boulder_league_app/models/boulder.dart';
 import 'package:boulder_league_app/services/boulder_service.dart';
+import 'package:boulder_league_app/static/weeks.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
-
-final List<String> _weekList = ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8', 'Week 9', 'Week 10'];
 
 class AddBoulderCardForm extends StatefulWidget {
   const AddBoulderCardForm({super.key});
@@ -90,7 +89,7 @@ class AddBoulderCardFormState extends State<AddBoulderCardForm> {
                             validator: FormBuilderValidators.compose([
                               FormBuilderValidators.required()
                             ]), 
-                            items: _weekList.map((week) => DropdownMenuItem(
+                            items: weeksList.map((week) => DropdownMenuItem(
                               value: week,
                               child: Text(week)
                             )).toList(),
