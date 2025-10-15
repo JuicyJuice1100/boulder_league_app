@@ -4,6 +4,7 @@ import 'package:boulder_league_app/models/boulder_filters.dart';
 import 'package:boulder_league_app/services/boulder_service.dart';
 import 'package:boulder_league_app/static/weeks.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:intl/intl.dart';
@@ -106,8 +107,13 @@ class RecordScoreCardFormState extends State<RecordScoreCardForm> {
                               labelText: 'Attempts'
                             ),
                             validator: FormBuilderValidators.compose([
-                              FormBuilderValidators.required()
+                              FormBuilderValidators.required(),
+                              FormBuilderValidators.integer(),
+                              FormBuilderValidators.min(0), 
                             ]), 
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
                           ),
                           FormBuilderCheckbox(
                             name: 'Top',  
