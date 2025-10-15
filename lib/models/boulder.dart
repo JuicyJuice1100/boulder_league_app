@@ -1,32 +1,33 @@
 class Boulder {
   final String id;
   final String name;
-  final DateTime setAt;
-  final DateTime? removedAt;
+  final String week;
+  final String month;
   final String createdByUid;
 
   Boulder({
     required this.id,
     required this.name,
-    required this.setAt,
-    required this.removedAt,
+    required this.week,
+    required this.month,
     required this.createdByUid
   });
 
-  Boulder.fromJson(Map<String, dynamic> json)
-    : id = json['id'] as String,
-      name = json['name'] as String,
-      setAt = json['setAt'] as DateTime,
-      removedAt = json['removedAt'] as DateTime,
-      createdByUid = json['createdByUid'] as String;
-
+  factory Boulder.fromJson(Map<String, dynamic> json, String id) {
+    return Boulder(
+      id: id,
+      name: json['name'] ?? '',
+      week: json['week'] ?? '',
+      month: json['month'] ?? '',
+      createdByUid: json['createdByUid'] ?? '',
+    );
+  }
   
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'name': name,
-      'setAt': setAt,
-      'removedAt': removedAt,
+      'week': week,
+      'month': month,
       'cratedByUid': createdByUid
     };
   }
