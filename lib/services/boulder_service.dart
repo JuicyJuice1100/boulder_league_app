@@ -18,7 +18,7 @@ class BoulderService {
       final query = await boulderRef
         .where('name', isEqualTo: boulder.name)
         .where('week', isEqualTo: boulder.week)
-        .where('month', isEqualTo: boulder.month)
+        .where('month', isEqualTo: boulder.season)
         .get();
 
       if (query.docs.isNotEmpty) {
@@ -42,7 +42,7 @@ class BoulderService {
     } catch (error) {
       return BaseReturnObject(
         success: false, 
-        message: 'Uknown Generic Error'
+        message: error.toString()
       );
     }
   }
@@ -50,11 +50,11 @@ class BoulderService {
   Stream<List<Boulder>> getBoulders(BoulderFilters? filters) {
     Query<Boulder> query = boulderRef;
 
-    final month = filters?.month;
+    final season = filters?.season;
     final week = filters?.week;
     final createdByUid = filters?.createdByUid;
 
-    if (month != null) query = query.where('month', isEqualTo: month);
+    if (season != null) query = query.where('season', isEqualTo: season);
     if (week != null) query = query.where('week', isEqualTo: week);
     if (createdByUid != null) query = query.where('createdByUid', isEqualTo: createdByUid);
 

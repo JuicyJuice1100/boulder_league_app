@@ -6,7 +6,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 class AddBoulderCardForm extends StatefulWidget {
@@ -34,7 +33,7 @@ class AddBoulderCardFormState extends State<AddBoulderCardForm> {
         id: Uuid().v4(),
         name: fields['name']!.value,
         week: fields['week']!.value,
-        month: DateFormat.MMMM().format(DateTime.now()),
+        season: fields['season']!.value,
         createdByUid: FirebaseAuth.instance.currentUser!.uid,
       )).then((value) => {
         if(value.success) {
@@ -93,6 +92,23 @@ class AddBoulderCardFormState extends State<AddBoulderCardForm> {
                               value: week,
                               child: Text(week)
                             )).toList(),
+                          ),
+                          FormBuilderDropdown(
+                            name: 'season',
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(), 
+                              labelText: 'Season'
+                            ),
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required()
+                            ]), 
+                            //TODO: save seasons in a collection
+                            items: [
+                              DropdownMenuItem(
+                                value: '1',
+                                child: Text('1'),
+                              )
+                            ]
                           ),
                           SizedBox(
                             width: double.infinity,

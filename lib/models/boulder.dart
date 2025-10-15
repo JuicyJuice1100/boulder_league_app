@@ -2,14 +2,14 @@ class Boulder {
   final String id;
   final String name;
   final String week;
-  final String month;
+  final String season;
   final String createdByUid;
 
   Boulder({
     required this.id,
     required this.name,
     required this.week,
-    required this.month,
+    required this.season,
     required this.createdByUid
   });
 
@@ -18,7 +18,7 @@ class Boulder {
       id: id,
       name: json['name'] ?? '',
       week: json['week'] ?? '',
-      month: json['month'] ?? '',
+      season: json['season'] ?? '',
       createdByUid: json['createdByUid'] ?? '',
     );
   }
@@ -27,7 +27,7 @@ class Boulder {
     return {
       'name': name,
       'week': week,
-      'month': month,
+      'season': season,
       'cratedByUid': createdByUid
     };
   }

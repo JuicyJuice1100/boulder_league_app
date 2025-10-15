@@ -1,8 +1,12 @@
 import 'package:boulder_league_app/helpers/toast_notification.dart';
 import 'package:boulder_league_app/models/boulder.dart';
 import 'package:boulder_league_app/models/boulder_filters.dart';
+import 'package:boulder_league_app/models/scored_boulder.dart';
+import 'package:boulder_league_app/services/boulder_scoring_service.dart';
 import 'package:boulder_league_app/services/boulder_service.dart';
 import 'package:boulder_league_app/static/weeks.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -20,13 +24,20 @@ class RecordScoreCardForm extends StatefulWidget {
 class RecordScoreCardFormState extends State<RecordScoreCardForm> {
   final _recordScoreFormKey = GlobalKey<FormBuilderState>();
   final BoulderFilters filters = BoulderFilters(
-    month: DateFormat.MMMM().format(DateTime.now()), 
+    // TODO: save seasons in a collection
+    season: '1', 
   );
 
   String? selectedWeek;
   List<Boulder> filteredBoulders = [];
   bool isLoading = false;
   bool showFlashedCheckbox = false;
+
+  void setIsLoading(bool value) {
+    setState(() {
+      isLoading = value;
+    });
+  }
 
   void updateBouldersForWeek(String? week) {
     if (week == null) return;
@@ -37,7 +48,7 @@ class RecordScoreCardFormState extends State<RecordScoreCardForm> {
     });
 
     BoulderService()
-      .getBoulders(BoulderFilters(month: filters.month, week: week))
+      .getBoulders(BoulderFilters(season: filters.season, week: week))
       .listen((boulders) {
         setState(() {
           filteredBoulders = boulders;
@@ -47,7 +58,34 @@ class RecordScoreCardFormState extends State<RecordScoreCardForm> {
   }
 
   void onSave(Map<String, FormBuilderFieldState<FormBuilderField<dynamic>, dynamic>> fields) {
-    ToastNotification.success('Save Button Clicked', 'Saved');
+    try {
+      setIsLoading(true);
+
+      var boulder = ScoredBoulder(
+        uid: FirebaseAuth.instance.currentUser!.uid,
+        boulderId: fields['boulder']!.value,
+        boulderName: filteredBoulders.firstWhere((b) => b.id == fields['boulder']!.value).name,
+        attempts: int.parse(fields['attempts']!.value),
+        top: fields['Top']?.value ?? false,
+        lastUpdated: Timestamp.now(),
+        score: 0,
+      );
+
+      boulder.calculateScore();
+
+      BoulderScoringService().scoreBoulder(boulder).then((value) => {
+        if(value.success) {
+          ToastNotification.success(value.message, null),
+          _recordScoreFormKey.currentState?.reset()
+        } else {
+          ToastNotification.error(value.message, null)
+        }
+      });
+    } catch (e) {
+      ToastNotification.error('Failed to add boulder: $e', null);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   @override
@@ -119,21 +157,7 @@ class RecordScoreCardFormState extends State<RecordScoreCardForm> {
                             name: 'Top',  
                             title: Text('Top'),
                             initialValue: false,
-                            onChanged: (value) {
-                              setState(() {
-                                showFlashedCheckbox = value ?? false;
-                                if (!(value ?? false)) {
-                                  _recordScoreFormKey.currentState?.fields['Flash']?.reset();
-                                }
-                              });
-                            },
                           ),
-                          if(showFlashedCheckbox)
-                            FormBuilderCheckbox(
-                              name: 'Flash',  
-                              title: Text('Flash'),
-                              initialValue: false,
-                            ),
                           SizedBox(
                             width: double.infinity,
                             child: FilledButton.icon(
