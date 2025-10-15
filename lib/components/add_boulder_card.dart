@@ -1,8 +1,12 @@
 import 'package:boulder_league_app/helpers/toast_notification.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
+final List<String> _weekList = ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8', 'Week 9', 'Week 10'];
+final List<String> _monthList = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 class AddBoulderCardForm extends StatefulWidget {
   const AddBoulderCardForm({super.key});
@@ -13,6 +17,10 @@ class AddBoulderCardForm extends StatefulWidget {
 
 class AddBoulderCardFormState extends State<AddBoulderCardForm> {
   final _addBoulderFormKey = GlobalKey<FormBuilderState>();
+  
+  // Reference to a Firestore collection
+  final CollectionReference _bouldersRef =
+      FirebaseFirestore.instance.collection('boulders');
 
   bool isLoading = false;
 
@@ -22,8 +30,22 @@ class AddBoulderCardFormState extends State<AddBoulderCardForm> {
     });
   }
 
-  void onSave(Map<String, FormBuilderFieldState<FormBuilderField<dynamic>, dynamic>> fields) {
-    ToastNotification.success('Save Button Clicked', 'Saved');
+  void onSave(Map<String, FormBuilderFieldState<FormBuilderField<dynamic>, dynamic>> fields) async {
+    try {
+      setIsLoading(true);
+      await _bouldersRef.add({
+        'name': fields['name']?.value,
+        'month': fields['month']?.value,
+        'week': fields['week']?.value,
+        'createdAt': FieldValue.serverTimestamp()
+      });
+
+      ToastNotification.success('Added boulder', 'Saved');
+    } catch (e) {
+      ToastNotification.error('Failed to add boulder: $e', null);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   @override
@@ -54,6 +76,34 @@ class AddBoulderCardFormState extends State<AddBoulderCardForm> {
                             validator: FormBuilderValidators.compose([
                               FormBuilderValidators.required()
                             ])
+                          ),
+                          FormBuilderDropdown(
+                            name: 'month',
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(), 
+                              labelText: 'Month'
+                            ),
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required()
+                            ]),
+                            items: _monthList.map((month) => DropdownMenuItem(
+                              value: month,
+                              child: Text(month)
+                            )).toList(),
+                          ),
+                          FormBuilderDropdown(
+                            name: 'week',
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(), 
+                              labelText: 'Week'
+                            ),
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required()
+                            ]), 
+                            items: _weekList.map((week) => DropdownMenuItem(
+                              value: week,
+                              child: Text(week)
+                            )).toList(),
                           ),
                           SizedBox(
                             width: double.infinity,
