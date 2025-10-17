@@ -37,6 +37,7 @@ class AddSeasonCardFormState extends State<AddSeasonCardForm> {
         endDate: fields['daterange']!.value.end,
         isActive: fields['active']!.value,
         createdByUid: FirebaseAuth.instance.currentUser!.uid,
+        createdByName: FirebaseAuth.instance.currentUser!.displayName ?? 'Unknown User',
       )).then((value) => {
         if(value.success) {
           ToastNotification.success(value.message, null),

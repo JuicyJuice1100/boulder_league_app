@@ -7,6 +7,7 @@ class Season {
   final DateTime endDate;
   final bool isActive;
   final String createdByUid;
+  final String createdByName;
 
   Season({
     required this.id,
@@ -14,7 +15,8 @@ class Season {
     required this.startDate,
     required this.endDate,
     required this.isActive,
-    required this.createdByUid
+    required this.createdByUid,
+    required this.createdByName
   });
 
   factory Season.fromJson(Map<String, dynamic> json, String id) {
@@ -25,6 +27,7 @@ class Season {
       endDate: (json['endDate'] as Timestamp).toDate(),
       isActive: json['isActive'] ?? false,
       createdByUid: json['createdByUid'] ?? '',
+      createdByName: json['createdByName'] ?? '',
     );
   }
   
@@ -34,7 +37,8 @@ class Season {
       'startDate': Timestamp.fromDate(startDate),
       'endDate': Timestamp.fromDate(endDate),
       'isActive': isActive, 
-      'cratedByUid': createdByUid
+      'cratedByUid': createdByUid,
+      'createdByName': createdByName
     };
   }
 }

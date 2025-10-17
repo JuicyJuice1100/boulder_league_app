@@ -1,8 +1,9 @@
 import 'package:boulder_league_app/app_global.dart';
 import 'package:boulder_league_app/components/add_boulder_card.dart';
-import 'package:boulder_league_app/components/add_season_card.dart';
+import 'package:boulder_league_app/components/seasons/add_season_card.dart';
 import 'package:boulder_league_app/components/leaderboard_card.dart';
 import 'package:boulder_league_app/components/record_score_card.dart';
+import 'package:boulder_league_app/components/seasons/seasons_table.dart';
 import 'package:boulder_league_app/screens/account.dart';
 import 'package:boulder_league_app/screens/user.dart';
 import 'package:boulder_league_app/services/auth_service.dart';
@@ -101,8 +102,8 @@ class HomeScreenState extends State<HomeScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.add_outlined),
-            label: 'Add Season',
-            tooltip: 'Add a new boulder season'
+            label: 'Seasons',
+            tooltip: 'Add/Edit a new boulder season'
           )
         ],
         currentIndex: selectedIndex,
