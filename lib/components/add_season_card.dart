@@ -1,22 +1,22 @@
 import 'package:boulder_league_app/helpers/toast_notification.dart';
-import 'package:boulder_league_app/models/boulder.dart';
-import 'package:boulder_league_app/services/boulder_service.dart';
-import 'package:boulder_league_app/static/weeks.dart';
+import 'package:boulder_league_app/models/season.dart';
+import 'package:boulder_league_app/services/season_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
-class AddBoulderCardForm extends StatefulWidget {
-  const AddBoulderCardForm({super.key});
+class AddSeasonCardForm extends StatefulWidget {
+  const AddSeasonCardForm({super.key});
 
   @override
-  State<AddBoulderCardForm> createState() => AddBoulderCardFormState();
+  State<AddSeasonCardForm> createState() => AddSeasonCardFormState();
 }
 
-class AddBoulderCardFormState extends State<AddBoulderCardForm> {
-  final _addBoulderFormKey = GlobalKey<FormBuilderState>();
+class AddSeasonCardFormState extends State<AddSeasonCardForm> {
+  final _addSeasonFormKey = GlobalKey<FormBuilderState>();
   bool isLoading = false;
 
   void setIsLoading(bool value) {
@@ -29,16 +29,17 @@ class AddBoulderCardFormState extends State<AddBoulderCardForm> {
     try {
       setIsLoading(true);
 
-      BoulderService().addBoulder(Boulder(
+      SeasonService().addSeason(Season(
         id: Uuid().v4(),
         name: fields['name']!.value,
-        week: fields['week']!.value,
-        seasonId: fields['season']!.value,
+        startDate: fields['daterange']!.value.start,
+        endDate: fields['daterange']!.value.end,
+        isActive: fields['active']!.value,
         createdByUid: FirebaseAuth.instance.currentUser!.uid,
       )).then((value) => {
         if(value.success) {
           ToastNotification.success(value.message, null),
-          _addBoulderFormKey.currentState?.reset()
+          _addSeasonFormKey.currentState?.reset()
         } else {
           ToastNotification.error(value.message, null)
         }
@@ -65,7 +66,7 @@ class AddBoulderCardFormState extends State<AddBoulderCardForm> {
                   child: Padding(
                     padding: EdgeInsets.all(16.0),
                     child: FormBuilder(
-                      key: _addBoulderFormKey,
+                      key: _addSeasonFormKey,
                       child: Column(
                         spacing: 10,
                         children: [
@@ -79,43 +80,31 @@ class AddBoulderCardFormState extends State<AddBoulderCardForm> {
                               FormBuilderValidators.required()
                             ])
                           ),
-                          FormBuilderDropdown(
-                            name: 'week',
+                          FormBuilderDateRangePicker(
+                            name: 'daterange',
                             decoration: InputDecoration(
                               border: OutlineInputBorder(), 
-                              labelText: 'Week'
+                              labelText: 'Date Range'
                             ),
                             validator: FormBuilderValidators.compose([
                               FormBuilderValidators.required()
                             ]), 
-                            items: weeksList.map((week) => DropdownMenuItem(
-                              value: week,
-                              child: Text(week)
-                            )).toList(),
+                            firstDate: DateTime(DateTime.now().year),
+                            lastDate: DateTime(DateTime.now().year + 1),
+                            format: DateFormat('MMM dd, yyyy'),
+                            initialEntryMode: DatePickerEntryMode.input
                           ),
-                          FormBuilderDropdown(
-                            name: 'season',
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(), 
-                              labelText: 'Season'
-                            ),
-                            validator: FormBuilderValidators.compose([
-                              FormBuilderValidators.required()
-                            ]), 
-                            //TODO: save seasons in a collection
-                            items: [
-                              DropdownMenuItem(
-                                value: 'Season Id',
-                                child: Text('1'),
-                              )
-                            ]
+                           FormBuilderCheckbox(
+                            name: 'active',  
+                            title: Text('Active Season'),
+                            initialValue: false,
                           ),
                           SizedBox(
                             width: double.infinity,
                             child: FilledButton.icon(
                               onPressed: isLoading ? null : ()  {
-                                if (_addBoulderFormKey.currentState!.validate()) {
-                                  onSave(_addBoulderFormKey.currentState!.fields);
+                                if (_addSeasonFormKey.currentState!.validate()) {
+                                  onSave(_addSeasonFormKey.currentState!.fields);
                                 }
                               },
                               icon: isLoading ?

@@ -1,5 +1,6 @@
 import 'package:boulder_league_app/app_global.dart';
 import 'package:boulder_league_app/components/add_boulder_card.dart';
+import 'package:boulder_league_app/components/add_season_card.dart';
 import 'package:boulder_league_app/components/leaderboard_card.dart';
 import 'package:boulder_league_app/components/record_score_card.dart';
 import 'package:boulder_league_app/screens/account.dart';
@@ -22,7 +23,8 @@ class HomeScreenState extends State<HomeScreen> {
   final List<Widget> widgetOptions = const [
     LeaderboardCard(),
     RecordScoreCardForm(),
-    AddBoulderCardForm()
+    AddBoulderCardForm(),
+    AddSeasonCardForm()
   ];
 
   void onItemTapped(int index) {
@@ -97,6 +99,11 @@ class HomeScreenState extends State<HomeScreen> {
             label: 'Add Boulder',
             tooltip: 'Add a new boulder for users'
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add_outlined),
+            label: 'Add Season',
+            tooltip: 'Add a new boulder season'
+          )
         ],
         currentIndex: selectedIndex,
         onTap: onItemTapped,
