@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:boulder_league_app/models/base_return_object.dart';
 import 'package:boulder_league_app/models/season.dart';
 import 'package:boulder_league_app/models/season_filters.dart';
@@ -17,15 +19,12 @@ class SeasonService {
     try{
       final query = await seasonRef
         .where('name', isEqualTo: season.name)
-        .where('dateStart', isEqualTo: season.startDate)
-        .where('endDate', isEqualTo: season.endDate)
-        .where('isActive', isEqualTo: season.isActive)
         .get();
 
       if (query.docs.isNotEmpty) {
         return BaseReturnObject(
           success: false,
-          message: 'Unable to create season - it may already exist, may overlap dates, or there may be another active season',
+          message: 'Unable to create season - it may already exist or dates overlap with existing season',
         );
       }
 

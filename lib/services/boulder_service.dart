@@ -50,11 +50,11 @@ class BoulderService {
   Stream<List<Boulder>> getBoulders(BoulderFilters? filters) {
     Query<Boulder> query = boulderRef;
 
-    final season = filters?.season;
+    final seasonId = filters?.seasonId;
     final week = filters?.week;
     final createdByUid = filters?.createdByUid;
 
-    if (season != null) query = query.where('season', isEqualTo: season);
+    if (seasonId != null) query = query.where('seasonId', isEqualTo: seasonId);
     if (week != null) query = query.where('week', isEqualTo: week);
     if (createdByUid != null) query = query.where('createdByUid', isEqualTo: createdByUid);
 

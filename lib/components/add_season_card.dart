@@ -17,6 +17,7 @@ class AddSeasonCardForm extends StatefulWidget {
 
 class AddSeasonCardFormState extends State<AddSeasonCardForm> {
   final _addSeasonFormKey = GlobalKey<FormBuilderState>();
+  List<Season> filteredSeasons = [];
   bool isLoading = false;
 
   void setIsLoading(bool value) {

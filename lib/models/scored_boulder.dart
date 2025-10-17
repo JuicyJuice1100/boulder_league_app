@@ -4,9 +4,13 @@ class ScoredBoulder {
   final String uid;
   final String boulderId;
   final String boulderName;
+  final String seasonId;
+  final String seasonName;
+  final num week;
   final bool top;
   final int attempts;
-  final Timestamp lastUpdated;
+  final DateTime createdAt;
+  final DateTime lastUpdate;
   num score;
 
   void calculateScore() {
@@ -29,9 +33,13 @@ class ScoredBoulder {
     required this.uid,
     required this.boulderId,
     required this.boulderName,
+    required this.seasonId,
+    required this.seasonName,
+    required this.week,
     required this.attempts,
     required this.top,
-    required this.lastUpdated,
+    required this.createdAt,
+    required this.lastUpdate,
     required this.score 
   });
 
@@ -39,9 +47,13 @@ class ScoredBoulder {
     : uid = json['uid'] as String,
       boulderId = json['boulderId'] as String,
       boulderName = json['boulderName'] as String,
+      seasonId = json['seasonId'] as String,
+      seasonName = json['seasonName'] as String,
+      week = json['week'] as num,
       attempts = json['attempts'] as int,
       top = json['top'] as bool,
-      lastUpdated = json['lastUpdated'] as Timestamp,
+      createdAt = (json['createdAt'] as Timestamp).toDate(),
+      lastUpdate = (json['lastUpdate'] as Timestamp).toDate(),
       score = json['score'] as num;
   
   Map<String, dynamic> toJson() {
@@ -49,9 +61,13 @@ class ScoredBoulder {
       'uid': uid,
       'boulderId': boulderId,
       'boulderName': boulderName,
+      'seasonId': seasonId,
+      'seasonName': seasonName,
+      'week': week,
       'attempts': attempts,
       'top': top,
-      'lastUpdated': lastUpdated,
+      'createdAt': createdAt,
+      'lastUpdate': lastUpdate,
       'score': score
     };
   }

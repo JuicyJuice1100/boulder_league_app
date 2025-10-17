@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class BoulderScoringService {
   final userRef = FirebaseFirestore.instance
-    .collection(FirebaseAuth.instance.currentUser!.uid)
+    .collection('scores')
     .withConverter<ScoredBoulder>(
       fromFirestore: (snapshot, options) => ScoredBoulder.fromJson(snapshot.data()!, snapshot.id),
       toFirestore: (completedBoulder, options) => completedBoulder.toJson()
@@ -14,7 +14,18 @@ class BoulderScoringService {
 
   Future<BaseReturnObject> scoreBoulder(ScoredBoulder scoredBoulder) async {
     try{
-      await userRef.doc(scoredBoulder.boulderId).set(scoredBoulder, SetOptions(merge: true));
+       final query = await userRef
+        .where('boulderId', isEqualTo: scoredBoulder.boulderId)
+        .get();
+
+      if (query.docs.isNotEmpty) {
+        return BaseReturnObject(
+          success: false,
+          message: 'Score for this boulder already exists',
+        );
+      }
+
+      await userRef.add(scoredBoulder);
 
       return BaseReturnObject(
         success: true,
