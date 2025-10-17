@@ -36,12 +36,6 @@ class RecordScoreCardFormState extends State<RecordScoreCardForm> {
     getSeasons();
   }
 
-  void setSelectedSeason(String? seasonId) {
-    setState(() {
-      selectedSeasonId = seasonId;
-    });
-  }
-
   void setIsLoading(bool value) {
     setState(() {
       isLoading = value;
@@ -153,7 +147,11 @@ class RecordScoreCardFormState extends State<RecordScoreCardForm> {
                                     ))
                                 .toList(),
                               onChanged: (val) {
-                                setSelectedSeason(val as String);
+                                if(val == null) return;
+
+                                setState(() {
+                                  selectedSeasonId = val;
+                                });
                               }
                             ),
                           FormBuilderDropdown(
@@ -170,6 +168,8 @@ class RecordScoreCardFormState extends State<RecordScoreCardForm> {
                               child: Text(week.toString())
                             )).toList(),
                             onChanged: (val) {
+                              if(val == null) return;
+                              
                               updateBoulders(val);
                             },
                           ),
