@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:boulder_league_app/models/base_return_object.dart';
 import 'package:boulder_league_app/models/season.dart';
 import 'package:boulder_league_app/models/season_filters.dart';
