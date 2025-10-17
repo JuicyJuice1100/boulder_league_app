@@ -18,7 +18,7 @@ class BoulderService {
       final query = await boulderRef
         .where('name', isEqualTo: boulder.name)
         .where('week', isEqualTo: boulder.week)
-        .where('month', isEqualTo: boulder.season)
+        .where('seasonId', isEqualTo: boulder.seasonId)
         .get();
 
       if (query.docs.isNotEmpty) {
