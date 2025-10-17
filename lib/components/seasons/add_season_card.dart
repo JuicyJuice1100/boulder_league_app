@@ -17,6 +17,7 @@ class AddSeasonCardForm extends StatefulWidget {
 
 class AddSeasonCardFormState extends State<AddSeasonCardForm> {
   final _addSeasonFormKey = GlobalKey<FormBuilderState>();
+  
   List<Season> filteredSeasons = [];
   bool isLoading = false;
 
@@ -55,82 +56,62 @@ class AddSeasonCardFormState extends State<AddSeasonCardForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Center(
-              child: SingleChildScrollView(
-                physics: ClampingScrollPhysics(),
-                child: Card(
-                  margin: EdgeInsets.all(20.0),
-                  child: Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: FormBuilder(
-                      key: _addSeasonFormKey,
-                      child: Column(
-                        spacing: 10,
-                        children: [
-                          FormBuilderTextField(
-                            name: 'name',
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(), 
-                              labelText: 'Name'
-                            ),
-                            validator: FormBuilderValidators.compose([
-                              FormBuilderValidators.required()
-                            ])
-                          ),
-                          FormBuilderDateRangePicker(
-                            name: 'daterange',
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(), 
-                              labelText: 'Date Range'
-                            ),
-                            validator: FormBuilderValidators.compose([
-                              FormBuilderValidators.required()
-                            ]), 
-                            firstDate: DateTime(DateTime.now().year),
-                            lastDate: DateTime(DateTime.now().year + 1),
-                            format: DateFormat('MMM dd, yyyy'),
-                            initialEntryMode: DatePickerEntryMode.input
-                          ),
-                           FormBuilderCheckbox(
-                            name: 'active',  
-                            title: Text('Active Season'),
-                            initialValue: false,
-                          ),
-                          SizedBox(
-                            width: double.infinity,
-                            child: FilledButton.icon(
-                              onPressed: isLoading ? null : ()  {
-                                if (_addSeasonFormKey.currentState!.validate()) {
-                                  onSave(_addSeasonFormKey.currentState!.fields);
-                                }
-                              },
-                              icon: isLoading ?
-                                SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                    strokeWidth: 2.0
-                                  )
-                                ) : Icon(Icons.add), 
-                              label: Text('Add'),
-                            )
-                          )
-                        ]
-                      )
-                    )
+    return FormBuilder(
+      key: _addSeasonFormKey,
+      child: Column(
+        spacing: 10,
+        children: [
+          FormBuilderTextField(
+            name: 'name',
+            decoration: InputDecoration(
+              border: OutlineInputBorder(), 
+              labelText: 'Name'
+            ),
+            validator: FormBuilderValidators.compose([
+              FormBuilderValidators.required()
+            ])
+          ),
+          FormBuilderDateRangePicker(
+            name: 'daterange',
+            decoration: InputDecoration(
+              border: OutlineInputBorder(), 
+              labelText: 'Date Range'
+            ),
+            validator: FormBuilderValidators.compose([
+              FormBuilderValidators.required()
+            ]), 
+            firstDate: DateTime(DateTime.now().year),
+            lastDate: DateTime(DateTime.now().year + 1),
+            format: DateFormat('MMM dd, yyyy'),
+            initialEntryMode: DatePickerEntryMode.input
+          ),
+            FormBuilderCheckbox(
+            name: 'active',  
+            title: Text('Active Season'),
+            initialValue: false,
+          ),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: isLoading ? null : ()  {
+                if (_addSeasonFormKey.currentState!.validate()) {
+                  onSave(_addSeasonFormKey.currentState!.fields);
+                }
+              },
+              icon: isLoading ?
+                SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    strokeWidth: 2.0
                   )
-                )
-              )
+                ) : Icon(Icons.add), 
+              label: Text('Add'),
             )
-          ]
-        )
-      ),
+          )
+        ]
+      )
     );
   }
 }
