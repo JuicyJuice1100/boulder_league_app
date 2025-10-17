@@ -2,16 +2,16 @@ import 'package:boulder_league_app/helpers/toast_notification.dart';
 import 'package:boulder_league_app/models/boulder.dart';
 import 'package:boulder_league_app/models/boulder_filters.dart';
 import 'package:boulder_league_app/models/scored_boulder.dart';
+import 'package:boulder_league_app/models/season.dart';
 import 'package:boulder_league_app/services/boulder_scoring_service.dart';
 import 'package:boulder_league_app/services/boulder_service.dart';
+import 'package:boulder_league_app/services/season_service.dart';
 import 'package:boulder_league_app/static/weeks.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:intl/intl.dart';
 
 
 class RecordScoreCardForm extends StatefulWidget {
@@ -23,15 +23,24 @@ class RecordScoreCardForm extends StatefulWidget {
 
 class RecordScoreCardFormState extends State<RecordScoreCardForm> {
   final _recordScoreFormKey = GlobalKey<FormBuilderState>();
-  final BoulderFilters filters = BoulderFilters(
-    // TODO: save seasons in a collection
-    season: '1', 
-  );
-
-  String? selectedWeek;
+  List<Season> seasons = [];
+  String? selectedSeasonId;
+  num? selectedWeek;
   List<Boulder> filteredBoulders = [];
   bool isLoading = false;
   bool showFlashedCheckbox = false;
+
+  @override
+  void initState() {
+    super.initState();
+    getSeasons();
+  }
+
+  void setSelectedSeason(String? seasonId) {
+    setState(() {
+      selectedSeasonId = seasonId;
+    });
+  }
 
   void setIsLoading(bool value) {
     setState(() {
@@ -39,8 +48,23 @@ class RecordScoreCardFormState extends State<RecordScoreCardForm> {
     });
   }
 
-  void updateBouldersForWeek(String? week) {
-    if (week == null) return;
+  void getSeasons() {
+    setState(() {
+      isLoading = true;
+    });
+
+    SeasonService()
+      .getSeasons(null)
+      .listen((seasons) {
+        setState(() {
+          this.seasons = seasons;
+          isLoading = false;
+        });
+      });
+  }
+
+  void updateBoulders(num? week) {
+    if (week == null || selectedSeasonId == null) return;
 
     setState(() {
       isLoading = true;
@@ -48,7 +72,7 @@ class RecordScoreCardFormState extends State<RecordScoreCardForm> {
     });
 
     BoulderService()
-      .getBoulders(BoulderFilters(season: filters.season, week: week))
+      .getBoulders(BoulderFilters(seasonId: selectedSeasonId, week: week))
       .listen((boulders) {
         setState(() {
           filteredBoulders = boulders;
@@ -65,9 +89,13 @@ class RecordScoreCardFormState extends State<RecordScoreCardForm> {
         uid: FirebaseAuth.instance.currentUser!.uid,
         boulderId: fields['boulder']!.value,
         boulderName: filteredBoulders.firstWhere((b) => b.id == fields['boulder']!.value).name,
+        seasonId: selectedSeasonId!,
+        seasonName: seasons.firstWhere((s) => s.id == selectedSeasonId).name,
+        week: selectedWeek!,
         attempts: int.parse(fields['attempts']!.value),
         top: fields['Top']?.value ?? false,
-        lastUpdated: Timestamp.now(),
+        createdAt: DateTime.now(),
+        lastUpdate: DateTime.now(),
         score: 0,
       );
 
@@ -107,6 +135,27 @@ class RecordScoreCardFormState extends State<RecordScoreCardForm> {
                       child: Column(
                         spacing: 10,
                         children: [
+                           isLoading 
+                            ? CircularProgressIndicator() :
+                            FormBuilderDropdown(
+                              name: 'season',
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(), 
+                                labelText: 'Season'
+                              ),
+                              validator: FormBuilderValidators.compose([
+                                FormBuilderValidators.required()
+                              ]), 
+                              items: seasons
+                                .map((season) => DropdownMenuItem(
+                                      value: season.id,
+                                      child: Text(season.name),
+                                    ))
+                                .toList(),
+                              onChanged: (val) {
+                                setSelectedSeason(val as String);
+                              }
+                            ),
                           FormBuilderDropdown(
                             name: 'week',
                             decoration: InputDecoration(
@@ -118,10 +167,10 @@ class RecordScoreCardFormState extends State<RecordScoreCardForm> {
                             ]), 
                             items: weeksList.map((week) => DropdownMenuItem(
                               value: week,
-                              child: Text(week)
+                              child: Text(week.toString())
                             )).toList(),
                             onChanged: (val) {
-                              updateBouldersForWeek(val as String?);
+                              updateBoulders(val);
                             },
                           ),
                           FormBuilderDropdown(

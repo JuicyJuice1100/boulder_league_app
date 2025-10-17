@@ -1,7 +1,7 @@
 class BoulderFilters {
-  String? season;
-  String? week;
+  String? seasonId;
+  num? week;
   String? createdByUid;
 
-  BoulderFilters({this.season, this.week, this.createdByUid});
+  BoulderFilters({this.seasonId, this.week, this.createdByUid});
 }

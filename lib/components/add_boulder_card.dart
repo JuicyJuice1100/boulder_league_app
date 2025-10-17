@@ -1,6 +1,9 @@
 import 'package:boulder_league_app/helpers/toast_notification.dart';
 import 'package:boulder_league_app/models/boulder.dart';
+import 'package:boulder_league_app/models/season.dart';
 import 'package:boulder_league_app/services/boulder_service.dart';
+import 'package:boulder_league_app/services/season_service.dart';
+import 'package:boulder_league_app/static/defaultSeasonFilters.dart';
 import 'package:boulder_league_app/static/weeks.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -17,12 +20,34 @@ class AddBoulderCardForm extends StatefulWidget {
 
 class AddBoulderCardFormState extends State<AddBoulderCardForm> {
   final _addBoulderFormKey = GlobalKey<FormBuilderState>();
+  List<Season> seasons = [];
   bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    getSeasons();
+  }
 
   void setIsLoading(bool value) {
     setState(() {
       isLoading = value;
     });
+  }
+
+  void getSeasons() {
+    setState(() {
+      isLoading = true;
+    });
+
+    SeasonService()
+      .getSeasons(null)
+      .listen((seasons) {
+        setState(() {
+          this.seasons = seasons;
+          isLoading = false;
+        });
+      });
   }
 
   void onSave(Map<String, FormBuilderFieldState<FormBuilderField<dynamic>, dynamic>> fields) async {
@@ -34,6 +59,8 @@ class AddBoulderCardFormState extends State<AddBoulderCardForm> {
         name: fields['name']!.value,
         week: fields['week']!.value,
         seasonId: fields['season']!.value,
+        createdAt: DateTime.now(),
+        lastUpdate: DateTime.now(),
         createdByUid: FirebaseAuth.instance.currentUser!.uid,
       )).then((value) => {
         if(value.success) {
@@ -79,6 +106,24 @@ class AddBoulderCardFormState extends State<AddBoulderCardForm> {
                               FormBuilderValidators.required()
                             ])
                           ),
+                          isLoading 
+                            ? CircularProgressIndicator() :
+                            FormBuilderDropdown(
+                              name: 'season',
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(), 
+                                labelText: 'Season'
+                              ),
+                              validator: FormBuilderValidators.compose([
+                                FormBuilderValidators.required()
+                              ]), 
+                              items: seasons
+                                .map((season) => DropdownMenuItem(
+                                      value: season.id,
+                                      child: Text(season.name),
+                                    ))
+                                .toList(),
+                            ),
                           FormBuilderDropdown(
                             name: 'week',
                             decoration: InputDecoration(
@@ -90,25 +135,8 @@ class AddBoulderCardFormState extends State<AddBoulderCardForm> {
                             ]), 
                             items: weeksList.map((week) => DropdownMenuItem(
                               value: week,
-                              child: Text(week)
+                              child: Text(week.toString())
                             )).toList(),
-                          ),
-                          FormBuilderDropdown(
-                            name: 'season',
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(), 
-                              labelText: 'Season'
-                            ),
-                            validator: FormBuilderValidators.compose([
-                              FormBuilderValidators.required()
-                            ]), 
-                            //TODO: save seasons in a collection
-                            items: [
-                              DropdownMenuItem(
-                                value: 'Season Id',
-                                child: Text('1'),
-                              )
-                            ]
                           ),
                           SizedBox(
                             width: double.infinity,
