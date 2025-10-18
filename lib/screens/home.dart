@@ -92,17 +92,17 @@ class HomeScreenState extends State<HomeScreen> {
             label: 'Leaderboard'
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.playlist_add_check_outlined),
+            icon: Icon(Icons.check),
             label: 'Record Score',
             tooltip: 'Report your score',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add_outlined),
+            icon: Icon(Icons.abc),
             label: 'Add Boulder',
             tooltip: 'Add a new boulder for users'
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add_outlined),
+            icon: Icon(Icons.numbers),
             label: 'Seasons',
             tooltip: 'Add/Edit a new boulder season'
           )

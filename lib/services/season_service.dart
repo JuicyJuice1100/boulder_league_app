@@ -17,16 +17,51 @@ class SeasonService {
     try{
       final query = await seasonRef
         .where('name', isEqualTo: season.name)
+        .limit(1)
         .get();
 
       if (query.docs.isNotEmpty) {
         return BaseReturnObject(
           success: false,
-          message: 'Unable to create season - it may already exist or dates overlap with existing season',
+          message: 'Another season with that name already exists',
         );
       }
 
       await seasonRef.add(season);
+
+      return BaseReturnObject(
+        success: true,
+        message: 'Season created successfully'
+      );
+    } on FirebaseAuthException catch (error) {
+      return BaseReturnObject(
+        success: false, 
+        message: error.message ?? 'Unknown Firebase Auth Error'
+      );
+    } catch (error) {
+      return BaseReturnObject(
+        success: false, 
+        message: error.toString()
+      );
+    }
+  }
+
+    Future<BaseReturnObject> updateSeason(Season season) async {
+    try{
+      final query = await seasonRef
+        .where('name', isEqualTo: season.name)
+        .get();
+
+      final hasDuplicate = query.docs.any((doc) => doc.id != season.id);
+
+      if (hasDuplicate) {
+        return BaseReturnObject(
+          success: false,
+          message: 'Another season with that name already exists',
+        );
+      }
+
+      await seasonRef.doc(season.id).set(season, SetOptions(merge: true));
 
       return BaseReturnObject(
         success: true,
