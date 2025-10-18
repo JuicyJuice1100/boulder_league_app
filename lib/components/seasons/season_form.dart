@@ -8,14 +8,15 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
-class AddSeasonCardForm extends StatefulWidget {
-  const AddSeasonCardForm({super.key});
+class SeasonCardForm extends StatefulWidget {
+  final Season? season;
+  const SeasonCardForm({super.key, this.season});
 
   @override
-  State<AddSeasonCardForm> createState() => AddSeasonCardFormState();
+  State<SeasonCardForm> createState() => SeasonCardFormState();
 }
 
-class AddSeasonCardFormState extends State<AddSeasonCardForm> {
+class SeasonCardFormState extends State<SeasonCardForm> {
   final _addSeasonFormKey = GlobalKey<FormBuilderState>();
   
   List<Season> filteredSeasons = [];
@@ -31,25 +32,39 @@ class AddSeasonCardFormState extends State<AddSeasonCardForm> {
     try {
       setIsLoading(true);
 
-      SeasonService().addSeason(Season(
-        id: Uuid().v4(),
+      final season = Season(
+        id: widget.season?.id ?? Uuid().v4(),
         name: fields['name']!.value,
         startDate: fields['daterange']!.value.start,
         endDate: fields['daterange']!.value.end,
         isActive: fields['active']!.value,
         createdByUid: FirebaseAuth.instance.currentUser!.uid,
         createdByName: FirebaseAuth.instance.currentUser!.displayName ?? 'Unknown User',
-      )).then((value) => {
-        if(value.success) {
-          ToastNotification.success(value.message, null),
-          _addSeasonFormKey.currentState?.reset(),
-          Navigator.pop(context)
-        } else {
-          ToastNotification.error(value.message, null)
-        }
-      });
+      );
+
+      if(widget.season == null) {
+        SeasonService().addSeason(season).then((value) => {
+          if(value.success) {
+            ToastNotification.success(value.message, null),
+            _addSeasonFormKey.currentState?.reset(),
+            Navigator.pop(context)
+          } else {
+            ToastNotification.error(value.message, null)
+          }
+        });
+      } else {
+        SeasonService().updateSeason(season).then((value) => {
+          if(value.success) {
+            ToastNotification.success(value.message, null),
+            _addSeasonFormKey.currentState?.reset(),
+            Navigator.pop(context)
+          } else {
+            ToastNotification.error(value.message, null)
+          }
+        });
+      }
     } catch (e) {
-      ToastNotification.error('Failed to add boulder: $e', null);
+      ToastNotification.error('Failed to add/edit boulder: $e', null);
     } finally {
       setIsLoading(false);
     }
@@ -66,6 +81,7 @@ class AddSeasonCardFormState extends State<AddSeasonCardForm> {
         child: Column(
           spacing: 10,
           children: [
+            SizedBox(height: 10),
             FormBuilderTextField(
               name: 'name',
               decoration: InputDecoration(
@@ -74,7 +90,8 @@ class AddSeasonCardFormState extends State<AddSeasonCardForm> {
               ),
               validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required()
-              ])
+              ]),
+              initialValue: widget.season?.name ?? '',
             ),
             FormBuilderDateRangePicker(
               name: 'daterange',
@@ -88,12 +105,15 @@ class AddSeasonCardFormState extends State<AddSeasonCardForm> {
               firstDate: DateTime(DateTime.now().year),
               lastDate: DateTime(DateTime.now().year + 1),
               format: DateFormat('MMM dd, yyyy'),
-              initialEntryMode: DatePickerEntryMode.input
+              initialEntryMode: DatePickerEntryMode.input,
+              initialValue: widget.season != null
+                ? DateTimeRange(start: widget.season!.startDate, end: widget.season!.endDate)
+                : null,
             ),
             FormBuilderCheckbox(
               name: 'active',  
               title: Text('Active Season'),
-              initialValue: false,
+              initialValue: widget.season?.isActive ?? false,
             ),
             SizedBox(
               width: double.infinity,
