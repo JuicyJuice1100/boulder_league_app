@@ -29,21 +29,6 @@ class _SeasonsTableState extends State<SeasonsTable> {
     );
   }
 
-  void _addSeason() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          child: Container(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            padding: EdgeInsets.all(16.0),
-              child: SeasonCardForm(),
-          )
-        );
-      }
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Season>>(
