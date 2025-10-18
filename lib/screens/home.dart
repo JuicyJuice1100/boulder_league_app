@@ -37,6 +37,8 @@ class HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leadingWidth: 100,
+        centerTitle: true,
         title: Text(AppGlobal.title),
         leading: Builder(
           builder: (context) {

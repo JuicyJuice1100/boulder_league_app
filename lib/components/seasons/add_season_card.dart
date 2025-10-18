@@ -42,7 +42,8 @@ class AddSeasonCardFormState extends State<AddSeasonCardForm> {
       )).then((value) => {
         if(value.success) {
           ToastNotification.success(value.message, null),
-          _addSeasonFormKey.currentState?.reset()
+          _addSeasonFormKey.currentState?.reset(),
+          Navigator.pop(context)
         } else {
           ToastNotification.error(value.message, null)
         }
@@ -56,61 +57,66 @@ class AddSeasonCardFormState extends State<AddSeasonCardForm> {
 
   @override
   Widget build(BuildContext context) {
-    return FormBuilder(
-      key: _addSeasonFormKey,
-      child: Column(
-        spacing: 10,
-        children: [
-          FormBuilderTextField(
-            name: 'name',
-            decoration: InputDecoration(
-              border: OutlineInputBorder(), 
-              labelText: 'Name'
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Add Season'),
+      ),
+      body: FormBuilder(
+        key: _addSeasonFormKey,
+        child: Column(
+          spacing: 10,
+          children: [
+            FormBuilderTextField(
+              name: 'name',
+              decoration: InputDecoration(
+                border: OutlineInputBorder(), 
+                labelText: 'Name'
+              ),
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required()
+              ])
             ),
-            validator: FormBuilderValidators.compose([
-              FormBuilderValidators.required()
-            ])
-          ),
-          FormBuilderDateRangePicker(
-            name: 'daterange',
-            decoration: InputDecoration(
-              border: OutlineInputBorder(), 
-              labelText: 'Date Range'
+            FormBuilderDateRangePicker(
+              name: 'daterange',
+              decoration: InputDecoration(
+                border: OutlineInputBorder(), 
+                labelText: 'Date Range'
+              ),
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required()
+              ]), 
+              firstDate: DateTime(DateTime.now().year),
+              lastDate: DateTime(DateTime.now().year + 1),
+              format: DateFormat('MMM dd, yyyy'),
+              initialEntryMode: DatePickerEntryMode.input
             ),
-            validator: FormBuilderValidators.compose([
-              FormBuilderValidators.required()
-            ]), 
-            firstDate: DateTime(DateTime.now().year),
-            lastDate: DateTime(DateTime.now().year + 1),
-            format: DateFormat('MMM dd, yyyy'),
-            initialEntryMode: DatePickerEntryMode.input
-          ),
             FormBuilderCheckbox(
-            name: 'active',  
-            title: Text('Active Season'),
-            initialValue: false,
-          ),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: isLoading ? null : ()  {
-                if (_addSeasonFormKey.currentState!.validate()) {
-                  onSave(_addSeasonFormKey.currentState!.fields);
-                }
-              },
-              icon: isLoading ?
-                SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    strokeWidth: 2.0
-                  )
-                ) : Icon(Icons.add), 
-              label: Text('Add'),
+              name: 'active',  
+              title: Text('Active Season'),
+              initialValue: false,
+            ),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: isLoading ? null : ()  {
+                  if (_addSeasonFormKey.currentState!.validate()) {
+                    onSave(_addSeasonFormKey.currentState!.fields);
+                  }
+                },
+                icon: isLoading ?
+                  SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      strokeWidth: 2.0
+                    )
+                  ) : Icon(Icons.add), 
+                label: Text('Add'),
+              )
             )
-          )
-        ]
+          ]
+        )
       )
     );
   }
