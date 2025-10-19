@@ -55,6 +55,7 @@ class AddBoulderCardFormState extends State<AddBoulderCardForm> {
 
       BoulderService().addBoulder(Boulder(
         id: Uuid().v4(),
+        gymId: fields['gymId']!.value,
         name: fields['name']!.value,
         week: fields['week']!.value,
         seasonId: fields['season']!.value,
@@ -95,6 +96,23 @@ class AddBoulderCardFormState extends State<AddBoulderCardForm> {
                       child: Column(
                         spacing: 10,
                         children: [
+                          FormBuilderDropdown(
+                            name: 'gymId',
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(), 
+                              labelText: 'Gym'
+                            ),
+                            initialValue: 'climb_kraft',
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required()
+                            ]),
+                            items: const [
+                              DropdownMenuItem(
+                                value: 'climb_kraft',
+                                child: Text('Climb Kraft'),
+                              ),
+                            ],
+                          ),
                           FormBuilderTextField(
                             name: 'name',
                             decoration: InputDecoration(

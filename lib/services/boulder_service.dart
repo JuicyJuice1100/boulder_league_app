@@ -16,6 +16,7 @@ class BoulderService {
   Future<BaseReturnObject> addBoulder(Boulder boulder) async {
     try{
       final query = await boulderRef
+        .where('gymId', isEqualTo: boulder.gymId)
         .where('name', isEqualTo: boulder.name)
         .where('week', isEqualTo: boulder.week)
         .where('seasonId', isEqualTo: boulder.seasonId)
@@ -50,10 +51,12 @@ class BoulderService {
   Stream<List<Boulder>> getBoulders(BoulderFilters? filters) {
     Query<Boulder> query = boulderRef;
 
+    final gymId = filters?.gymId;
     final seasonId = filters?.seasonId;
     final week = filters?.week;
     final createdByUid = filters?.createdByUid;
 
+    if (gymId != null) query = query.where('gymId', isEqualTo: gymId);
     if (seasonId != null) query = query.where('seasonId', isEqualTo: seasonId);
     if (week != null) query = query.where('week', isEqualTo: week);
     if (createdByUid != null) query = query.where('createdByUid', isEqualTo: createdByUid);

@@ -1,4 +1,5 @@
 class BoulderFilters {
+  String? gymId;
   String? seasonId;
   num? week;
   String? createdByUid;
