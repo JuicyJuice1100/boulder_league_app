@@ -28,7 +28,7 @@ class SectionWidget extends StatelessWidget {
                 SizedBox(
                   width: MediaQuery.of(context).size.width,
                   child: FilledButton.icon(
-                    label: Text('Add ${title}'),
+                    label: Text('Add $title'),
                     onPressed: () {
                       showDialog(
                         context: context,
