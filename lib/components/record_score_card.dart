@@ -79,10 +79,12 @@ class RecordScoreCardFormState extends State<RecordScoreCardForm> {
     try {
       setIsLoading(true);
 
+      final selectedBoulder = filteredBoulders.firstWhere((b) => b.id == fields['boulder']!.value);
       var boulder = ScoredBoulder(
         uid: FirebaseAuth.instance.currentUser!.uid,
-        boulderId: fields['boulder']!.value,
-        boulderName: filteredBoulders.firstWhere((b) => b.id == fields['boulder']!.value).name,
+        boulderId: selectedBoulder.id,
+        boulderName: selectedBoulder.name,
+        gymId: selectedBoulder.gymId,
         seasonId: selectedSeasonId!,
         seasonName: seasons.firstWhere((s) => s.id == selectedSeasonId).name,
         week: selectedWeek!,
@@ -129,6 +131,23 @@ class RecordScoreCardFormState extends State<RecordScoreCardForm> {
                       child: Column(
                         spacing: 10,
                         children: [
+                          FormBuilderDropdown(
+                            name: 'gymId',
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: 'Gym Id',
+                            ),
+                            initialValue: 'climb_kraft',
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required()
+                            ]),
+                            items: const [
+                              DropdownMenuItem(
+                                value: 'climb_kraft',
+                                child: Text('Climb Kraft'),
+                              ),
+                            ],
+                          ),
                            isLoading 
                             ? CircularProgressIndicator() :
                             FormBuilderDropdown(

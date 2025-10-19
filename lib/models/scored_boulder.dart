@@ -4,6 +4,7 @@ class ScoredBoulder {
   final String uid;
   final String boulderId;
   final String boulderName;
+  final String gymId;
   final String seasonId;
   final String seasonName;
   final num week;
@@ -33,6 +34,7 @@ class ScoredBoulder {
     required this.uid,
     required this.boulderId,
     required this.boulderName,
+    required this.gymId,
     required this.seasonId,
     required this.seasonName,
     required this.week,
@@ -47,6 +49,7 @@ class ScoredBoulder {
     : uid = json['uid'] as String,
       boulderId = json['boulderId'] as String,
       boulderName = json['boulderName'] as String,
+      gymId = json['gymId'] as String,
       seasonId = json['seasonId'] as String,
       seasonName = json['seasonName'] as String,
       week = json['week'] as num,
@@ -61,6 +64,7 @@ class ScoredBoulder {
       'uid': uid,
       'boulderId': boulderId,
       'boulderName': boulderName,
+      'gymId': gymId,
       'seasonId': seasonId,
       'seasonName': seasonName,
       'week': week,
