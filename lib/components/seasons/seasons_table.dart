@@ -71,14 +71,10 @@ class _SeasonsTableState extends State<SeasonsTable> {
                     cells: [
                       DataCell(Text(season.name)),
                       DataCell(Text(
-                        season.startDate != null
-                            ? season.startDate.toString().split(' ')[0]
-                            : '-',
+                        season.startDate.toString().split(' ')[0],
                       )),
                       DataCell(Text(
-                        season.endDate != null
-                            ? season.endDate.toString().split(' ')[0]
-                            : '-',
+                        season.endDate.toString().split(' ')[0],
                       )),
                       DataCell(Text(season.createdByName)),
                       DataCell(Icon(
