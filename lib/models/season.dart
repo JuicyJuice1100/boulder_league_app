@@ -1,3 +1,4 @@
+import 'package:boulder_league_app/models/base_meta_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Season {
@@ -7,8 +8,7 @@ class Season {
   final DateTime startDate;
   final DateTime endDate;
   final bool isActive;
-  final String createdByUid;
-  final String createdByName;
+  final BaseMetaData baseMetaData;
 
   Season({
     required this.id,
@@ -17,8 +17,7 @@ class Season {
     required this.startDate,
     required this.endDate,
     required this.isActive,
-    required this.createdByUid,
-    required this.createdByName
+    required this.baseMetaData
   });
 
   factory Season.fromJson(Map<String, dynamic> json, String id) {
@@ -29,8 +28,7 @@ class Season {
       startDate: (json['startDate'] as Timestamp).toDate(),
       endDate: (json['endDate'] as Timestamp).toDate(),
       isActive: json['isActive'] ?? false,
-      createdByUid: json['createdByUid'] ?? '',
-      createdByName: json['createdByName'] ?? '',
+      baseMetaData: BaseMetaData.fromJson(json['baseMetaData'])
     );
   }
   
@@ -41,8 +39,7 @@ class Season {
       'startDate': Timestamp.fromDate(startDate),
       'endDate': Timestamp.fromDate(endDate),
       'isActive': isActive, 
-      'cratedByUid': createdByUid,
-      'createdByName': createdByName
+      'baseMetaData': baseMetaData.toJson()
     };
   }
 }
