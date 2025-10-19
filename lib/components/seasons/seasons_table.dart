@@ -59,6 +59,7 @@ class _SeasonsTableState extends State<SeasonsTable> {
               child: DataTable(
                 headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
                 columns: const [
+                  DataColumn(label: Text('Gym')),
                   DataColumn(label: Text('Name')),
                   DataColumn(label: Text('Start Date')),
                   DataColumn(label: Text('End Date')),
@@ -69,6 +70,7 @@ class _SeasonsTableState extends State<SeasonsTable> {
                 rows: seasons.map((season) {
                   return DataRow(
                     cells: [
+                      DataCell(Text(season.gymId)),
                       DataCell(Text(season.name)),
                       DataCell(Text(
                         season.startDate.toString().split(' ')[0],

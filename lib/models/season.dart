@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Season {
   final String id;
+  final String gymId;
   final String name;
   final DateTime startDate;
   final DateTime endDate;
@@ -11,6 +12,7 @@ class Season {
 
   Season({
     required this.id,
+    required this.gymId,
     required this.name,
     required this.startDate,
     required this.endDate,
@@ -22,6 +24,7 @@ class Season {
   factory Season.fromJson(Map<String, dynamic> json, String id) {
     return Season(
       id: id,
+      gymId: json['gymId'] ?? '',
       name: json['name'] ?? '',
       startDate: (json['startDate'] as Timestamp).toDate(),
       endDate: (json['endDate'] as Timestamp).toDate(),
@@ -33,6 +36,7 @@ class Season {
   
   Map<String, dynamic> toJson() {
     return {
+      'gymId': gymId,
       'name': name,
       'startDate': Timestamp.fromDate(startDate),
       'endDate': Timestamp.fromDate(endDate),

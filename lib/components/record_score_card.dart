@@ -135,7 +135,7 @@ class RecordScoreCardFormState extends State<RecordScoreCardForm> {
                             name: 'gymId',
                             decoration: InputDecoration(
                               border: OutlineInputBorder(),
-                              labelText: 'Gym Id',
+                              labelText: 'Gym',
                             ),
                             initialValue: 'climb_kraft',
                             validator: FormBuilderValidators.compose([
