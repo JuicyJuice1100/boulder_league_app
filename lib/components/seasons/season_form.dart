@@ -1,4 +1,5 @@
 import 'package:boulder_league_app/helpers/toast_notification.dart';
+import 'package:boulder_league_app/models/base_meta_data.dart';
 import 'package:boulder_league_app/models/season.dart';
 import 'package:boulder_league_app/services/season_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -32,15 +33,20 @@ class SeasonCardFormState extends State<SeasonCardForm> {
     try {
       setIsLoading(true);
 
+      final user = FirebaseAuth.instance.currentUser!;
+
       final season = Season(
         id: widget.season?.id ?? Uuid().v4(),
         gymId: fields['gymId']!.value,
         name: fields['name']!.value,
         startDate: fields['daterange']!.value.start,
         endDate: fields['daterange']!.value.end,
-        isActive: fields['active']!.value,
-        createdByUid: FirebaseAuth.instance.currentUser!.uid,
-        createdByName: FirebaseAuth.instance.currentUser!.displayName ?? 'Unknown User',
+        isActive: fields['active']!.value, 
+        baseMetaData: BaseMetaData(
+          createdByUid: widget.season?.baseMetaData.createdByUid ?? user.uid, 
+          lastUpdateByUid: user.uid, 
+          createdAt:  widget.season?.baseMetaData.createdAt ?? DateTime.now().toUtc(), 
+          lastUpdateAt: DateTime.now().toUtc())
       );
 
       if(widget.season == null) {

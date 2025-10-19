@@ -63,7 +63,6 @@ class _SeasonsTableState extends State<SeasonsTable> {
                   DataColumn(label: Text('Name')),
                   DataColumn(label: Text('Start Date')),
                   DataColumn(label: Text('End Date')),
-                  DataColumn(label: Text('Created By')),
                   DataColumn(label: Text('Active')),
                   DataColumn(label: Text('')), // New column for buttons
                 ],
@@ -78,7 +77,6 @@ class _SeasonsTableState extends State<SeasonsTable> {
                       DataCell(Text(
                         season.endDate.toString().split(' ')[0],
                       )),
-                      DataCell(Text(season.createdByName)),
                       DataCell(Icon(
                         season.isActive ? Icons.check_circle : Icons.cancel,
                         color: season.isActive ? Colors.green : Colors.red,

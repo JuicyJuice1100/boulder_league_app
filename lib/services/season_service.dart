@@ -39,6 +39,7 @@ class SeasonService {
         message: error.message ?? 'Unknown Firebase Auth Error'
       );
     } catch (error) {
+      print(error.toString());
       return BaseReturnObject(
         success: false, 
         message: error.toString()
@@ -87,13 +88,11 @@ class SeasonService {
     final startDate = filters?.startDate;
     final endDate = filters?.endDate;
     final isActive = filters?.isActive;
-    final createdByUid = filters?.createdByUid;
 
     if (gymId != null) query = query.where('gymId', isEqualTo: gymId);
     if (startDate != null) query = query.where('startDate', isGreaterThanOrEqualTo: startDate);
     if (endDate != null) query = query.where('week', isLessThan: endDate);
     if (isActive != null) query = query.where('isActive', isEqualTo: isActive);
-    if (createdByUid != null) query = query.where('createdByUid', isEqualTo: createdByUid);
 
     return query.snapshots().map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
   }
