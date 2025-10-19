@@ -34,6 +34,7 @@ class SeasonCardFormState extends State<SeasonCardForm> {
 
       final season = Season(
         id: widget.season?.id ?? Uuid().v4(),
+        gymId: fields['gymId']!.value,
         name: fields['name']!.value,
         startDate: fields['daterange']!.value.start,
         endDate: fields['daterange']!.value.end,
@@ -82,6 +83,23 @@ class SeasonCardFormState extends State<SeasonCardForm> {
           spacing: 10,
           children: [
             SizedBox(height: 10),
+            FormBuilderDropdown(
+              name: 'gymId',
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Gym',
+              ),
+              initialValue: 'climb_kraft',
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required()
+              ]),
+              items: const [
+                DropdownMenuItem(
+                  value: 'climb_kraft',
+                  child: Text('Climb Kraft'),
+                ),
+              ],
+            ),
             FormBuilderTextField(
               name: 'name',
               decoration: InputDecoration(

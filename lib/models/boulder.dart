@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Boulder {
   final String id;
+  final String gymId;
   final String name;
   final num week;
   final String seasonId;
@@ -12,6 +13,7 @@ class Boulder {
 
   Boulder({
     required this.id,
+    required this.gymId,
     required this.name,
     required this.week,
     required this.seasonId,
@@ -23,6 +25,7 @@ class Boulder {
   factory Boulder.fromJson(Map<String, dynamic> json, String id) {
     return Boulder(
       id: id,
+      gymId: json['gymId'] ?? '',
       name: json['name'] ?? '',
       week: json['week'] ?? 0,
       seasonId: json['season'] ?? '',
@@ -34,6 +37,7 @@ class Boulder {
   
   Map<String, dynamic> toJson() {
     return {
+      'gymId': gymId,
       'name': name,
       'week': week,
       'seasonId': seasonId,
