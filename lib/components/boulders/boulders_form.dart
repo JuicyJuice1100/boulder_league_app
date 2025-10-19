@@ -1,32 +1,54 @@
 import 'package:boulder_league_app/helpers/toast_notification.dart';
 import 'package:boulder_league_app/models/base_meta_data.dart';
+import 'package:boulder_league_app/models/boulder.dart';
 import 'package:boulder_league_app/models/season.dart';
+import 'package:boulder_league_app/services/boulder_service.dart';
 import 'package:boulder_league_app/services/season_service.dart';
+import 'package:boulder_league_app/static/weeks.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
-class SeasonCardForm extends StatefulWidget {
-  final Season? season;
-  const SeasonCardForm({super.key, this.season});
+class BouldersForm extends StatefulWidget {
+  final Boulder? boulder;
+  const BouldersForm({super.key, this.boulder});
 
   @override
-  State<SeasonCardForm> createState() => SeasonCardFormState();
+  State<BouldersForm> createState() => BouldersFormState();
 }
 
-class SeasonCardFormState extends State<SeasonCardForm> {
-  final _addSeasonFormKey = GlobalKey<FormBuilderState>();
-  
-  List<Season> filteredSeasons = [];
+class BouldersFormState extends State<BouldersForm> {
+  final _boulderFormKey = GlobalKey<FormBuilderState>();
+  List<Season> seasons = [];
   bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    getSeasons();
+  }
 
   void setIsLoading(bool value) {
     setState(() {
       isLoading = value;
     });
+  }
+
+  void getSeasons() {
+    setState(() {
+      isLoading = true;
+    });
+
+    SeasonService()
+      .getSeasons(null)
+      .listen((seasons) {
+        setState(() {
+          this.seasons = seasons;
+          isLoading = false;
+        });
+      });
   }
 
   void onSave(Map<String, FormBuilderFieldState<FormBuilderField<dynamic>, dynamic>> fields) async {
@@ -35,43 +57,44 @@ class SeasonCardFormState extends State<SeasonCardForm> {
 
       final user = FirebaseAuth.instance.currentUser!;
 
-      final season = Season(
-        id: widget.season?.id ?? Uuid().v4(),
+      final boulder = Boulder(
+        id: widget.boulder?.id ?? Uuid().v4(),
         gymId: fields['gymId']!.value,
         name: fields['name']!.value,
-        startDate: fields['daterange']!.value.start,
-        endDate: fields['daterange']!.value.end,
-        isActive: fields['active']!.value, 
+        week: fields['week']!.value,
+        seasonId: fields['season']!.value,
         baseMetaData: BaseMetaData(
-          createdByUid: widget.season?.baseMetaData.createdByUid ?? user.uid, 
+          createdByUid: widget.boulder?.baseMetaData.createdByUid ?? user.uid, 
           lastUpdateByUid: user.uid, 
-          createdAt:  widget.season?.baseMetaData.createdAt ?? DateTime.now().toUtc(), 
-          lastUpdateAt: DateTime.now().toUtc())
+          createdAt: widget.boulder?.baseMetaData.createdAt ?? DateTime.now().toUtc(), 
+          lastUpdateAt: DateTime.now().toUtc()
+        )
       );
 
-      if(widget.season == null) {
-        SeasonService().addSeason(season).then((value) => {
+      if(widget.boulder == null) {
+        BoulderService().addBoulder(boulder).then((value) => {
           if(value.success) {
             ToastNotification.success(value.message, null),
-            _addSeasonFormKey.currentState?.reset(),
+            _boulderFormKey.currentState?.reset(),
             Navigator.pop(context)
           } else {
             ToastNotification.error(value.message, null)
           }
         });
       } else {
-        SeasonService().updateSeason(season).then((value) => {
-          if(value.success) {
+        BoulderService().updateBoulder(boulder).then((value) => {
+        if(value.success) {
             ToastNotification.success(value.message, null),
-            _addSeasonFormKey.currentState?.reset(),
+            _boulderFormKey.currentState?.reset(),
             Navigator.pop(context)
           } else {
             ToastNotification.error(value.message, null)
           }
         });
       }
+     
     } catch (e) {
-      ToastNotification.error('Failed to add/edit boulder: $e', null);
+      ToastNotification.error('Failed to add boulder: $e', null);
     } finally {
       setIsLoading(false);
     }
@@ -81,10 +104,10 @@ class SeasonCardFormState extends State<SeasonCardForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Season'),
+        title: Text('Add/Update Boulder')
       ),
       body: FormBuilder(
-        key: _addSeasonFormKey,
+        key: _boulderFormKey,
         child: Column(
           spacing: 10,
           children: [
@@ -92,8 +115,8 @@ class SeasonCardFormState extends State<SeasonCardForm> {
             FormBuilderDropdown(
               name: 'gymId',
               decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Gym',
+                border: OutlineInputBorder(), 
+                labelText: 'Gym'
               ),
               initialValue: 'climb_kraft',
               validator: FormBuilderValidators.compose([
@@ -115,36 +138,48 @@ class SeasonCardFormState extends State<SeasonCardForm> {
               validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required()
               ]),
-              initialValue: widget.season?.name ?? '',
+              initialValue: widget.boulder?.name ?? '',
             ),
-            FormBuilderDateRangePicker(
-              name: 'daterange',
+            isLoading 
+              ? CircularProgressIndicator() :
+              FormBuilderDropdown(
+                name: 'season',
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(), 
+                  labelText: 'Season'
+                ),
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required()
+                ]), 
+                items: seasons
+                  .map((season) => DropdownMenuItem(
+                        value: season.id,
+                        child: Text(season.name),
+                      ))
+                  .toList(),
+                initialValue: widget.boulder?.seasonId,
+              ),
+            FormBuilderDropdown(
+              name: 'week',
               decoration: InputDecoration(
                 border: OutlineInputBorder(), 
-                labelText: 'Date Range'
+                labelText: 'Week'
               ),
               validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required()
               ]), 
-              firstDate: DateTime(DateTime.now().year),
-              lastDate: DateTime(DateTime.now().year + 1),
-              format: DateFormat('MMM dd, yyyy'),
-              initialEntryMode: DatePickerEntryMode.input,
-              initialValue: widget.season != null
-                ? DateTimeRange(start: widget.season!.startDate, end: widget.season!.endDate)
-                : null,
-            ),
-            FormBuilderCheckbox(
-              name: 'active',  
-              title: Text('Active Season'),
-              initialValue: widget.season?.isActive ?? false,
+              initialValue: widget.boulder?.week,
+              items: weeksList.map((week) => DropdownMenuItem(
+                value: week,
+                child: Text(week.toString())
+              )).toList(),
             ),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
                 onPressed: isLoading ? null : ()  {
-                  if (_addSeasonFormKey.currentState!.validate()) {
-                    onSave(_addSeasonFormKey.currentState!.fields);
+                  if (_boulderFormKey.currentState!.validate()) {
+                    onSave(_boulderFormKey.currentState!.fields);
                   }
                 },
                 icon: isLoading ?

@@ -48,6 +48,43 @@ class BoulderService {
     }
   }
 
+  Future<BaseReturnObject> updateBoulder(Boulder boulder) async {
+    try {
+      final query = await boulderRef
+        .where('name', isEqualTo: boulder.name)
+        .where('season', isEqualTo: boulder.seasonId)
+        .where('week', isEqualTo: boulder.week)
+        .get();
+
+      final hasDuplicate = query.docs.any((doc) => doc.id != boulder.id);
+
+      if(hasDuplicate) {
+        return BaseReturnObject(
+          success: false,
+          message: 'Another boulder with that name already exists in selected week in selected season'
+        );
+      }
+
+      await boulderRef.doc(boulder.id).set(boulder, SetOptions(merge: true));
+
+      return BaseReturnObject(
+        success: true,
+        message: 'Boulder created successfully'
+      );
+    } on FirebaseAuthException catch (error) {
+      return BaseReturnObject(
+        success: false, 
+        message: error.message ?? 'Unknown Firebase Auth Error'
+      );
+    } 
+    catch (error) {
+      return BaseReturnObject(
+        success: false, 
+        message: error.toString()
+      );
+    }
+  }
+
   Stream<List<Boulder>> getBoulders(BoulderFilters? filters) {
     Query<Boulder> query = boulderRef;
 

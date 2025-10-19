@@ -1,8 +1,8 @@
-import 'package:boulder_league_app/components/seasons/season_form.dart';
+import 'package:boulder_league_app/components/seasons/seasons_form.dart';
 import 'package:flutter/material.dart';
 import 'package:boulder_league_app/models/season.dart';
 import 'package:boulder_league_app/services/season_service.dart';
-import 'package:boulder_league_app/static/defaultSeasonFilters.dart';
+import 'package:boulder_league_app/static/default_season_filters.dart';
 
 class SeasonsTable extends StatefulWidget {
   const SeasonsTable({super.key});
@@ -22,7 +22,7 @@ class _SeasonsTableState extends State<SeasonsTable> {
           child: Container(
             color: Theme.of(context).scaffoldBackgroundColor,
             padding: EdgeInsets.all(16.0),
-              child: SeasonCardForm(season: season),
+              child: SeasonsForm(season: season),
           )
         );
       }
