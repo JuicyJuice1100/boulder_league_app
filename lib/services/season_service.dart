@@ -39,7 +39,6 @@ class SeasonService {
         message: error.message ?? 'Unknown Firebase Auth Error'
       );
     } catch (error) {
-      print(error.toString());
       return BaseReturnObject(
         success: false, 
         message: error.toString()

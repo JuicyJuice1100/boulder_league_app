@@ -89,8 +89,6 @@ class _ScoresTableState extends State<ScoresTable> {
   }
 
   void editScore(ScoredBoulder scoredBoulder) {
-    print(scoredBoulder.toJson());
-
     showDialog(
       context: context,
       builder: (BuildContext context) {

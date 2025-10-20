@@ -98,7 +98,7 @@ class HomeScreenState extends State<HomeScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.abc),
-            label: 'Add Boulder',
+            label: 'Boulders',
             tooltip: 'Add/Update a new boulder for users'
           ),
           BottomNavigationBarItem(
