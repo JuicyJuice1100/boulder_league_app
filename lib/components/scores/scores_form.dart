@@ -36,42 +36,68 @@ class ScoresFormState extends State<ScoresForm> {
   num? selectedWeek;
   bool isLoading = false;
   bool isUpdate = false;
+  bool isInitialLoad = true;
 
   @override
   void initState() {
     super.initState();
-    getSeasons();
     setIsUpdate();
-  }
-
-  void setIsLoading(bool value) {
-    setState(() {
-      isLoading = value;
-    });
+    loadSeasonsAndInit();
   }
 
   void setIsUpdate() {
-    setState(() {
-      isUpdate = widget.scoredBoulder != null;
-    });
+    isUpdate = widget.scoredBoulder != null;
   }
 
-  void getSeasons() {
-    setState(() {
-      isLoading = true;
-    });
+  /// 1️⃣ Load seasons, then chain initial values for update
+  void loadSeasonsAndInit() async {
+    setState(() => isLoading = true);
 
-    _seasonService
-      .getSeasons(defaultSeasonFilters)
-      .listen((seasons) {
-        setState(() {
-          this.seasons = seasons;
-          isLoading = false;
-        });
+    _seasonService.getSeasons(defaultSeasonFilters).listen((seasons) async {
+      setState(() {
+        this.seasons = seasons;
+        isLoading = false;
       });
+
+      if (isUpdate) {
+        final scored = widget.scoredBoulder!;
+        // Use addPostFrameCallback to ensure form fields exist
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          // 1. Set seasonId
+          _scoreFormKey.currentState?.fields['seasonId']?.didChange(scored.seasonId);
+          setState(() => selectedSeasonId = scored.seasonId);
+
+          // 2. Set week
+          _scoreFormKey.currentState?.fields['week']?.didChange(scored.week);
+          setState(() {
+            selectedWeek = scored.week;
+            isLoading = true;
+          });
+
+          // 3. Load boulders for this season/week
+          _boulderService
+              .getBoulders(BoulderFilters(seasonId: scored.seasonId, week: scored.week))
+              .listen((boulders) {
+            setState(() {
+              filteredBoulders = boulders;
+              isLoading = false;
+            });
+
+            // 4. Set boulderId after boulders are loaded
+            _scoreFormKey.currentState?.fields['boulderId']?.didChange(scored.boulderId);
+          });
+        });
+      }
+    });
   }
 
-void updateBoulders(num? week) {
+  void updateBoulders(num? week) {
+    if(isInitialLoad) {
+      setState(() {
+        isInitialLoad = false;
+      });
+      return;
+    }
     if (week == null || selectedSeasonId == null) return;
 
     setState(() {
@@ -80,36 +106,33 @@ void updateBoulders(num? week) {
     });
 
     _boulderService
-      .getBoulders(BoulderFilters(seasonId: selectedSeasonId, week: week))
-      .listen((boulders) {
-        setState(() {
-          filteredBoulders = boulders;
-          isLoading = false;
-        });
+        .getBoulders(BoulderFilters(seasonId: selectedSeasonId, week: week))
+        .listen((boulders) {
+      setState(() {
+        filteredBoulders = boulders;
+        isLoading = false;
       });
+    });
   }
 
   void onSave(Map<String, FormBuilderFieldState<FormBuilderField<dynamic>, dynamic>> fields) async {
     try {
-      setIsLoading(true);
-      final user = FirebaseAuth.instance.currentUser!;
+      setState(() => isLoading = true);
 
+      final user = FirebaseAuth.instance.currentUser!;
       final num attempts = num.parse(fields['attempts']!.value);
       final bool completed = fields['completed']?.value;
 
       final scoredBoulder = ScoredBoulder(
         id: widget.scoredBoulder?.id ?? Uuid().v4(),
-        uid: user.uid, // users can only score for themselves
+        uid: user.uid,
         boulderId: fields['boulderId']?.value,
         gymId: fields['gymId']?.value,
         seasonId: fields['seasonId']?.value,
         week: fields['week']?.value,
         attempts: attempts,
         completed: completed,
-        score: calculateScore(
-          attempts: attempts,
-          completed: completed,
-        ),
+        score: calculateScore(attempts: attempts, completed: completed),
         baseMetaData: BaseMetaData(
           createdByUid: widget.scoredBoulder?.baseMetaData.createdByUid ?? user.uid,
           lastUpdateByUid: user.uid,
@@ -117,31 +140,22 @@ void updateBoulders(num? week) {
           lastUpdateAt: DateTime.now().toUtc(),
         ),
       );
-      if (widget.scoredBoulder != null) {
-        _scoreService.updateScore(scoredBoulder).then((value) => {
-          if(value.success) {
-            ToastNotification.success(value.message, null),
-            _scoreFormKey.currentState?.reset(),
-            Navigator.pop(context)
-          } else {
-            ToastNotification.error(value.message, null)
-          }
-        });
+
+      final result = widget.scoredBoulder != null
+          ? await _scoreService.updateScore(scoredBoulder)
+          : await _scoreService.addScore(scoredBoulder);
+
+      if (result.success) {
+        ToastNotification.success(result.message, null);
+        _scoreFormKey.currentState?.reset();
+        Navigator.pop(context);
       } else {
-        _scoreService.addScore(scoredBoulder).then((value) => {
-          if(value.success) {
-            ToastNotification.success(value.message, null),
-            _scoreFormKey.currentState?.reset(),
-            Navigator.pop(context)
-          } else {
-            ToastNotification.error(value.message, null)
-          }
-        });
+        ToastNotification.error(result.message, null);
       }
     } catch (e) {
       ToastNotification.error('Failed to update score: $e', null);
     } finally {
-      setIsLoading(false);
+      setState(() => isLoading = false);
     }
   }
 
@@ -171,8 +185,6 @@ void updateBoulders(num? week) {
                 DropdownMenuItem(value: 'climb_kraft', child: Text('Climb Kraft')),
               ],
             ),
-            isLoading 
-            ? CircularProgressIndicator() :
             FormBuilderDropdown(
               name: 'seasonId',
               decoration: InputDecoration(
@@ -189,12 +201,15 @@ void updateBoulders(num? week) {
                     ))
                 .toList(),
               onChanged: (val) {
+                print('seasonId onChanged hit');
+                print('seasonId ${val}');
                 if(val == null) return;
 
+                print('seasons: ${seasons.toList()}');
                 setState(() {
                   selectedSeasonId = val;
                 });
-              }
+              },
             ),
             FormBuilderDropdown(
               name: 'week',
@@ -211,6 +226,7 @@ void updateBoulders(num? week) {
               )).toList(),
               enabled: selectedSeasonId != null,
               onChanged: (val) {
+                print('week onChanged hit');
                 if(val == null) return;
                 
                 updateBoulders(val);
