@@ -36,7 +36,6 @@ class ScoresFormState extends State<ScoresForm> {
   num? selectedWeek;
   bool isLoading = false;
   bool isUpdate = false;
-  bool isInitialLoad = true;
 
   @override
   void initState() {
@@ -60,57 +59,43 @@ class ScoresFormState extends State<ScoresForm> {
       });
 
       if (isUpdate) {
-        final scored = widget.scoredBoulder!;
+        final scoredBoulder = widget.scoredBoulder!;
         // Use addPostFrameCallback to ensure form fields exist
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           // 1. Set seasonId
-          _scoreFormKey.currentState?.fields['seasonId']?.didChange(scored.seasonId);
-          setState(() => selectedSeasonId = scored.seasonId);
+          _scoreFormKey.currentState?.fields['seasonId']?.didChange(scoredBoulder.seasonId);
+          setState(() => selectedSeasonId = scoredBoulder.seasonId);
 
           // 2. Set week
-          _scoreFormKey.currentState?.fields['week']?.didChange(scored.week);
+          _scoreFormKey.currentState?.fields['week']?.didChange(scoredBoulder.week);
           setState(() {
-            selectedWeek = scored.week;
+            selectedWeek = scoredBoulder.week;
             isLoading = true;
-          });
-
-          // 3. Load boulders for this season/week
-          _boulderService
-              .getBoulders(BoulderFilters(seasonId: scored.seasonId, week: scored.week))
-              .listen((boulders) {
-            setState(() {
-              filteredBoulders = boulders;
-              isLoading = false;
-            });
-
-            // 4. Set boulderId after boulders are loaded
-            _scoreFormKey.currentState?.fields['boulderId']?.didChange(scored.boulderId);
           });
         });
       }
     });
   }
 
-  void updateBoulders(num? week) {
-    if(isInitialLoad) {
-      setState(() {
-        isInitialLoad = false;
-      });
-      return;
-    }
-    if (week == null || selectedSeasonId == null) return;
+  void updateBoulders() {
+    if (selectedWeek == null || selectedSeasonId == null) return;
 
     setState(() {
       isLoading = true;
-      selectedWeek = week;
     });
 
     _boulderService
-        .getBoulders(BoulderFilters(seasonId: selectedSeasonId, week: week))
+        .getBoulders(BoulderFilters(seasonId: selectedSeasonId, week: selectedWeek))
         .listen((boulders) {
       setState(() {
         filteredBoulders = boulders;
         isLoading = false;
+      });
+
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if(isUpdate) {
+          _scoreFormKey.currentState?.fields['boulderId']!.didChange(widget.scoredBoulder!.boulderId);
+        }
       });
     });
   }
@@ -201,14 +186,14 @@ class ScoresFormState extends State<ScoresForm> {
                     ))
                 .toList(),
               onChanged: (val) {
-                print('seasonId onChanged hit');
-                print('seasonId ${val}');
                 if(val == null) return;
 
-                print('seasons: ${seasons.toList()}');
                 setState(() {
                   selectedSeasonId = val;
+                  selectedWeek = null;
                 });
+
+                _scoreFormKey.currentState?.fields['week']!.reset();
               },
             ),
             FormBuilderDropdown(
@@ -226,10 +211,19 @@ class ScoresFormState extends State<ScoresForm> {
               )).toList(),
               enabled: selectedSeasonId != null,
               onChanged: (val) {
-                print('week onChanged hit');
-                if(val == null) return;
+                if(val == null) {
+                  setState(() {
+                    filteredBoulders = [];
+                  });
+                  _scoreFormKey.currentState?.fields['boulderId']!.reset();
+                  return;
+                }
+
+                setState(() {
+                  selectedWeek = val;
+                });
                 
-                updateBoulders(val);
+                updateBoulders();
               },
             ),
             FormBuilderDropdown(
@@ -241,6 +235,7 @@ class ScoresFormState extends State<ScoresForm> {
               validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required()
               ]), 
+              enabled: selectedWeek != null,
               items: filteredBoulders.map((boulder) => DropdownMenuItem(
                 value: boulder.id,
                 child: Text(boulder.name),
