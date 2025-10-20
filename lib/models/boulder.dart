@@ -24,7 +24,7 @@ class Boulder {
       gymId: json['gymId'] ?? '',
       name: json['name'] ?? '',
       week: json['week'] ?? 0,
-      seasonId: json['season'] ?? '',
+      seasonId: json['seasonId'] ?? '',
       baseMetaData: BaseMetaData.fromJson(json['baseMetaData'])
     );
   }

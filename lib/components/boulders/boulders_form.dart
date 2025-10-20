@@ -21,6 +21,8 @@ class BouldersForm extends StatefulWidget {
 
 class BouldersFormState extends State<BouldersForm> {
   final _boulderFormKey = GlobalKey<FormBuilderState>();
+  final SeasonService _seasonService = SeasonService();
+  
   List<Season> seasons = [];
   bool isLoading = false;
 
@@ -41,7 +43,7 @@ class BouldersFormState extends State<BouldersForm> {
       isLoading = true;
     });
 
-    SeasonService()
+    _seasonService
       .getSeasons(null)
       .listen((seasons) {
         setState(() {
