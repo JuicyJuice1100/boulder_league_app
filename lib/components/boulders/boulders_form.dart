@@ -22,6 +22,7 @@ class BouldersForm extends StatefulWidget {
 class BouldersFormState extends State<BouldersForm> {
   final _boulderFormKey = GlobalKey<FormBuilderState>();
   final SeasonService _seasonService = SeasonService();
+  final BoulderService _boulderService = BoulderService();
   
   List<Season> seasons = [];
   bool isLoading = false;
@@ -82,7 +83,7 @@ class BouldersFormState extends State<BouldersForm> {
       );
 
       if(widget.boulder == null) {
-        BoulderService().addBoulder(boulder).then((value) => {
+        _boulderService.addBoulder(boulder).then((value) => {
           if(value.success) {
             ToastNotification.success(value.message, null),
             _boulderFormKey.currentState?.reset(),
@@ -92,7 +93,7 @@ class BouldersFormState extends State<BouldersForm> {
           }
         });
       } else {
-        BoulderService().updateBoulder(boulder).then((value) => {
+        _boulderService.updateBoulder(boulder).then((value) => {
         if(value.success) {
             ToastNotification.success(value.message, null),
             _boulderFormKey.currentState?.reset(),
