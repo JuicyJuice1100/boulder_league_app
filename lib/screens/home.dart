@@ -1,5 +1,6 @@
 import 'package:boulder_league_app/app_global.dart';
-import 'package:boulder_league_app/components/add_boulder_card.dart';
+import 'package:boulder_league_app/components/boulders/boulders_form.dart';
+import 'package:boulder_league_app/components/boulders/boulders_section.dart';
 import 'package:boulder_league_app/components/leaderboard_card.dart';
 import 'package:boulder_league_app/components/record_score_card.dart';
 import 'package:boulder_league_app/components/seasons/seasons_section.dart';
@@ -23,7 +24,7 @@ class HomeScreenState extends State<HomeScreen> {
   final List<Widget> widgetOptions = const [
     LeaderboardCard(),
     RecordScoreCardForm(),
-    AddBoulderCardForm(),
+    BouldersSection(),
     SeasonsSection()
   ];
 
@@ -66,13 +67,14 @@ class HomeScreenState extends State<HomeScreen> {
               ),
               child: UserScreen(),
             ),
-            ListTile(
-              leading: const Icon(Icons.account_box),
-              title: const Text('Account Info'),
-              onTap: () {
-                AppGlobal.navigatorKey.currentState!.pushNamed(AccountScreen.routeName);
-              },
-            ),
+            // TODO: disabling for now until this feature is ready
+            // ListTile(
+            //   leading: const Icon(Icons.account_box),
+            //   title: const Text('Account Info'),
+            //   onTap: () {
+            //     AppGlobal.navigatorKey.currentState!.pushNamed(AccountScreen.routeName);
+            //   },
+            // ),
             ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Logout'),

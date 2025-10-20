@@ -9,23 +9,36 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
-class SeasonCardForm extends StatefulWidget {
+class SeasonsForm extends StatefulWidget {
   final Season? season;
-  const SeasonCardForm({super.key, this.season});
+  const SeasonsForm({super.key, this.season});
 
   @override
-  State<SeasonCardForm> createState() => SeasonCardFormState();
+  State<SeasonsForm> createState() => SeasonsFormState();
 }
 
-class SeasonCardFormState extends State<SeasonCardForm> {
-  final _addSeasonFormKey = GlobalKey<FormBuilderState>();
+class SeasonsFormState extends State<SeasonsForm> {
+  final _seasonFormKey = GlobalKey<FormBuilderState>();
   
   List<Season> filteredSeasons = [];
   bool isLoading = false;
+  bool isUpdate = false;
+
+  @override
+  void initState() {
+    super.initState();
+    setIsUpdate();
+  }
 
   void setIsLoading(bool value) {
     setState(() {
       isLoading = value;
+    });
+  }
+
+  void setIsUpdate() {
+    setState(() {
+      isUpdate = widget.season != null;
     });
   }
 
@@ -53,7 +66,7 @@ class SeasonCardFormState extends State<SeasonCardForm> {
         SeasonService().addSeason(season).then((value) => {
           if(value.success) {
             ToastNotification.success(value.message, null),
-            _addSeasonFormKey.currentState?.reset(),
+            _seasonFormKey.currentState?.reset(),
             Navigator.pop(context)
           } else {
             ToastNotification.error(value.message, null)
@@ -63,7 +76,7 @@ class SeasonCardFormState extends State<SeasonCardForm> {
         SeasonService().updateSeason(season).then((value) => {
           if(value.success) {
             ToastNotification.success(value.message, null),
-            _addSeasonFormKey.currentState?.reset(),
+            _seasonFormKey.currentState?.reset(),
             Navigator.pop(context)
           } else {
             ToastNotification.error(value.message, null)
@@ -81,10 +94,10 @@ class SeasonCardFormState extends State<SeasonCardForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Season'),
+        title: Text(isUpdate ? 'Update Season' : 'Add Season'),
       ),
       body: FormBuilder(
-        key: _addSeasonFormKey,
+        key: _seasonFormKey,
         child: Column(
           spacing: 10,
           children: [
@@ -95,7 +108,7 @@ class SeasonCardFormState extends State<SeasonCardForm> {
                 border: OutlineInputBorder(),
                 labelText: 'Gym',
               ),
-              initialValue: 'climb_kraft',
+              initialValue: widget.season?.gymId ?? 'climb_kraft', // TODO: update to get ids from created gyms
               validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required()
               ]),
@@ -143,8 +156,8 @@ class SeasonCardFormState extends State<SeasonCardForm> {
               width: double.infinity,
               child: FilledButton.icon(
                 onPressed: isLoading ? null : ()  {
-                  if (_addSeasonFormKey.currentState!.validate()) {
-                    onSave(_addSeasonFormKey.currentState!.fields);
+                  if (_seasonFormKey.currentState!.validate()) {
+                    onSave(_seasonFormKey.currentState!.fields);
                   }
                 },
                 icon: isLoading ?
@@ -155,8 +168,8 @@ class SeasonCardFormState extends State<SeasonCardForm> {
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       strokeWidth: 2.0
                     )
-                  ) : Icon(Icons.add), 
-                label: Text('Add'),
+                  ) : Icon(isUpdate ? Icons.save : Icons.add), 
+                label: Text(isUpdate ? 'Update' : 'Add'),
               )
             )
           ]
