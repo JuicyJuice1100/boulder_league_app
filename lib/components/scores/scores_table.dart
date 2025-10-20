@@ -88,7 +88,9 @@ class _ScoresTableState extends State<ScoresTable> {
     super.dispose();
   }
 
-  void editScore(ScoredBoulder score) {
+  void editScore(ScoredBoulder scoredBoulder) {
+    print(scoredBoulder.toJson());
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -96,7 +98,7 @@ class _ScoresTableState extends State<ScoresTable> {
           child: Container(
             color: Theme.of(context).scaffoldBackgroundColor,
             padding: EdgeInsets.all(16.0),
-            child: ScoresForm(scoredBoulder: score),
+            child: ScoresForm(scoredBoulder: scoredBoulder),
           )
         );
       }
@@ -124,9 +126,9 @@ class _ScoresTableState extends State<ScoresTable> {
           );
         }
 
-        final scores = snapshot.data ?? [];
+        final scoredBoulders = snapshot.data ?? [];
 
-        if (scores.isEmpty) {
+        if (scoredBoulders.isEmpty) {
           return const Center(child: Text('No scores found.'));
         }
 
@@ -144,7 +146,7 @@ class _ScoresTableState extends State<ScoresTable> {
                   DataColumn(label: Text('Score')),
                   DataColumn(label: Text('')), // Actions column
                 ],
-                rows: scores.map((score) {
+                rows: scoredBoulders.map((scoredBoulder) {
                   return DataRow(
                     cells: [
                       DataCell(
@@ -159,11 +161,11 @@ class _ScoresTableState extends State<ScoresTable> {
                             }
 
                             final boulder = boulders.firstWhere(
-                              (b) => b.id == score.boulderId,
+                              (b) => b.id == scoredBoulder.boulderId,
                               orElse: () => Boulder(
-                                id: score.boulderId,
+                                id: scoredBoulder.boulderId,
                                 name: 'Unknown Boulder',
-                                gymId: score.gymId,
+                                gymId: scoredBoulder.gymId,
                                 week: 0,
                                 seasonId: currentSeasonId ?? 'Unknown Season',
                                 baseMetaData: BaseMetaData(
@@ -179,18 +181,18 @@ class _ScoresTableState extends State<ScoresTable> {
                           }
                         )
                       ),
-                      DataCell(Text(score.attempts.toString())),
+                      DataCell(Text(scoredBoulder.attempts.toString())),
                       DataCell(Icon(
-                        score.completed ? Icons.check_circle : Icons.cancel,
-                        color: score.completed ? Colors.green : Colors.red,
+                        scoredBoulder.completed ? Icons.check_circle : Icons.cancel,
+                        color: scoredBoulder.completed ? Colors.green : Colors.red,
                       )),
-                      DataCell(Text(score.score.toString())),
+                      DataCell(Text(scoredBoulder.score.toString())),
                       DataCell(Row(
                         children: [
                           ElevatedButton.icon(
                             label: const Text('Edit'),
                             icon: const Icon(Icons.edit),
-                            onPressed: () => editScore(score),
+                            onPressed: () => editScore(scoredBoulder),
                           ),
                         ],
                       )),
