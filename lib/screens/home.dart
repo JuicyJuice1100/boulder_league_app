@@ -1,10 +1,8 @@
 import 'package:boulder_league_app/app_global.dart';
-import 'package:boulder_league_app/components/boulders/boulders_form.dart';
 import 'package:boulder_league_app/components/boulders/boulders_section.dart';
 import 'package:boulder_league_app/components/leaderboard_card.dart';
-import 'package:boulder_league_app/components/record_score_card.dart';
+import 'package:boulder_league_app/components/scores/scores_section.dart';
 import 'package:boulder_league_app/components/seasons/seasons_section.dart';
-import 'package:boulder_league_app/screens/account.dart';
 import 'package:boulder_league_app/screens/user.dart';
 import 'package:boulder_league_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +21,7 @@ class HomeScreenState extends State<HomeScreen> {
 
   final List<Widget> widgetOptions = const [
     LeaderboardCard(),
-    RecordScoreCardForm(),
+    ScoresSection(),
     BouldersSection(),
     SeasonsSection()
   ];
@@ -95,18 +93,18 @@ class HomeScreenState extends State<HomeScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.check),
-            label: 'Record Score',
-            tooltip: 'Report your score',
+            label: 'Score',
+            tooltip: 'Report/Update your score for boulders',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.abc),
             label: 'Add Boulder',
-            tooltip: 'Add a new boulder for users'
+            tooltip: 'Add/Update a new boulder for users'
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.numbers),
             label: 'Seasons',
-            tooltip: 'Add/Edit a new boulder season'
+            tooltip: 'Add/Update a new boulder season for users'
           )
         ],
         currentIndex: selectedIndex,

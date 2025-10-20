@@ -92,12 +92,10 @@ class BoulderService {
     final gymId = filters?.gymId;
     final seasonId = filters?.seasonId;
     final week = filters?.week;
-    final createdByUid = filters?.createdByUid;
 
     if (gymId != null) query = query.where('gymId', isEqualTo: gymId);
     if (seasonId != null) query = query.where('seasonId', isEqualTo: seasonId);
     if (week != null) query = query.where('week', isEqualTo: week);
-    if (createdByUid != null) query = query.where('createdByUid', isEqualTo: createdByUid);
 
     return query.snapshots().map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
   }

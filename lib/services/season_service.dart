@@ -47,7 +47,7 @@ class SeasonService {
     }
   }
 
-    Future<BaseReturnObject> updateSeason(Season season) async {
+  Future<BaseReturnObject> updateSeason(Season season) async {
     try{
       final query = await seasonRef
         .where('gymId', isEqualTo: season.gymId)
@@ -96,5 +96,14 @@ class SeasonService {
     if (isActive != null) query = query.where('isActive', isEqualTo: isActive);
 
     return query.snapshots().map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
+  }
+
+  Stream<Season?> getCurrentSeasonForGym(String gymId) {
+    Query<Season> query = seasonRef;
+
+    query = query.where('gymId', isEqualTo: gymId);
+    query = query.where('isActive', isEqualTo: true);
+
+    return query.snapshots().map((snapshot) => snapshot.docs.map((doc) => doc.data()).firstOrNull);
   }
 }
