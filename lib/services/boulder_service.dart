@@ -18,8 +18,8 @@ class BoulderService {
       final query = await boulderRef
         .where('gymId', isEqualTo: boulder.gymId)
         .where('name', isEqualTo: boulder.name)
-        .where('week', isEqualTo: boulder.week)
         .where('seasonId', isEqualTo: boulder.seasonId)
+        .where('week', isEqualTo: boulder.week)
         .get();
 
       if (query.docs.isNotEmpty) {
@@ -51,8 +51,9 @@ class BoulderService {
   Future<BaseReturnObject> updateBoulder(Boulder boulder) async {
     try {
       final query = await boulderRef
+        .where('gymId', isEqualTo: boulder.gymId)
         .where('name', isEqualTo: boulder.name)
-        .where('season', isEqualTo: boulder.seasonId)
+        .where('seasonId', isEqualTo: boulder.seasonId)
         .where('week', isEqualTo: boulder.week)
         .get();
 
@@ -61,7 +62,7 @@ class BoulderService {
       if(hasDuplicate) {
         return BaseReturnObject(
           success: false,
-          message: 'Another boulder with that name already exists in selected week in selected season'
+          message: 'Another boulder with that name already exists for selected season selected season on selected week'
         );
       }
 

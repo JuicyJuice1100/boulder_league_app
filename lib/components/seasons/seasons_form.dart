@@ -22,10 +22,23 @@ class SeasonsFormState extends State<SeasonsForm> {
   
   List<Season> filteredSeasons = [];
   bool isLoading = false;
+  bool isUpdate = false;
+
+  @override
+  void initState() {
+    super.initState();
+    setIsUpdate();
+  }
 
   void setIsLoading(bool value) {
     setState(() {
       isLoading = value;
+    });
+  }
+
+  void setIsUpdate() {
+    setState(() {
+      isUpdate = widget.season != null;
     });
   }
 
@@ -81,7 +94,7 @@ class SeasonsFormState extends State<SeasonsForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add/Update Season'),
+        title: Text(isUpdate ? 'Update Season' : 'Add Season'),
       ),
       body: FormBuilder(
         key: _seasonFormKey,
@@ -155,8 +168,8 @@ class SeasonsFormState extends State<SeasonsForm> {
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       strokeWidth: 2.0
                     )
-                  ) : Icon(Icons.add), 
-                label: Text('Add'),
+                  ) : Icon(isUpdate ? Icons.save : Icons.add), 
+                label: Text(isUpdate ? 'Update' : 'Add'),
               )
             )
           ]

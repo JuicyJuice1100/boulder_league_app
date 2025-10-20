@@ -16,8 +16,8 @@ class SeasonService {
   Future<BaseReturnObject> addSeason(Season season) async {
     try{
       final query = await seasonRef
+        .where('gymId', isEqualTo: season.gymId)
         .where('name', isEqualTo: season.name)
-        .limit(1)
         .get();
 
       if (query.docs.isNotEmpty) {
@@ -50,6 +50,7 @@ class SeasonService {
     Future<BaseReturnObject> updateSeason(Season season) async {
     try{
       final query = await seasonRef
+        .where('gymId', isEqualTo: season.gymId)
         .where('name', isEqualTo: season.name)
         .get();
 

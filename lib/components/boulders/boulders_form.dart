@@ -25,11 +25,13 @@ class BouldersFormState extends State<BouldersForm> {
   
   List<Season> seasons = [];
   bool isLoading = false;
+  bool isUpdate = false;
 
   @override
   void initState() {
     super.initState();
     getSeasons();
+    setIsUpdate();
   }
 
   void setIsLoading(bool value) {
@@ -51,6 +53,12 @@ class BouldersFormState extends State<BouldersForm> {
           isLoading = false;
         });
       });
+  }
+
+  void setIsUpdate() {
+    setState(() {
+      isUpdate = widget.boulder != null;
+    });
   }
 
   void onSave(Map<String, FormBuilderFieldState<FormBuilderField<dynamic>, dynamic>> fields) async {
@@ -106,7 +114,7 @@ class BouldersFormState extends State<BouldersForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add/Update Boulder')
+        title: Text(isUpdate ? 'Update Boulder' : 'Add Boulder')
       ),
       body: FormBuilder(
         key: _boulderFormKey,
@@ -184,16 +192,17 @@ class BouldersFormState extends State<BouldersForm> {
                     onSave(_boulderFormKey.currentState!.fields);
                   }
                 },
-                icon: isLoading ?
-                  SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      strokeWidth: 2.0
+                icon: isLoading
+                  ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        strokeWidth: 2.0
+                      )
                     )
-                  ) : Icon(Icons.add), 
-                label: Text('Add'),
+                  : Icon(isUpdate ? Icons.save : Icons.add),
+                label: Text(isUpdate ? 'Update' : 'Add'),
               )
             )
           ]
