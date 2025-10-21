@@ -4,7 +4,7 @@ import 'package:boulder_league_app/models/boulder.dart';
 import 'package:boulder_league_app/models/boulder_filters.dart';
 import 'package:boulder_league_app/models/scored_boulder_filters.dart';
 import 'package:boulder_league_app/models/season.dart';
-import 'package:boulder_league_app/services/boulder_scoring_service.dart';
+import 'package:boulder_league_app/services/scoring_service.dart';
 import 'package:boulder_league_app/services/boulder_service.dart';
 import 'package:boulder_league_app/services/season_service.dart';
 import 'package:boulder_league_app/static/default_scored_boulder_filters.dart';
@@ -21,7 +21,7 @@ class ScoresTable extends StatefulWidget {
 }
 
 class _ScoresTableState extends State<ScoresTable> {
-  final BoulderScoringService _scoreService = BoulderScoringService();
+  final ScoringService _scoreService = ScoringService();
   final SeasonService _seasonService = SeasonService();
   final BoulderService _boulderService = BoulderService();
   List<Boulder> boulders = [];

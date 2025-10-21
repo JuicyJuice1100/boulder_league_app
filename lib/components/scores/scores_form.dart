@@ -4,7 +4,7 @@ import 'package:boulder_league_app/models/boulder.dart';
 import 'package:boulder_league_app/models/boulder_filters.dart';
 import 'package:boulder_league_app/models/scored_boulder.dart';
 import 'package:boulder_league_app/models/season.dart';
-import 'package:boulder_league_app/services/boulder_scoring_service.dart';
+import 'package:boulder_league_app/services/scoring_service.dart';
 import 'package:boulder_league_app/services/boulder_service.dart';
 import 'package:boulder_league_app/services/season_service.dart';
 import 'package:boulder_league_app/static/default_season_filters.dart';
@@ -26,7 +26,7 @@ class ScoresForm extends StatefulWidget {
 
 class ScoresFormState extends State<ScoresForm> {
   final _scoreFormKey = GlobalKey<FormBuilderState>();
-  final BoulderScoringService _scoreService = BoulderScoringService();
+  final ScoringService _scoreService = ScoringService();
   final BoulderService _boulderService = BoulderService();
   final SeasonService _seasonService = SeasonService();
 
