@@ -2,6 +2,8 @@ import 'package:boulder_league_app/components/scores/scores_form.dart';
 import 'package:boulder_league_app/models/base_meta_data.dart';
 import 'package:boulder_league_app/models/boulder.dart';
 import 'package:boulder_league_app/models/boulder_filters.dart';
+import 'package:boulder_league_app/models/gym.dart';
+import 'package:boulder_league_app/models/season.dart';
 import 'package:boulder_league_app/models/scored_boulder_filters.dart';
 import 'package:boulder_league_app/services/scoring_service.dart';
 import 'package:boulder_league_app/services/boulder_service.dart';
@@ -13,11 +15,15 @@ import 'dart:async';
 class ScoresTable extends StatefulWidget {
   final String selectedGymId;
   final String? selectedSeasonId;
+  final List<Gym> availableGyms;
+  final List<Season> availableSeasons;
 
   const ScoresTable({
     super.key,
     required this.selectedGymId,
     required this.selectedSeasonId,
+    required this.availableGyms,
+    required this.availableSeasons,
   });
 
   @override
@@ -99,7 +105,11 @@ class _ScoresTableState extends State<ScoresTable> {
           child: Container(
             color: Theme.of(context).scaffoldBackgroundColor,
             padding: EdgeInsets.all(16.0),
-            child: ScoresForm(scoredBoulder: scoredBoulder),
+            child: ScoresForm(
+              scoredBoulder: scoredBoulder,
+              availableGyms: widget.availableGyms,
+              availableSeasons: widget.availableSeasons,
+            ),
           )
         );
       }

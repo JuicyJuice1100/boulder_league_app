@@ -2,8 +2,10 @@ import 'package:boulder_league_app/components/boulders/boulders_filters.dart';
 import 'package:boulder_league_app/components/boulders/boulders_form.dart';
 import 'package:boulder_league_app/components/boulders/boulders_table.dart';
 import 'package:boulder_league_app/components/section.dart';
+import 'package:boulder_league_app/models/gym.dart';
 import 'package:boulder_league_app/models/season.dart';
 import 'package:boulder_league_app/models/season_filters.dart';
+import 'package:boulder_league_app/services/gym_service.dart';
 import 'package:boulder_league_app/services/season_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -17,26 +19,42 @@ class BouldersSection extends StatefulWidget {
 
 class _BouldersSectionState extends State<BouldersSection> {
   final SeasonService _seasonService = SeasonService();
+  final GymService _gymService = GymService();
 
   String? selectedSeasonId;
-  String selectedGymId = 'climb_kraft';
+  String selectedGymId = '';
   bool isLoading = false;
 
+  List<Gym> availableGyms = [];
   List<Season> availableSeasons = [];
   StreamSubscription<Season?>? _currentSeasonSub;
   StreamSubscription<List<Season>>? _seasonsSub;
+  StreamSubscription<List<Gym>>? _gymsSub;
 
   @override
   void initState() {
     super.initState();
-    _initializeFilters();
+    _loadGyms();
   }
 
   @override
   void dispose() {
     _currentSeasonSub?.cancel();
     _seasonsSub?.cancel();
+    _gymsSub?.cancel();
     super.dispose();
+  }
+
+  void _loadGyms() {
+    _gymsSub = _gymService.getGyms().listen((gyms) {
+      setState(() {
+        availableGyms = gyms;
+        if (gyms.isNotEmpty && selectedGymId.isEmpty) {
+          selectedGymId = gyms.first.id;
+          _initializeFilters();
+        }
+      });
+    });
   }
 
   void _initializeFilters() {
@@ -95,6 +113,7 @@ class _BouldersSectionState extends State<BouldersSection> {
       filters: BouldersFilters(
         selectedGymId: selectedGymId,
         selectedSeasonId: selectedSeasonId,
+        availableGyms: availableGyms,
         availableSeasons: availableSeasons,
         onGymChanged: _onGymChanged,
         onSeasonChanged: _onSeasonChanged,
@@ -102,8 +121,13 @@ class _BouldersSectionState extends State<BouldersSection> {
       table: BouldersTable(
         selectedGymId: selectedGymId,
         selectedSeasonId: selectedSeasonId,
+        availableGyms: availableGyms,
+        availableSeasons: availableSeasons,
       ),
-      add: BouldersForm(),
+      add: BouldersForm(
+        availableGyms: availableGyms,
+        availableSeasons: availableSeasons,
+      ),
     );
   }
 }

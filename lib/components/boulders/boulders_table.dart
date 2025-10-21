@@ -1,21 +1,24 @@
 import 'package:boulder_league_app/components/boulders/boulders_form.dart';
 import 'package:boulder_league_app/models/base_meta_data.dart';
 import 'package:boulder_league_app/models/boulder_filters.dart';
+import 'package:boulder_league_app/models/gym.dart';
 import 'package:boulder_league_app/models/season.dart';
-import 'package:boulder_league_app/services/season_service.dart';
 import 'package:flutter/material.dart';
 import 'package:boulder_league_app/models/boulder.dart';
 import 'package:boulder_league_app/services/boulder_service.dart';
-import 'dart:async';
 
 class BouldersTable extends StatefulWidget {
   final String selectedGymId;
   final String? selectedSeasonId;
+  final List<Gym> availableGyms;
+  final List<Season> availableSeasons;
 
   const BouldersTable({
     super.key,
     required this.selectedGymId,
     required this.selectedSeasonId,
+    required this.availableGyms,
+    required this.availableSeasons,
   });
 
   @override
@@ -24,17 +27,13 @@ class BouldersTable extends StatefulWidget {
 
 class _BouldersTableState extends State<BouldersTable> {
   final BoulderService _boulderService = BoulderService();
-  final SeasonService _seasonService = SeasonService();
 
-  bool isLoading = false;
-  List<Season> seasons = [];
   Stream<List<Boulder>>? _bouldersStream;
-  StreamSubscription<List<Season>>? _seasonsSub;
 
   @override
   void initState() {
     super.initState();
-    _initializeData();
+    _updateBoulders();
   }
 
   @override
@@ -45,26 +44,6 @@ class _BouldersTableState extends State<BouldersTable> {
         oldWidget.selectedSeasonId != widget.selectedSeasonId) {
       _updateBoulders();
     }
-  }
-
-  @override
-  void dispose() {
-    _seasonsSub?.cancel();
-    super.dispose();
-  }
-
-  void _initializeData() {
-    setState(() => isLoading = true);
-
-    // Subscribe to all seasons for the gym
-    _seasonsSub = _seasonService.getSeasons(null).listen((seasons) {
-      setState(() {
-        this.seasons = seasons;
-        isLoading = false;
-      });
-    });
-
-    _updateBoulders();
   }
 
   void _updateBoulders() {
@@ -91,7 +70,11 @@ class _BouldersTableState extends State<BouldersTable> {
           child: Container(
             color: Theme.of(context).scaffoldBackgroundColor,
             padding: EdgeInsets.all(16.0),
-              child: BouldersForm(boulder: boulder),
+              child: BouldersForm(
+                boulder: boulder,
+                availableGyms: widget.availableGyms,
+                availableSeasons: widget.availableSeasons,
+              ),
           )
         );
       }
@@ -103,7 +86,7 @@ class _BouldersTableState extends State<BouldersTable> {
     return StreamBuilder<List<Boulder>>(
       stream: _bouldersStream,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting || isLoading) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
 
@@ -160,44 +143,40 @@ class _BouldersTableState extends State<BouldersTable> {
                   DataColumn(label: Text('')), // Actions column
                 ],
                 rows: boulders.map((boulder) {
+                  final gym = widget.availableGyms.firstWhere(
+                    (g) => g.id == boulder.gymId,
+                    orElse: () => Gym(
+                      id: boulder.gymId,
+                      name: boulder.gymId,
+                      baseMetaData: boulder.baseMetaData,
+                    ),
+                  );
+
                   return DataRow(
                     cells: [
-                      DataCell(Text(boulder.gymId)),
+                      DataCell(Text(gym.name)),
                       DataCell(Text(boulder.name)),
                       DataCell(Text(boulder.week.toString())),
-                        DataCell(
-                          Builder(
-                            builder: (context) {
-                              if (isLoading) {
-                                return const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2)
-                                );
-                              }
-                              
-                              final season = seasons.firstWhere(
-                                (season) => season.id == boulder.seasonId,
-                                orElse: () => Season(
-                                  id: boulder.seasonId,
-                                  name: 'Unknown Season',
-                                  gymId: boulder.gymId,
-                                  startDate: DateTime.now(),
-                                  endDate: DateTime.now(),
-                                  isActive: false,
-                                  baseMetaData: BaseMetaData(
-                                    createdAt: DateTime.now(),
-                                    lastUpdateAt: DateTime.now(),
-                                    createdByUid: '',
-                                    lastUpdateByUid: ''
-                                  )
-                                )
-                              );
-                              
-                              return Text(season.name);
-                            }
+                      DataCell(() {
+                        final season = widget.availableSeasons.firstWhere(
+                          (season) => season.id == boulder.seasonId,
+                          orElse: () => Season(
+                            id: boulder.seasonId,
+                            name: 'Unknown Season',
+                            gymId: boulder.gymId,
+                            startDate: DateTime.now(),
+                            endDate: DateTime.now(),
+                            isActive: false,
+                            baseMetaData: BaseMetaData(
+                              createdAt: DateTime.now(),
+                              lastUpdateAt: DateTime.now(),
+                              createdByUid: '',
+                              lastUpdateByUid: ''
+                            )
                           )
-                        ),
+                        );
+                        return Text(season.name);
+                      }()),
                       DataCell(Row(
                         children: [
                           ElevatedButton.icon(

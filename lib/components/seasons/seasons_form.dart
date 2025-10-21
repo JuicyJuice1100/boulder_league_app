@@ -1,5 +1,6 @@
 import 'package:boulder_league_app/helpers/toast_notification.dart';
 import 'package:boulder_league_app/models/base_meta_data.dart';
+import 'package:boulder_league_app/models/gym.dart';
 import 'package:boulder_league_app/models/season.dart';
 import 'package:boulder_league_app/services/season_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,7 +12,8 @@ import 'package:uuid/uuid.dart';
 
 class SeasonsForm extends StatefulWidget {
   final Season? season;
-  const SeasonsForm({super.key, this.season});
+  final List<Gym> availableGyms;
+  const SeasonsForm({super.key, this.season, required this.availableGyms});
 
   @override
   State<SeasonsForm> createState() => SeasonsFormState();
@@ -19,7 +21,7 @@ class SeasonsForm extends StatefulWidget {
 
 class SeasonsFormState extends State<SeasonsForm> {
   final _seasonFormKey = GlobalKey<FormBuilderState>();
-  
+
   List<Season> filteredSeasons = [];
   bool isLoading = false;
   bool isUpdate = false;
@@ -108,16 +110,14 @@ class SeasonsFormState extends State<SeasonsForm> {
                 border: OutlineInputBorder(),
                 labelText: 'Gym',
               ),
-              initialValue: widget.season?.gymId ?? 'climb_kraft', // TODO: update to get ids from created gyms
+              initialValue: widget.season?.gymId ?? (widget.availableGyms.isNotEmpty ? widget.availableGyms.first.id : null),
               validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required()
               ]),
-              items: const [
-                DropdownMenuItem(
-                  value: 'climb_kraft',
-                  child: Text('Climb Kraft'),
-                ),
-              ],
+              items: widget.availableGyms.map((gym) => DropdownMenuItem(
+                value: gym.id,
+                child: Text(gym.name),
+              )).toList(),
             ),
             FormBuilderTextField(
               name: 'name',

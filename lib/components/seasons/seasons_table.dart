@@ -1,4 +1,5 @@
 import 'package:boulder_league_app/components/seasons/seasons_form.dart';
+import 'package:boulder_league_app/models/gym.dart';
 import 'package:flutter/material.dart';
 import 'package:boulder_league_app/models/season.dart';
 import 'package:boulder_league_app/models/season_filters.dart';
@@ -6,10 +7,12 @@ import 'package:boulder_league_app/services/season_service.dart';
 
 class SeasonsTable extends StatefulWidget {
   final String selectedGymId;
+  final List<Gym> availableGyms;
 
   const SeasonsTable({
     super.key,
     required this.selectedGymId,
+    required this.availableGyms,
   });
 
   @override
@@ -51,7 +54,10 @@ class _SeasonsTableState extends State<SeasonsTable> {
           child: Container(
             color: Theme.of(context).scaffoldBackgroundColor,
             padding: EdgeInsets.all(16.0),
-              child: SeasonsForm(season: season),
+              child: SeasonsForm(
+                season: season,
+                availableGyms: widget.availableGyms,
+              ),
           )
         );
       }
@@ -121,9 +127,18 @@ class _SeasonsTableState extends State<SeasonsTable> {
                   DataColumn(label: Text('')), // New column for buttons
                 ],
                 rows: seasons.map((season) {
+                  final gym = widget.availableGyms.firstWhere(
+                    (g) => g.id == season.gymId,
+                    orElse: () => Gym(
+                      id: season.gymId,
+                      name: season.gymId,
+                      baseMetaData: season.baseMetaData,
+                    ),
+                  );
+
                   return DataRow(
                     cells: [
-                      DataCell(Text(season.gymId)),
+                      DataCell(Text(gym.name)),
                       DataCell(Text(season.name)),
                       DataCell(Text(
                         season.startDate.toString().split(' ')[0],
