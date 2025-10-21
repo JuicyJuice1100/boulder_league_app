@@ -1,6 +1,6 @@
 import 'package:boulder_league_app/app_global.dart';
 import 'package:boulder_league_app/components/boulders/boulders_section.dart';
-import 'package:boulder_league_app/components/leaderboards/leaderboard_card.dart';
+import 'package:boulder_league_app/components/leaderboards/leaderboard_section.dart';
 import 'package:boulder_league_app/components/scores/scores_section.dart';
 import 'package:boulder_league_app/components/seasons/seasons_section.dart';
 import 'package:boulder_league_app/screens/user.dart';
@@ -20,7 +20,7 @@ class HomeScreenState extends State<HomeScreen> {
   int selectedIndex = 0;
 
   final List<Widget> widgetOptions = const [
-    LeaderboardCard(),
+    LeaderboardSection(),
     ScoresSection(),
     BouldersSection(),
     SeasonsSection()

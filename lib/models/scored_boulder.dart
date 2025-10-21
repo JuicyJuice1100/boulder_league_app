@@ -10,6 +10,7 @@ class ScoredBoulder {
   final num attempts;
   final bool completed;
   final num score;
+  final String? displayName;
   final BaseMetaData baseMetaData;
 
   ScoredBoulder({
@@ -22,6 +23,7 @@ class ScoredBoulder {
     required this.attempts,
     required this.completed,
     required this.score,
+    this.displayName,
     required this.baseMetaData
   });
 
@@ -36,10 +38,11 @@ class ScoredBoulder {
       attempts: json['attempts'],
       completed: json['completed'],
       score: json['score'],
+      displayName: json['displayName'],
       baseMetaData: BaseMetaData.fromJson(json['baseMetaData'])
     );
   }
-  
+
   Map<String, dynamic> toJson() {
     return {
       'uid': uid,
@@ -50,6 +53,7 @@ class ScoredBoulder {
       'attempts': attempts,
       'completed': completed,
       'score': score,
+      'displayName': displayName,
       'baseMetaData': baseMetaData.toJson()
     };
   }
