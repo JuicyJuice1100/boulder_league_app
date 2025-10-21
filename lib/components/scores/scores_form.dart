@@ -118,6 +118,7 @@ class ScoresFormState extends State<ScoresForm> {
         attempts: attempts,
         completed: completed,
         score: calculateScore(attempts: attempts, completed: completed),
+        displayName: user.displayName ?? user.email,
         baseMetaData: BaseMetaData(
           createdByUid: widget.scoredBoulder?.baseMetaData.createdByUid ?? user.uid,
           lastUpdateByUid: user.uid,
