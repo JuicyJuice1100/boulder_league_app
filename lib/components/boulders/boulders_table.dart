@@ -1,14 +1,22 @@
 import 'package:boulder_league_app/components/boulders/boulders_form.dart';
 import 'package:boulder_league_app/models/base_meta_data.dart';
+import 'package:boulder_league_app/models/boulder_filters.dart';
 import 'package:boulder_league_app/models/season.dart';
 import 'package:boulder_league_app/services/season_service.dart';
 import 'package:flutter/material.dart';
 import 'package:boulder_league_app/models/boulder.dart';
 import 'package:boulder_league_app/services/boulder_service.dart';
-import 'package:boulder_league_app/static/default_boulder_filters.dart';
+import 'dart:async';
 
 class BouldersTable extends StatefulWidget {
-  const BouldersTable({super.key});
+  final String selectedGymId;
+  final String? selectedSeasonId;
+
+  const BouldersTable({
+    super.key,
+    required this.selectedGymId,
+    required this.selectedSeasonId,
+  });
 
   @override
   State<BouldersTable> createState() => _BouldersTableState();
@@ -20,26 +28,59 @@ class _BouldersTableState extends State<BouldersTable> {
 
   bool isLoading = false;
   List<Season> seasons = [];
+  Stream<List<Boulder>>? _bouldersStream;
+  StreamSubscription<List<Season>>? _seasonsSub;
 
   @override
   void initState() {
     super.initState();
-    getSeasons();
+    _initializeData();
   }
 
-  void getSeasons() {
-    setState(() {
-      isLoading = true;
+  @override
+  void didUpdateWidget(BouldersTable oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Re-fetch data when filters change
+    if (oldWidget.selectedGymId != widget.selectedGymId ||
+        oldWidget.selectedSeasonId != widget.selectedSeasonId) {
+      _updateBoulders();
+    }
+  }
+
+  @override
+  void dispose() {
+    _seasonsSub?.cancel();
+    super.dispose();
+  }
+
+  void _initializeData() {
+    setState(() => isLoading = true);
+
+    // Subscribe to all seasons for the gym
+    _seasonsSub = _seasonService.getSeasons(null).listen((seasons) {
+      setState(() {
+        this.seasons = seasons;
+        isLoading = false;
+      });
     });
 
-    _seasonService
-      .getSeasons(null)
-      .listen((seasons) {
-        setState(() {
-          this.seasons = seasons;
-          isLoading = false;
-        });
+    _updateBoulders();
+  }
+
+  void _updateBoulders() {
+    if (widget.selectedSeasonId == null) {
+      setState(() {
+        _bouldersStream = null;
       });
+      return;
+    }
+
+    setState(() {
+      _bouldersStream = _boulderService.getBoulders(BoulderFilters(
+        gymId: widget.selectedGymId,
+        seasonId: widget.selectedSeasonId,
+      ));
+    });
   }
 
   void _editBoulder(Boulder boulder) {
@@ -60,15 +101,21 @@ class _BouldersTableState extends State<BouldersTable> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Boulder>>(
-      stream: _boulderService.getBoulders(defaultBoulderFilters),
+      stream: _bouldersStream,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        if (snapshot.connectionState == ConnectionState.waiting || isLoading) {
           return const Center(child: CircularProgressIndicator());
         }
 
         if (snapshot.hasError) {
           return Center(
             child: Text('Error loading boulders: ${snapshot.error}'),
+          );
+        }
+
+        if (widget.selectedSeasonId == null) {
+          return const Center(
+            child: Text('No season selected. Please select a season from the dropdown above.')
           );
         }
 
@@ -86,10 +133,30 @@ class _BouldersTableState extends State<BouldersTable> {
               child: DataTable(
                 headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
                 columns: const [
-                  DataColumn(label: Text('Gym')),
-                  DataColumn(label: Text('Name')),
-                  DataColumn(label: Text('Week')),
-                  DataColumn(label: Text('Season')),
+                  DataColumn(
+                    label: Text(
+                      'Gym',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      'Name',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      'Week',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      'Season',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
                   DataColumn(label: Text('')), // Actions column
                 ],
                 rows: boulders.map((boulder) {
