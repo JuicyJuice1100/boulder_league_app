@@ -2,15 +2,58 @@ import 'package:boulder_league_app/models/leaderboard_entry.dart';
 import 'package:flutter/material.dart';
 
 class LeaderboardTable extends StatelessWidget {
-  final List<LeaderboardEntry> entries;
+  final Stream<List<LeaderboardEntry>>? leaderboardStream;
+  final bool isLoading;
+  final String? selectedSeasonId;
 
   const LeaderboardTable({
     super.key,
-    required this.entries,
+    required this.leaderboardStream,
+    required this.isLoading,
+    required this.selectedSeasonId,
   });
 
   @override
   Widget build(BuildContext context) {
+    return StreamBuilder<List<LeaderboardEntry>>(
+      stream: leaderboardStream,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting || isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.hasError) {
+          return Center(
+            child: Text('Error loading leaderboard: ${snapshot.error}'),
+          );
+        }
+
+        if (selectedSeasonId == null) {
+          return const Center(
+            child: Text(
+              'No season selected. Please select a season from the dropdown above.',
+              style: TextStyle(fontSize: 16),
+            ),
+          );
+        }
+
+        final entries = snapshot.data ?? [];
+
+        if (entries.isEmpty) {
+          return const Center(
+            child: Text(
+              'No scores recorded yet.',
+              style: TextStyle(fontSize: 16),
+            ),
+          );
+        }
+
+        return _buildTable(context, entries);
+      },
+    );
+  }
+
+  Widget _buildTable(BuildContext context, List<LeaderboardEntry> entries) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Card(
