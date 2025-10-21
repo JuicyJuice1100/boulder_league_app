@@ -1,11 +1,16 @@
 import 'package:boulder_league_app/components/seasons/seasons_form.dart';
 import 'package:flutter/material.dart';
 import 'package:boulder_league_app/models/season.dart';
+import 'package:boulder_league_app/models/season_filters.dart';
 import 'package:boulder_league_app/services/season_service.dart';
-import 'package:boulder_league_app/static/default_season_filters.dart';
 
 class SeasonsTable extends StatefulWidget {
-  const SeasonsTable({super.key});
+  final String selectedGymId;
+
+  const SeasonsTable({
+    super.key,
+    required this.selectedGymId,
+  });
 
   @override
   State<SeasonsTable> createState() => _SeasonsTableState();
@@ -13,6 +18,30 @@ class SeasonsTable extends StatefulWidget {
 
 class _SeasonsTableState extends State<SeasonsTable> {
   final SeasonService _seasonService = SeasonService();
+  Stream<List<Season>>? _seasonsStream;
+
+  @override
+  void initState() {
+    super.initState();
+    _updateSeasons();
+  }
+
+  @override
+  void didUpdateWidget(SeasonsTable oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Re-fetch data when filters change
+    if (oldWidget.selectedGymId != widget.selectedGymId) {
+      _updateSeasons();
+    }
+  }
+
+  void _updateSeasons() {
+    setState(() {
+      _seasonsStream = _seasonService.getSeasons(SeasonFilters(
+        gymId: widget.selectedGymId,
+      ));
+    });
+  }
 
   void _editSeason(Season season) {
     showDialog(
@@ -32,7 +61,7 @@ class _SeasonsTableState extends State<SeasonsTable> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Season>>(
-      stream: _seasonService.getSeasons(defaultSeasonFilters),
+      stream: _seasonsStream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -59,11 +88,36 @@ class _SeasonsTableState extends State<SeasonsTable> {
               child: DataTable(
                 headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
                 columns: const [
-                  DataColumn(label: Text('Gym')),
-                  DataColumn(label: Text('Name')),
-                  DataColumn(label: Text('Start Date')),
-                  DataColumn(label: Text('End Date')),
-                  DataColumn(label: Text('Active')),
+                  DataColumn(
+                    label: Text(
+                      'Gym',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      'Name',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      'Start Date',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      'End Date',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      'Active',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
                   DataColumn(label: Text('')), // New column for buttons
                 ],
                 rows: seasons.map((season) {
@@ -85,8 +139,8 @@ class _SeasonsTableState extends State<SeasonsTable> {
                       DataCell(Row(
                         children: [
                           ElevatedButton.icon(
-                            label: Text('Edit'),
-                            icon: Icon(Icons.edit),
+                            label: const Text('Edit'),
+                            icon: const Icon(Icons.edit),
                             onPressed: () => _editSeason(season),
                           ),
                         ],
