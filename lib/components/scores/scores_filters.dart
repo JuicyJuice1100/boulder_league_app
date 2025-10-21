@@ -1,14 +1,14 @@
 import 'package:boulder_league_app/models/season.dart';
 import 'package:flutter/material.dart';
 
-class LeaderboardFilters extends StatelessWidget {
+class ScoresFilters extends StatelessWidget {
   final String selectedGymId;
   final String? selectedSeasonId;
   final List<Season> availableSeasons;
   final void Function(String?) onGymChanged;
   final void Function(String?) onSeasonChanged;
 
-  const LeaderboardFilters({
+  const ScoresFilters({
     super.key,
     required this.selectedGymId,
     required this.selectedSeasonId,
