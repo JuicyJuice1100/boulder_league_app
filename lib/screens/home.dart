@@ -1,5 +1,6 @@
 import 'package:boulder_league_app/app_global.dart';
 import 'package:boulder_league_app/components/boulders/boulders_section.dart';
+import 'package:boulder_league_app/components/gyms/gyms_section.dart';
 import 'package:boulder_league_app/components/leaderboards/leaderboard_section.dart';
 import 'package:boulder_league_app/components/scores/scores_section.dart';
 import 'package:boulder_league_app/components/seasons/seasons_section.dart';
@@ -23,7 +24,8 @@ class HomeScreenState extends State<HomeScreen> {
     LeaderboardSection(),
     ScoresSection(),
     BouldersSection(),
-    SeasonsSection()
+    SeasonsSection(),
+    GymsSection()
   ];
 
   void onItemTapped(int index) {
@@ -94,17 +96,22 @@ class HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.check),
             label: 'Score',
-            tooltip: 'Report/Update your score for boulders',
+            tooltip: 'Add/Update your score for boulders',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.abc),
             label: 'Boulders',
-            tooltip: 'Add/Update a new boulder for users'
+            tooltip: 'Add/Update a new boulders for users'
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.numbers),
             label: 'Seasons',
-            tooltip: 'Add/Update a new boulder season for users'
+            tooltip: 'Add/Update a new seasons for users'
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.house),
+            label: 'Gyms',
+            tooltip: 'Add/Update a new gyms for users'
           )
         ],
         currentIndex: selectedIndex,

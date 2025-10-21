@@ -1,9 +1,9 @@
 import 'package:boulder_league_app/helpers/toast_notification.dart';
 import 'package:boulder_league_app/models/base_meta_data.dart';
 import 'package:boulder_league_app/models/boulder.dart';
+import 'package:boulder_league_app/models/gym.dart';
 import 'package:boulder_league_app/models/season.dart';
 import 'package:boulder_league_app/services/boulder_service.dart';
-import 'package:boulder_league_app/services/season_service.dart';
 import 'package:boulder_league_app/static/weeks.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +13,14 @@ import 'package:uuid/uuid.dart';
 
 class BouldersForm extends StatefulWidget {
   final Boulder? boulder;
-  const BouldersForm({super.key, this.boulder});
+  final List<Gym> availableGyms;
+  final List<Season> availableSeasons;
+  const BouldersForm({
+    super.key,
+    this.boulder,
+    required this.availableGyms,
+    required this.availableSeasons,
+  });
 
   @override
   State<BouldersForm> createState() => BouldersFormState();
@@ -21,17 +28,14 @@ class BouldersForm extends StatefulWidget {
 
 class BouldersFormState extends State<BouldersForm> {
   final _boulderFormKey = GlobalKey<FormBuilderState>();
-  final SeasonService _seasonService = SeasonService();
   final BoulderService _boulderService = BoulderService();
-  
-  List<Season> seasons = [];
+
   bool isLoading = false;
   bool isUpdate = false;
 
   @override
   void initState() {
     super.initState();
-    getSeasons();
     setIsUpdate();
   }
 
@@ -39,21 +43,6 @@ class BouldersFormState extends State<BouldersForm> {
     setState(() {
       isLoading = value;
     });
-  }
-
-  void getSeasons() {
-    setState(() {
-      isLoading = true;
-    });
-
-    _seasonService
-      .getSeasons(null)
-      .listen((seasons) {
-        setState(() {
-          this.seasons = seasons;
-          isLoading = false;
-        });
-      });
   }
 
   void setIsUpdate() {
@@ -126,19 +115,17 @@ class BouldersFormState extends State<BouldersForm> {
             FormBuilderDropdown(
               name: 'gymId',
               decoration: InputDecoration(
-                border: OutlineInputBorder(), 
+                border: OutlineInputBorder(),
                 labelText: 'Gym'
               ),
-              initialValue: 'climb_kraft',
+              initialValue: widget.boulder?.gymId ?? (widget.availableGyms.isNotEmpty ? widget.availableGyms.first.id : null),
               validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required()
               ]),
-              items: const [
-                DropdownMenuItem(
-                  value: 'climb_kraft',
-                  child: Text('Climb Kraft'),
-                ),
-              ],
+              items: widget.availableGyms.map((gym) => DropdownMenuItem(
+                value: gym.id,
+                child: Text(gym.name),
+              )).toList(),
             ),
             FormBuilderTextField(
               name: 'name',
@@ -151,25 +138,23 @@ class BouldersFormState extends State<BouldersForm> {
               ]),
               initialValue: widget.boulder?.name ?? '',
             ),
-            isLoading 
-              ? CircularProgressIndicator() :
-              FormBuilderDropdown(
-                name: 'season',
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(), 
-                  labelText: 'Season'
-                ),
-                validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required()
-                ]), 
-                items: seasons
-                  .map((season) => DropdownMenuItem(
-                        value: season.id,
-                        child: Text(season.name),
-                      ))
-                  .toList(),
-                initialValue: widget.boulder?.seasonId,
+            FormBuilderDropdown(
+              name: 'season',
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Season'
               ),
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required()
+              ]),
+              items: widget.availableSeasons
+                .map((season) => DropdownMenuItem(
+                      value: season.id,
+                      child: Text(season.name),
+                    ))
+                .toList(),
+              initialValue: widget.boulder?.seasonId,
+            ),
             FormBuilderDropdown(
               name: 'week',
               decoration: InputDecoration(

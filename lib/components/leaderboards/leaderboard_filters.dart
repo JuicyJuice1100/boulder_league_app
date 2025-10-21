@@ -1,9 +1,11 @@
+import 'package:boulder_league_app/models/gym.dart';
 import 'package:boulder_league_app/models/season.dart';
 import 'package:flutter/material.dart';
 
 class LeaderboardFilters extends StatelessWidget {
   final String selectedGymId;
   final String? selectedSeasonId;
+  final List<Gym> availableGyms;
   final List<Season> availableSeasons;
   final void Function(String?) onGymChanged;
   final void Function(String?) onSeasonChanged;
@@ -12,6 +14,7 @@ class LeaderboardFilters extends StatelessWidget {
     super.key,
     required this.selectedGymId,
     required this.selectedSeasonId,
+    required this.availableGyms,
     required this.availableSeasons,
     required this.onGymChanged,
     required this.onSeasonChanged,
@@ -42,12 +45,12 @@ class LeaderboardFilters extends StatelessWidget {
                     child: DropdownButton<String>(
                       value: selectedGymId,
                       isExpanded: true,
-                      items: const [
-                        DropdownMenuItem(
-                          value: 'climb_kraft',
-                          child: Text('Climb Kraft'),
-                        ),
-                      ],
+                      items: availableGyms.map((gym) {
+                        return DropdownMenuItem(
+                          value: gym.id,
+                          child: Text(gym.name),
+                        );
+                      }).toList(),
                       onChanged: onGymChanged,
                     ),
                   ),
