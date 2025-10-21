@@ -1,5 +1,6 @@
 import 'package:boulder_league_app/components/leaderboards/leaderboard_filters.dart';
 import 'package:boulder_league_app/components/leaderboards/leaderboard_table.dart';
+import 'package:boulder_league_app/components/section.dart';
 import 'package:boulder_league_app/models/leaderboard_entry.dart';
 import 'package:boulder_league_app/models/scored_boulder.dart';
 import 'package:boulder_league_app/models/scored_boulder_filters.dart';
@@ -151,71 +152,19 @@ class LeaderboardSectionState extends State<LeaderboardSection> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Leaderboard'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _updateLeaderboard,
-            tooltip: 'Refresh',
-          ),
-        ],
+    return SectionWidget(
+      title: 'Leaderboard',
+      filters: LeaderboardFilters(
+        selectedGymId: selectedGymId,
+        selectedSeasonId: selectedSeasonId,
+        availableSeasons: availableSeasons,
+        onGymChanged: _onGymChanged,
+        onSeasonChanged: _onSeasonChanged,
       ),
-      body: Column(
-        children: [
-          // Filters Section
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: LeaderboardFilters(
-              selectedGymId: selectedGymId,
-              selectedSeasonId: selectedSeasonId,
-              availableSeasons: availableSeasons,
-              onGymChanged: _onGymChanged,
-              onSeasonChanged: _onSeasonChanged,
-            ),
-          ),
-
-          // Leaderboard Table
-          Expanded(
-            child: StreamBuilder<List<LeaderboardEntry>>(
-              stream: _leaderboardStream,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting || isLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text('Error loading leaderboard: ${snapshot.error}'),
-                  );
-                }
-
-                if (selectedSeasonId == null) {
-                  return const Center(
-                    child: Text(
-                      'No season selected. Please select a season from the dropdown above.',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  );
-                }
-
-                final entries = snapshot.data ?? [];
-
-                if (entries.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      'No scores recorded yet.',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  );
-                }
-
-                return LeaderboardTable(entries: entries);
-              },
-            ),
-          ),
-        ],
+      table: LeaderboardTable(
+        leaderboardStream: _leaderboardStream,
+        isLoading: isLoading,
+        selectedSeasonId: selectedSeasonId,
       ),
     );
   }
