@@ -79,7 +79,6 @@ class _LeaderboardTableState extends State<LeaderboardTable> {
       final uid = entry.key;
       final userScores = entry.value;
       final totalScore = userScores.fold<num>(0, (sum, score) => sum + score.score);
-      final boulderCount = userScores.length;
 
       // Get displayName from the most recent score (they should all be the same for a user)
       final displayName = userScores.first.displayName;
@@ -87,7 +86,6 @@ class _LeaderboardTableState extends State<LeaderboardTable> {
       return LeaderboardEntry(
         uid: uid,
         totalScore: totalScore,
-        boulderCount: boulderCount,
         displayName: displayName,
       );
     }).toList();
@@ -139,6 +137,8 @@ class _LeaderboardTableState extends State<LeaderboardTable> {
             child: SizedBox(
               width: MediaQuery.of(context).size.width,
               child: DataTable(
+                dataRowMaxHeight: double.infinity,
+                horizontalMargin: 6,
                 headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
                 columns: const [
                   DataColumn(
@@ -150,12 +150,6 @@ class _LeaderboardTableState extends State<LeaderboardTable> {
                   DataColumn(
                     label: Text(
                       'User',
-                      style: defaultHeaderStyle,
-                    ),
-                  ),
-                  DataColumn(
-                    label: Text(
-                      'Boulders Completed',
                       style: defaultHeaderStyle,
                     ),
                   ),
@@ -220,9 +214,6 @@ class _LeaderboardTableState extends State<LeaderboardTable> {
                                 : FontWeight.normal,
                           ),
                         ),
-                      ),
-                      DataCell(
-                        Text(leaderboardEntry.boulderCount.toString()),
                       ),
                       DataCell(
                         Text(

@@ -101,7 +101,7 @@ class _ScoresTableState extends State<ScoresTable> {
     setState(() => isLoading = false);
   }
 
-  void editScore(ScoredBoulder scoredBoulder) {
+  void _editScore(ScoredBoulder scoredBoulder) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -148,6 +148,7 @@ class _ScoresTableState extends State<ScoresTable> {
             child: SizedBox(
               width: MediaQuery.of(context).size.width,
               child: DataTable(
+                showCheckboxColumn: false,
                 headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
                 columns: const [
                   DataColumn(
@@ -173,11 +174,15 @@ class _ScoresTableState extends State<ScoresTable> {
                       'Score',
                       style: defaultHeaderStyle,
                     ),
-                  ),
-                  DataColumn(label: Text('')), // Actions column
+                  )
                 ],
                 rows: scoredBoulders.map((scoredBoulder) {
                   return DataRow(
+                    onSelectChanged: (selected) {
+                      if(selected != null && selected) {
+                        _editScore(scoredBoulder);
+                      }
+                    },
                     cells: [
                       DataCell(
                         Builder(
@@ -216,16 +221,7 @@ class _ScoresTableState extends State<ScoresTable> {
                         scoredBoulder.completed ? Icons.check_circle : Icons.cancel,
                         color: scoredBoulder.completed ? Colors.green : Colors.red,
                       )),
-                      DataCell(Text(scoredBoulder.score.toString())),
-                      DataCell(Row(
-                        children: [
-                          ElevatedButton.icon(
-                            label: const Text('Edit'),
-                            icon: const Icon(Icons.edit),
-                            onPressed: () => editScore(scoredBoulder),
-                          ),
-                        ],
-                      )),
+                      DataCell(Text(scoredBoulder.score.toString()))
                     ],
                   );
                 }).toList(),

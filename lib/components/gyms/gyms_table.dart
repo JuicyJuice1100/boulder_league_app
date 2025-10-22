@@ -69,6 +69,7 @@ class _GymsTableState extends State<GymsTable> {
             child: SizedBox(
               width: MediaQuery.of(context).size.width,
               child: DataTable(
+                showCheckboxColumn: false,
                 headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
                 columns: const [
                   DataColumn(
@@ -83,23 +84,18 @@ class _GymsTableState extends State<GymsTable> {
                       style: defaultHeaderStyle,
                     ),
                   ),
-                  DataColumn(label: Text('')), // Actions column
                 ],
                 rows: gyms.map((gym) {
                   return DataRow(
+                    onSelectChanged: (selected) {
+                      if(selected != null && selected) {
+                        _editGym(gym);
+                      }
+                    },
                     cells: [
                       DataCell(Text(gym.name)),
                       DataCell(Text(
                         gym.baseMetaData.createdAt.toString().split(' ')[0],
-                      )),
-                      DataCell(Row(
-                        children: [
-                          ElevatedButton.icon(
-                            label: const Text('Edit'),
-                            icon: const Icon(Icons.edit),
-                            onPressed: () => _editGym(gym),
-                          ),
-                        ],
                       )),
                     ],
                   );
