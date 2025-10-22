@@ -69,17 +69,6 @@ class _BouldersSectionState extends State<BouldersSection> {
         availableSeasons = seasons;
       });
     });
-
-    // Subscribe to current active season to set as default
-    _currentSeasonSub = _seasonService.getCurrentSeasonForGym(selectedGymId).listen((season) {
-      if (season != null) {
-        setState(() {
-          isLoading = false;
-        });
-      } else {
-        setState(() => isLoading = false);
-      }
-    });
   }
 
   void _onGymChanged(String? newGymId) {

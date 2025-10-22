@@ -87,22 +87,11 @@ class SeasonService {
     final gymId = filters?.gymId;
     final startDate = filters?.startDate;
     final endDate = filters?.endDate;
-    final isActive = filters?.isActive;
 
     if (gymId != null) query = query.where('gymId', isEqualTo: gymId);
     if (startDate != null) query = query.where('startDate', isGreaterThanOrEqualTo: startDate);
     if (endDate != null) query = query.where('week', isLessThan: endDate);
-    if (isActive != null) query = query.where('isActive', isEqualTo: isActive);
 
     return query.snapshots().map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
-  }
-
-  Stream<Season?> getCurrentSeasonForGym(String gymId) {
-    Query<Season> query = seasonRef;
-
-    query = query.where('gymId', isEqualTo: gymId);
-    query = query.where('isActive', isEqualTo: true);
-
-    return query.snapshots().map((snapshot) => snapshot.docs.map((doc) => doc.data()).firstOrNull);
   }
 }
