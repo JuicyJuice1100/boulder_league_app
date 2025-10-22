@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:boulder_league_app/models/season.dart';
 import 'package:boulder_league_app/models/season_filters.dart';
 import 'package:boulder_league_app/services/season_service.dart';
+import 'package:intl/intl.dart';
 
 class SeasonsTable extends StatefulWidget {
   final String selectedGymId;
@@ -104,13 +105,13 @@ class _SeasonsTableState extends State<SeasonsTable> {
                   ),
                   DataColumn(
                     label: Text(
-                      'Start Date',
+                      'Start',
                       style: defaultHeaderStyle,
                     ),
                   ),
                   DataColumn(
                     label: Text(
-                      'End Date',
+                      'End',
                       style: defaultHeaderStyle,
                     ),
                   )
@@ -140,10 +141,10 @@ class _SeasonsTableState extends State<SeasonsTable> {
                     cells: [
                       DataCell(Text(season.name)),
                       DataCell(Text(
-                        season.startDate.toString().split(' ')[0],
+                        DateFormat.yMd().format(season.startDate),
                       )),
                       DataCell(Text(
-                        season.endDate.toString().split(' ')[0],
+                        DateFormat.yMd().format(season.endDate),
                       )),
                     ],
                   );

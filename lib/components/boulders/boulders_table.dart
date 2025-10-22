@@ -166,7 +166,6 @@ class _BouldersTableState extends State<BouldersTable> {
                             gymId: boulder.gymId,
                             startDate: DateTime.now(),
                             endDate: DateTime.now(),
-                            isActive: false,
                             baseMetaData: BaseMetaData(
                               createdAt: DateTime.now(),
                               lastUpdateAt: DateTime.now(),

@@ -56,7 +56,6 @@ class SeasonsFormState extends State<SeasonsForm> {
         name: fields['name']!.value,
         startDate: fields['daterange']!.value.start,
         endDate: fields['daterange']!.value.end,
-        isActive: fields['active']!.value, 
         baseMetaData: BaseMetaData(
           createdByUid: widget.season?.baseMetaData.createdByUid ?? user.uid, 
           lastUpdateByUid: user.uid, 
@@ -146,11 +145,6 @@ class SeasonsFormState extends State<SeasonsForm> {
               initialValue: widget.season != null
                 ? DateTimeRange(start: widget.season!.startDate, end: widget.season!.endDate)
                 : null,
-            ),
-            FormBuilderCheckbox(
-              name: 'active',  
-              title: Text('Active Season'),
-              initialValue: widget.season?.isActive ?? false,
             ),
             SizedBox(
               width: double.infinity,

@@ -7,7 +7,6 @@ class Season {
   final String name;
   final DateTime startDate;
   final DateTime endDate;
-  final bool isActive;
   final BaseMetaData baseMetaData;
 
   Season({
@@ -16,7 +15,6 @@ class Season {
     required this.name,
     required this.startDate,
     required this.endDate,
-    required this.isActive,
     required this.baseMetaData
   });
 
@@ -27,7 +25,6 @@ class Season {
       name: json['name'] ?? '',
       startDate: (json['startDate'] as Timestamp).toDate(),
       endDate: (json['endDate'] as Timestamp).toDate(),
-      isActive: json['isActive'] ?? false,
       baseMetaData: BaseMetaData.fromJson(json['baseMetaData'])
     );
   }
@@ -38,7 +35,6 @@ class Season {
       'name': name,
       'startDate': Timestamp.fromDate(startDate),
       'endDate': Timestamp.fromDate(endDate),
-      'isActive': isActive, 
       'baseMetaData': baseMetaData.toJson()
     };
   }
