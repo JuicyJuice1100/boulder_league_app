@@ -73,36 +73,30 @@ class _ScoresTableState extends State<ScoresTable> {
     // Cancel previous boulder subscription
     _boulderSub?.cancel();
 
-    if (widget.selectedSeasonId != null) {
-      _boulderSub = _boulderService
-          .getBoulders(BoulderFilters(
-            seasonId: widget.selectedSeasonId,
-            week: widget.selectedWeek,
-          ))
-          .listen((list) {
-        setState(() {
-          boulders = list;
-        });
-      }, onError: (err) {
-        // ignore or log
-      });
-
-      // update scores stream to use the new season id
-      setState(() {
-        _scoresStream = _scoreService.getScores(ScoredBoulderFilters(
+    // Fetch boulders with current filters (null seasonId means all seasons)
+    _boulderSub = _boulderService
+        .getBoulders(BoulderFilters(
           gymId: widget.selectedGymId,
           seasonId: widget.selectedSeasonId,
           week: widget.selectedWeek,
-          uid: FirebaseAuth.instance.currentUser!.uid,
-        ));
-      });
-    } else {
-      // no season selected
+        ))
+        .listen((list) {
       setState(() {
-        boulders = [];
-        _scoresStream = null;
+        boulders = list;
       });
-    }
+    }, onError: (err) {
+      // ignore or log
+    });
+
+    // update scores stream to use current filters
+    setState(() {
+      _scoresStream = _scoreService.getScores(ScoredBoulderFilters(
+        gymId: widget.selectedGymId,
+        seasonId: widget.selectedSeasonId,
+        week: widget.selectedWeek,
+        uid: FirebaseAuth.instance.currentUser!.uid,
+      ));
+    });
 
     setState(() => isLoading = false);
   }
@@ -139,12 +133,6 @@ class _ScoresTableState extends State<ScoresTable> {
         if (snapshot.hasError) {
           return Center(
             child: Text('Error loading scores: ${snapshot.error}'),
-          );
-        }
-
-        if (widget.selectedSeasonId == null) {
-          return const Center(
-            child: Text('No season selected. Please select a season from the dropdown above.')
           );
         }
 

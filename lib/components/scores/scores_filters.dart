@@ -74,12 +74,18 @@ class ScoresFilters extends StatelessWidget {
                     child: DropdownButton<String>(
                       value: selectedSeasonId,
                       isExpanded: true,
-                      items: availableSeasons.map((season) {
-                        return DropdownMenuItem(
-                          value: season.id,
-                          child: Text(season.name),
-                        );
-                      }).toList(),
+                      items: [
+                        const DropdownMenuItem<String>(
+                          value: null,
+                          child: Text('All'),
+                        ),
+                        ...availableSeasons.map((season) {
+                          return DropdownMenuItem(
+                            value: season.id,
+                            child: Text(season.name),
+                          );
+                        }),
+                      ],
                       onChanged: onSeasonChanged,
                       hint: const Text('Select a season'),
                     ),
@@ -101,7 +107,7 @@ class ScoresFilters extends StatelessWidget {
                       items: [
                         const DropdownMenuItem<num>(
                           value: null,
-                          child: Text('All Weeks'),
+                          child: Text('All'),
                         ),
                         ...availableWeeks.map((week) {
                           return DropdownMenuItem(
