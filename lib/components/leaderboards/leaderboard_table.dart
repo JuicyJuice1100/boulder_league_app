@@ -2,6 +2,7 @@ import 'package:boulder_league_app/models/leaderboard_entry.dart';
 import 'package:boulder_league_app/models/scored_boulder.dart';
 import 'package:boulder_league_app/models/scored_boulder_filters.dart';
 import 'package:boulder_league_app/services/scoring_service.dart';
+import 'package:boulder_league_app/styles/default_header.dart';
 import 'package:flutter/material.dart';
 
 class LeaderboardTable extends StatefulWidget {
@@ -143,25 +144,25 @@ class _LeaderboardTableState extends State<LeaderboardTable> {
                   DataColumn(
                     label: Text(
                       'Rank',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                   DataColumn(
                     label: Text(
                       'User',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                   DataColumn(
                     label: Text(
                       'Boulders Completed',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                   DataColumn(
                     label: Text(
                       'Total Score',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                 ],

@@ -87,11 +87,13 @@ class ScoringService {
     final gymId = filters?.gymId;
     final boulderId = filters?.boulderId;
     final seasonId = filters?.seasonId;
+    final week = filters?.week;
     final uid = filters?.uid;
 
     if (gymId != null) query = query.where('gymId', isEqualTo: gymId);
     if (boulderId != null) query = query.where('boulderId', isEqualTo: boulderId);
     if (seasonId != null) query = query.where('seasonId', isEqualTo: seasonId);
+    if (week != null) query = query.where('week', isEqualTo: week);
     if (uid != null) query = query.where('uid', isEqualTo: uid);
 
     return query.snapshots().map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());

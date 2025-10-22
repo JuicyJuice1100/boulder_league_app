@@ -1,5 +1,6 @@
 import 'package:boulder_league_app/components/seasons/seasons_form.dart';
 import 'package:boulder_league_app/models/gym.dart';
+import 'package:boulder_league_app/styles/default_header.dart';
 import 'package:flutter/material.dart';
 import 'package:boulder_league_app/models/season.dart';
 import 'package:boulder_league_app/models/season_filters.dart';
@@ -97,31 +98,31 @@ class _SeasonsTableState extends State<SeasonsTable> {
                   DataColumn(
                     label: Text(
                       'Gym',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                   DataColumn(
                     label: Text(
                       'Name',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                   DataColumn(
                     label: Text(
                       'Start Date',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                   DataColumn(
                     label: Text(
                       'End Date',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                   DataColumn(
                     label: Text(
                       'Active',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                   DataColumn(label: Text('')), // New column for buttons

@@ -1,4 +1,5 @@
 import 'package:boulder_league_app/components/gyms/gyms_form.dart';
+import 'package:boulder_league_app/styles/default_header.dart';
 import 'package:flutter/material.dart';
 import 'package:boulder_league_app/models/gym.dart';
 import 'package:boulder_league_app/services/gym_service.dart';
@@ -73,13 +74,13 @@ class _GymsTableState extends State<GymsTable> {
                   DataColumn(
                     label: Text(
                       'Name',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                   DataColumn(
                     label: Text(
                       'Created At',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                   DataColumn(label: Text('')), // Actions column

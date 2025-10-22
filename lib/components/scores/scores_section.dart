@@ -7,6 +7,7 @@ import 'package:boulder_league_app/models/season.dart';
 import 'package:boulder_league_app/models/season_filters.dart';
 import 'package:boulder_league_app/services/gym_service.dart';
 import 'package:boulder_league_app/services/season_service.dart';
+import 'package:boulder_league_app/static/weeks.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -23,10 +24,12 @@ class _ScoresSectionState extends State<ScoresSection> {
 
   String? selectedSeasonId;
   String selectedGymId = '';
+  num? selectedWeek;
   bool isLoading = false;
 
   List<Gym> availableGyms = [];
   List<Season> availableSeasons = [];
+  List<num> availableWeeks = weeksList;
   StreamSubscription<Season?>? _currentSeasonSub;
   StreamSubscription<List<Season>>? _seasonsSub;
   StreamSubscription<List<Gym>>? _gymsSub;
@@ -74,6 +77,10 @@ class _ScoresSectionState extends State<ScoresSection> {
           selectedSeasonId = season.id;
           isLoading = false;
         });
+      } else if (season != null) {
+        setState(() {
+          isLoading = false;
+        });
       } else {
         setState(() => isLoading = false);
       }
@@ -86,6 +93,7 @@ class _ScoresSectionState extends State<ScoresSection> {
     setState(() {
       selectedGymId = newGymId;
       selectedSeasonId = null;
+      selectedWeek = null;
       availableSeasons = [];
       isLoading = true;
     });
@@ -106,6 +114,12 @@ class _ScoresSectionState extends State<ScoresSection> {
     });
   }
 
+  void _onWeekChanged(num? newWeek) {
+    setState(() {
+      selectedWeek = newWeek;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SectionWidget(
@@ -113,20 +127,26 @@ class _ScoresSectionState extends State<ScoresSection> {
       filters: ScoresFilters(
         selectedGymId: selectedGymId,
         selectedSeasonId: selectedSeasonId,
+        selectedWeek: selectedWeek,
         availableGyms: availableGyms,
         availableSeasons: availableSeasons,
+        availableWeeks: availableWeeks,
         onGymChanged: _onGymChanged,
         onSeasonChanged: _onSeasonChanged,
+        onWeekChanged: _onWeekChanged,
       ),
       table: ScoresTable(
         selectedGymId: selectedGymId,
         selectedSeasonId: selectedSeasonId,
+        selectedWeek: selectedWeek,
         availableGyms: availableGyms,
         availableSeasons: availableSeasons,
+        availableWeeks: availableWeeks,
       ),
       add: ScoresForm(
         availableGyms: availableGyms,
         availableSeasons: availableSeasons,
+        availableWeeks: availableWeeks,
       ),
     );
   }

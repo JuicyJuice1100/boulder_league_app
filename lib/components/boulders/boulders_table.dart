@@ -3,6 +3,7 @@ import 'package:boulder_league_app/models/base_meta_data.dart';
 import 'package:boulder_league_app/models/boulder_filters.dart';
 import 'package:boulder_league_app/models/gym.dart';
 import 'package:boulder_league_app/models/season.dart';
+import 'package:boulder_league_app/styles/default_header.dart';
 import 'package:flutter/material.dart';
 import 'package:boulder_league_app/models/boulder.dart';
 import 'package:boulder_league_app/services/boulder_service.dart';
@@ -10,15 +11,19 @@ import 'package:boulder_league_app/services/boulder_service.dart';
 class BouldersTable extends StatefulWidget {
   final String selectedGymId;
   final String? selectedSeasonId;
+  final num? selectedWeek;
   final List<Gym> availableGyms;
   final List<Season> availableSeasons;
+  final List<num> availableWeeks;
 
   const BouldersTable({
     super.key,
     required this.selectedGymId,
     required this.selectedSeasonId,
+    required this.selectedWeek,
     required this.availableGyms,
     required this.availableSeasons,
+    required this.availableWeeks
   });
 
   @override
@@ -41,7 +46,8 @@ class _BouldersTableState extends State<BouldersTable> {
     super.didUpdateWidget(oldWidget);
     // Re-fetch data when filters change
     if (oldWidget.selectedGymId != widget.selectedGymId ||
-        oldWidget.selectedSeasonId != widget.selectedSeasonId) {
+        oldWidget.selectedSeasonId != widget.selectedSeasonId ||
+        oldWidget.selectedWeek != widget.selectedWeek) {
       _updateBoulders();
     }
   }
@@ -58,6 +64,7 @@ class _BouldersTableState extends State<BouldersTable> {
       _bouldersStream = _boulderService.getBoulders(BoulderFilters(
         gymId: widget.selectedGymId,
         seasonId: widget.selectedSeasonId,
+        week: widget.selectedWeek
       ));
     });
   }
@@ -74,6 +81,7 @@ class _BouldersTableState extends State<BouldersTable> {
                 boulder: boulder,
                 availableGyms: widget.availableGyms,
                 availableSeasons: widget.availableSeasons,
+                availableWeeks: widget.availableWeeks
               ),
           )
         );
@@ -119,25 +127,25 @@ class _BouldersTableState extends State<BouldersTable> {
                   DataColumn(
                     label: Text(
                       'Gym',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                   DataColumn(
                     label: Text(
                       'Name',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                   DataColumn(
                     label: Text(
                       'Week',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                   DataColumn(
                     label: Text(
                       'Season',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                   DataColumn(label: Text('')), // Actions column

@@ -4,7 +4,6 @@ import 'package:boulder_league_app/models/boulder.dart';
 import 'package:boulder_league_app/models/gym.dart';
 import 'package:boulder_league_app/models/season.dart';
 import 'package:boulder_league_app/services/boulder_service.dart';
-import 'package:boulder_league_app/static/weeks.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -15,11 +14,13 @@ class BouldersForm extends StatefulWidget {
   final Boulder? boulder;
   final List<Gym> availableGyms;
   final List<Season> availableSeasons;
+  final List<num> availableWeeks;
   const BouldersForm({
     super.key,
     this.boulder,
     required this.availableGyms,
     required this.availableSeasons,
+    required this.availableWeeks
   });
 
   @override
@@ -165,7 +166,7 @@ class BouldersFormState extends State<BouldersForm> {
                 FormBuilderValidators.required()
               ]), 
               initialValue: widget.boulder?.week,
-              items: weeksList.map((week) => DropdownMenuItem(
+              items: widget.availableWeeks.map((week) => DropdownMenuItem(
                 value: week,
                 child: Text(week.toString())
               )).toList(),

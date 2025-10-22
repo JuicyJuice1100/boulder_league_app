@@ -7,6 +7,7 @@ import 'package:boulder_league_app/models/season.dart';
 import 'package:boulder_league_app/models/scored_boulder_filters.dart';
 import 'package:boulder_league_app/services/scoring_service.dart';
 import 'package:boulder_league_app/services/boulder_service.dart';
+import 'package:boulder_league_app/styles/default_header.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:boulder_league_app/models/scored_boulder.dart';
@@ -15,15 +16,19 @@ import 'dart:async';
 class ScoresTable extends StatefulWidget {
   final String selectedGymId;
   final String? selectedSeasonId;
+  final num? selectedWeek;
   final List<Gym> availableGyms;
   final List<Season> availableSeasons;
+  final List<num> availableWeeks;
 
   const ScoresTable({
     super.key,
     required this.selectedGymId,
     required this.selectedSeasonId,
+    required this.selectedWeek,
     required this.availableGyms,
     required this.availableSeasons,
+    required this.availableWeeks
   });
 
   @override
@@ -50,7 +55,8 @@ class _ScoresTableState extends State<ScoresTable> {
     super.didUpdateWidget(oldWidget);
     // Re-fetch data when filters change
     if (oldWidget.selectedGymId != widget.selectedGymId ||
-        oldWidget.selectedSeasonId != widget.selectedSeasonId) {
+        oldWidget.selectedSeasonId != widget.selectedSeasonId ||
+        oldWidget.selectedWeek != widget.selectedWeek) {
       _updateScoresAndBoulders();
     }
   }
@@ -69,7 +75,10 @@ class _ScoresTableState extends State<ScoresTable> {
 
     if (widget.selectedSeasonId != null) {
       _boulderSub = _boulderService
-          .getBoulders(BoulderFilters(seasonId: widget.selectedSeasonId))
+          .getBoulders(BoulderFilters(
+            seasonId: widget.selectedSeasonId,
+            week: widget.selectedWeek,
+          ))
           .listen((list) {
         setState(() {
           boulders = list;
@@ -83,6 +92,7 @@ class _ScoresTableState extends State<ScoresTable> {
         _scoresStream = _scoreService.getScores(ScoredBoulderFilters(
           gymId: widget.selectedGymId,
           seasonId: widget.selectedSeasonId,
+          week: widget.selectedWeek,
           uid: FirebaseAuth.instance.currentUser!.uid,
         ));
       });
@@ -109,6 +119,7 @@ class _ScoresTableState extends State<ScoresTable> {
               scoredBoulder: scoredBoulder,
               availableGyms: widget.availableGyms,
               availableSeasons: widget.availableSeasons,
+              availableWeeks: widget.availableWeeks,
             ),
           )
         );
@@ -154,25 +165,25 @@ class _ScoresTableState extends State<ScoresTable> {
                   DataColumn(
                     label: Text(
                       'Boulder',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                   DataColumn(
                     label: Text(
                       'Attempts',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                   DataColumn(
                     label: Text(
                       'Completed',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                   DataColumn(
                     label: Text(
                       'Score',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                   DataColumn(label: Text('')), // Actions column
