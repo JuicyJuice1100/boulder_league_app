@@ -53,13 +53,6 @@ class _BouldersTableState extends State<BouldersTable> {
   }
 
   void _updateBoulders() {
-    if (widget.selectedSeasonId == null) {
-      setState(() {
-        _bouldersStream = null;
-      });
-      return;
-    }
-
     setState(() {
       _bouldersStream = _boulderService.getBoulders(BoulderFilters(
         gymId: widget.selectedGymId,
@@ -104,12 +97,6 @@ class _BouldersTableState extends State<BouldersTable> {
           );
         }
 
-        if (widget.selectedSeasonId == null) {
-          return const Center(
-            child: Text('No season selected. Please select a season from the dropdown above.')
-          );
-        }
-
         final boulders = snapshot.data ?? [];
 
         if (boulders.isEmpty) {
@@ -122,6 +109,7 @@ class _BouldersTableState extends State<BouldersTable> {
             child: SizedBox(
               width: MediaQuery.of(context).size.width,
               child: DataTable(
+                showCheckboxColumn: false,
                 headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
                 columns: const [
                   DataColumn(
@@ -147,8 +135,7 @@ class _BouldersTableState extends State<BouldersTable> {
                       'Season',
                       style: defaultHeaderStyle,
                     ),
-                  ),
-                  DataColumn(label: Text('')), // Actions column
+                  )
                 ],
                 rows: boulders.map((boulder) {
                   final gym = widget.availableGyms.firstWhere(
@@ -161,6 +148,11 @@ class _BouldersTableState extends State<BouldersTable> {
                   );
 
                   return DataRow(
+                    onSelectChanged: (selected) {
+                      if(selected != null && selected) {
+                        _editBoulder(boulder);
+                      }
+                    },
                     cells: [
                       DataCell(Text(gym.name)),
                       DataCell(Text(boulder.name)),
@@ -185,15 +177,6 @@ class _BouldersTableState extends State<BouldersTable> {
                         );
                         return Text(season.name);
                       }()),
-                      DataCell(Row(
-                        children: [
-                          ElevatedButton.icon(
-                            label: const Text('Edit'),
-                            icon: const Icon(Icons.edit),
-                            onPressed: () => _editBoulder(boulder),
-                          ),
-                        ],
-                      )),
                     ],
                   );
                 }).toList(),
