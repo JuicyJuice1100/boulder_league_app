@@ -7,6 +7,7 @@ import 'package:boulder_league_app/models/season.dart';
 import 'package:boulder_league_app/models/season_filters.dart';
 import 'package:boulder_league_app/services/gym_service.dart';
 import 'package:boulder_league_app/services/season_service.dart';
+import 'package:boulder_league_app/static/weeks.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -23,10 +24,12 @@ class _BouldersSectionState extends State<BouldersSection> {
 
   String? selectedSeasonId;
   String selectedGymId = '';
+  num? selectedWeek;
   bool isLoading = false;
 
   List<Gym> availableGyms = [];
   List<Season> availableSeasons = [];
+  List<num> availableWeeks = weeksList;
   StreamSubscription<Season?>? _currentSeasonSub;
   StreamSubscription<List<Season>>? _seasonsSub;
   StreamSubscription<List<Gym>>? _gymsSub;
@@ -66,18 +69,6 @@ class _BouldersSectionState extends State<BouldersSection> {
         availableSeasons = seasons;
       });
     });
-
-    // Subscribe to current active season to set as default
-    _currentSeasonSub = _seasonService.getCurrentSeasonForGym(selectedGymId).listen((season) {
-      if (season != null && selectedSeasonId == null) {
-        setState(() {
-          selectedSeasonId = season.id;
-          isLoading = false;
-        });
-      } else {
-        setState(() => isLoading = false);
-      }
-    });
   }
 
   void _onGymChanged(String? newGymId) {
@@ -86,6 +77,7 @@ class _BouldersSectionState extends State<BouldersSection> {
     setState(() {
       selectedGymId = newGymId;
       selectedSeasonId = null;
+      selectedWeek = null;
       availableSeasons = [];
       isLoading = true;
     });
@@ -99,10 +91,14 @@ class _BouldersSectionState extends State<BouldersSection> {
   }
 
   void _onSeasonChanged(String? newSeasonId) {
-    if (newSeasonId == null || newSeasonId == selectedSeasonId) return;
-
     setState(() {
       selectedSeasonId = newSeasonId;
+    });
+  }
+
+  void _onWeekChanged(num? newWeek) {
+    setState(() {
+      selectedWeek = newWeek;
     });
   }
 
@@ -113,20 +109,26 @@ class _BouldersSectionState extends State<BouldersSection> {
       filters: BouldersFilters(
         selectedGymId: selectedGymId,
         selectedSeasonId: selectedSeasonId,
+        selectedWeek: selectedWeek,
         availableGyms: availableGyms,
         availableSeasons: availableSeasons,
+        availableWeeks: availableWeeks,
         onGymChanged: _onGymChanged,
         onSeasonChanged: _onSeasonChanged,
+        onWeekChanged: _onWeekChanged,
       ),
       table: BouldersTable(
         selectedGymId: selectedGymId,
         selectedSeasonId: selectedSeasonId,
+        selectedWeek: selectedWeek,
         availableGyms: availableGyms,
         availableSeasons: availableSeasons,
+        availableWeeks: availableWeeks,
       ),
       add: BouldersForm(
         availableGyms: availableGyms,
         availableSeasons: availableSeasons,
+        availableWeeks: availableWeeks
       ),
     );
   }

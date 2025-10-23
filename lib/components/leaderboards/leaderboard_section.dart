@@ -50,6 +50,7 @@ class LeaderboardSectionState extends State<LeaderboardSection> {
         availableGyms = gyms;
         if (gyms.isNotEmpty && selectedGymId.isEmpty) {
           selectedGymId = gyms.first.id;
+          selectedSeasonId = gyms.first.activeSeasonId ?? '';
           _initializeLeaderboard();
         }
       });
@@ -64,18 +65,6 @@ class LeaderboardSectionState extends State<LeaderboardSection> {
       setState(() {
         availableSeasons = seasons;
       });
-    });
-
-    // Subscribe to current active season to set as default
-    _currentSeasonSub = _seasonService.getCurrentSeasonForGym(selectedGymId).listen((season) {
-      if (season != null && selectedSeasonId == null) {
-        setState(() {
-          selectedSeasonId = season.id;
-          isLoading = false;
-        });
-      } else {
-        setState(() => isLoading = false);
-      }
     });
   }
 

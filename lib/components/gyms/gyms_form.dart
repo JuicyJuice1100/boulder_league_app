@@ -1,7 +1,10 @@
 import 'package:boulder_league_app/helpers/toast_notification.dart';
 import 'package:boulder_league_app/models/base_meta_data.dart';
 import 'package:boulder_league_app/models/gym.dart';
+import 'package:boulder_league_app/models/season.dart';
+import 'package:boulder_league_app/models/season_filters.dart';
 import 'package:boulder_league_app/services/gym_service.dart';
+import 'package:boulder_league_app/services/season_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -18,7 +21,9 @@ class GymsForm extends StatefulWidget {
 
 class GymsFormState extends State<GymsForm> {
   final _gymFormKey = GlobalKey<FormBuilderState>();
+  final SeasonService _seasonService = SeasonService();
 
+  List<Season> availableSeasons = [];
   bool isLoading = false;
   bool isUpdate = false;
 
@@ -26,6 +31,7 @@ class GymsFormState extends State<GymsForm> {
   void initState() {
     super.initState();
     setIsUpdate();
+    initSeasons();
   }
 
   void setIsLoading(bool value) {
@@ -40,6 +46,16 @@ class GymsFormState extends State<GymsForm> {
     });
   }
 
+  void initSeasons() {
+    if(isUpdate) {
+      _seasonService.getSeasons(SeasonFilters(gymId: widget.gym!.id)).listen((seasons) {
+        setState(() {
+          availableSeasons = seasons;
+        });
+      });
+    }
+  }
+
   void onSave(Map<String, FormBuilderFieldState<FormBuilderField<dynamic>, dynamic>> fields) async {
     try {
       setIsLoading(true);
@@ -49,6 +65,7 @@ class GymsFormState extends State<GymsForm> {
       final gym = Gym(
         id: widget.gym?.id ?? Uuid().v4(),
         name: fields['name']!.value,
+        activeSeasonId: fields['activeSeasonId']?.value ?? '',
         baseMetaData: BaseMetaData(
           createdByUid: widget.gym?.baseMetaData.createdByUid ?? user.uid,
           lastUpdateByUid: user.uid,
@@ -107,6 +124,27 @@ class GymsFormState extends State<GymsForm> {
                 FormBuilderValidators.required()
               ]),
               initialValue: widget.gym?.name ?? '',
+            ),
+            if(isUpdate)
+            FormBuilderDropdown(
+              name: 'activeSeasonId', 
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Active Season'
+              ),
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required()
+              ]),
+              items: availableSeasons.isNotEmpty ? availableSeasons.map((season) => DropdownMenuItem(
+                value: season.id,
+                child: Text(season.name),
+              )).toList() : [
+                DropdownMenuItem(
+                  value: 'NO_ACTIVE_SEASON',
+                  child: Text('No Available Seasons')
+                )
+              ],
+              initialValue: widget.gym?.activeSeasonId ?? 'NO_ACTIVE_SEASON',
             ),
             SizedBox(
               width: double.infinity,

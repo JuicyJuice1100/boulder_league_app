@@ -1,4 +1,5 @@
 import 'package:boulder_league_app/components/gyms/gyms_form.dart';
+import 'package:boulder_league_app/styles/default_header.dart';
 import 'package:flutter/material.dart';
 import 'package:boulder_league_app/models/gym.dart';
 import 'package:boulder_league_app/services/gym_service.dart';
@@ -68,37 +69,33 @@ class _GymsTableState extends State<GymsTable> {
             child: SizedBox(
               width: MediaQuery.of(context).size.width,
               child: DataTable(
+                showCheckboxColumn: false,
                 headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
                 columns: const [
                   DataColumn(
                     label: Text(
                       'Name',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                   DataColumn(
                     label: Text(
                       'Created At',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
-                  DataColumn(label: Text('')), // Actions column
                 ],
                 rows: gyms.map((gym) {
                   return DataRow(
+                    onSelectChanged: (selected) {
+                      if(selected != null && selected) {
+                        _editGym(gym);
+                      }
+                    },
                     cells: [
                       DataCell(Text(gym.name)),
                       DataCell(Text(
                         gym.baseMetaData.createdAt.toString().split(' ')[0],
-                      )),
-                      DataCell(Row(
-                        children: [
-                          ElevatedButton.icon(
-                            label: const Text('Edit'),
-                            icon: const Icon(Icons.edit),
-                            onPressed: () => _editGym(gym),
-                          ),
-                        ],
                       )),
                     ],
                   );

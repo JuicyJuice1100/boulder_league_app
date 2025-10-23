@@ -2,6 +2,7 @@ import 'package:boulder_league_app/models/leaderboard_entry.dart';
 import 'package:boulder_league_app/models/scored_boulder.dart';
 import 'package:boulder_league_app/models/scored_boulder_filters.dart';
 import 'package:boulder_league_app/services/scoring_service.dart';
+import 'package:boulder_league_app/styles/default_header.dart';
 import 'package:flutter/material.dart';
 
 class LeaderboardTable extends StatefulWidget {
@@ -78,7 +79,6 @@ class _LeaderboardTableState extends State<LeaderboardTable> {
       final uid = entry.key;
       final userScores = entry.value;
       final totalScore = userScores.fold<num>(0, (sum, score) => sum + score.score);
-      final boulderCount = userScores.length;
 
       // Get displayName from the most recent score (they should all be the same for a user)
       final displayName = userScores.first.displayName;
@@ -86,7 +86,6 @@ class _LeaderboardTableState extends State<LeaderboardTable> {
       return LeaderboardEntry(
         uid: uid,
         totalScore: totalScore,
-        boulderCount: boulderCount,
         displayName: displayName,
       );
     }).toList();
@@ -138,30 +137,26 @@ class _LeaderboardTableState extends State<LeaderboardTable> {
             child: SizedBox(
               width: MediaQuery.of(context).size.width,
               child: DataTable(
+                dataRowMaxHeight: double.infinity,
+                horizontalMargin: 6,
                 headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
                 columns: const [
                   DataColumn(
                     label: Text(
                       'Rank',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                   DataColumn(
                     label: Text(
                       'User',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Text(
-                      'Boulders Completed',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                   DataColumn(
                     label: Text(
                       'Total Score',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                 ],
@@ -219,9 +214,6 @@ class _LeaderboardTableState extends State<LeaderboardTable> {
                                 : FontWeight.normal,
                           ),
                         ),
-                      ),
-                      DataCell(
-                        Text(leaderboardEntry.boulderCount.toString()),
                       ),
                       DataCell(
                         Text(

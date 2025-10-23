@@ -19,11 +19,13 @@ class ScoresForm extends StatefulWidget {
   final ScoredBoulder? scoredBoulder;
   final List<Gym> availableGyms;
   final List<Season> availableSeasons;
+  final List<num> availableWeeks;
   const ScoresForm({
     super.key,
     this.scoredBoulder,
     required this.availableGyms,
     required this.availableSeasons,
+    required this.availableWeeks
   });
 
   @override
@@ -202,7 +204,7 @@ class ScoresFormState extends State<ScoresForm> {
               validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required()
               ]), 
-              items: weeksList.map((week) => DropdownMenuItem(
+              items: widget.availableWeeks.map((week) => DropdownMenuItem(
                 value: week,
                 child: Text(week.toString())
               )).toList(),

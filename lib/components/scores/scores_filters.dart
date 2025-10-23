@@ -5,19 +5,25 @@ import 'package:flutter/material.dart';
 class ScoresFilters extends StatelessWidget {
   final String selectedGymId;
   final String? selectedSeasonId;
+  final num? selectedWeek;
   final List<Gym> availableGyms;
   final List<Season> availableSeasons;
+  final List<num> availableWeeks;
   final void Function(String?) onGymChanged;
   final void Function(String?) onSeasonChanged;
+  final void Function(num?) onWeekChanged;
 
   const ScoresFilters({
     super.key,
     required this.selectedGymId,
     required this.selectedSeasonId,
+    required this.selectedWeek,
     required this.availableGyms,
     required this.availableSeasons,
+    required this.availableWeeks,
     required this.onGymChanged,
     required this.onSeasonChanged,
+    required this.onWeekChanged,
   });
 
   @override
@@ -68,14 +74,50 @@ class ScoresFilters extends StatelessWidget {
                     child: DropdownButton<String>(
                       value: selectedSeasonId,
                       isExpanded: true,
-                      items: availableSeasons.map((season) {
-                        return DropdownMenuItem(
-                          value: season.id,
-                          child: Text(season.name),
-                        );
-                      }).toList(),
+                      items: [
+                        const DropdownMenuItem<String>(
+                          value: null,
+                          child: Text('All'),
+                        ),
+                        ...availableSeasons.map((season) {
+                          return DropdownMenuItem(
+                            value: season.id,
+                            child: Text(season.name),
+                          );
+                        }),
+                      ],
                       onChanged: onSeasonChanged,
                       hint: const Text('Select a season'),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: InputDecorator(
+                  decoration: const InputDecoration(
+                    labelText: 'Week',
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<num>(
+                      value: selectedWeek,
+                      isExpanded: true,
+                      items: [
+                        const DropdownMenuItem<num>(
+                          value: null,
+                          child: Text('All'),
+                        ),
+                        ...availableWeeks.map((week) {
+                          return DropdownMenuItem(
+                            value: week,
+                            child: Text(week.toString()),
+                          );
+                        }),
+                      ],
+                      onChanged: onWeekChanged,
+                      hint: const Text('Select a week'),
                     ),
                   ),
                 ),

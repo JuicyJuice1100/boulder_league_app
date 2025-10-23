@@ -7,6 +7,7 @@ import 'package:boulder_league_app/models/season.dart';
 import 'package:boulder_league_app/models/scored_boulder_filters.dart';
 import 'package:boulder_league_app/services/scoring_service.dart';
 import 'package:boulder_league_app/services/boulder_service.dart';
+import 'package:boulder_league_app/styles/default_header.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:boulder_league_app/models/scored_boulder.dart';
@@ -15,15 +16,19 @@ import 'dart:async';
 class ScoresTable extends StatefulWidget {
   final String selectedGymId;
   final String? selectedSeasonId;
+  final num? selectedWeek;
   final List<Gym> availableGyms;
   final List<Season> availableSeasons;
+  final List<num> availableWeeks;
 
   const ScoresTable({
     super.key,
     required this.selectedGymId,
     required this.selectedSeasonId,
+    required this.selectedWeek,
     required this.availableGyms,
     required this.availableSeasons,
+    required this.availableWeeks
   });
 
   @override
@@ -50,7 +55,8 @@ class _ScoresTableState extends State<ScoresTable> {
     super.didUpdateWidget(oldWidget);
     // Re-fetch data when filters change
     if (oldWidget.selectedGymId != widget.selectedGymId ||
-        oldWidget.selectedSeasonId != widget.selectedSeasonId) {
+        oldWidget.selectedSeasonId != widget.selectedSeasonId ||
+        oldWidget.selectedWeek != widget.selectedWeek) {
       _updateScoresAndBoulders();
     }
   }
@@ -67,37 +73,35 @@ class _ScoresTableState extends State<ScoresTable> {
     // Cancel previous boulder subscription
     _boulderSub?.cancel();
 
-    if (widget.selectedSeasonId != null) {
-      _boulderSub = _boulderService
-          .getBoulders(BoulderFilters(seasonId: widget.selectedSeasonId))
-          .listen((list) {
-        setState(() {
-          boulders = list;
-        });
-      }, onError: (err) {
-        // ignore or log
-      });
-
-      // update scores stream to use the new season id
-      setState(() {
-        _scoresStream = _scoreService.getScores(ScoredBoulderFilters(
+    // Fetch boulders with current filters (null seasonId means all seasons)
+    _boulderSub = _boulderService
+        .getBoulders(BoulderFilters(
           gymId: widget.selectedGymId,
           seasonId: widget.selectedSeasonId,
-          uid: FirebaseAuth.instance.currentUser!.uid,
-        ));
-      });
-    } else {
-      // no season selected
+          week: widget.selectedWeek,
+        ))
+        .listen((list) {
       setState(() {
-        boulders = [];
-        _scoresStream = null;
+        boulders = list;
       });
-    }
+    }, onError: (err) {
+      // ignore or log
+    });
+
+    // update scores stream to use current filters
+    setState(() {
+      _scoresStream = _scoreService.getScores(ScoredBoulderFilters(
+        gymId: widget.selectedGymId,
+        seasonId: widget.selectedSeasonId,
+        week: widget.selectedWeek,
+        uid: FirebaseAuth.instance.currentUser!.uid,
+      ));
+    });
 
     setState(() => isLoading = false);
   }
 
-  void editScore(ScoredBoulder scoredBoulder) {
+  void _editScore(ScoredBoulder scoredBoulder) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -109,6 +113,7 @@ class _ScoresTableState extends State<ScoresTable> {
               scoredBoulder: scoredBoulder,
               availableGyms: widget.availableGyms,
               availableSeasons: widget.availableSeasons,
+              availableWeeks: widget.availableWeeks,
             ),
           )
         );
@@ -131,12 +136,6 @@ class _ScoresTableState extends State<ScoresTable> {
           );
         }
 
-        if (widget.selectedSeasonId == null) {
-          return const Center(
-            child: Text('No season selected. Please select a season from the dropdown above.')
-          );
-        }
-
         final scoredBoulders = snapshot.data ?? [];
 
         if (scoredBoulders.isEmpty) {
@@ -149,36 +148,41 @@ class _ScoresTableState extends State<ScoresTable> {
             child: SizedBox(
               width: MediaQuery.of(context).size.width,
               child: DataTable(
+                showCheckboxColumn: false,
                 headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
                 columns: const [
                   DataColumn(
                     label: Text(
                       'Boulder',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                   DataColumn(
                     label: Text(
                       'Attempts',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                   DataColumn(
                     label: Text(
                       'Completed',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
                   ),
                   DataColumn(
                     label: Text(
                       'Score',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: defaultHeaderStyle,
                     ),
-                  ),
-                  DataColumn(label: Text('')), // Actions column
+                  )
                 ],
                 rows: scoredBoulders.map((scoredBoulder) {
                   return DataRow(
+                    onSelectChanged: (selected) {
+                      if(selected != null && selected) {
+                        _editScore(scoredBoulder);
+                      }
+                    },
                     cells: [
                       DataCell(
                         Builder(
@@ -217,16 +221,7 @@ class _ScoresTableState extends State<ScoresTable> {
                         scoredBoulder.completed ? Icons.check_circle : Icons.cancel,
                         color: scoredBoulder.completed ? Colors.green : Colors.red,
                       )),
-                      DataCell(Text(scoredBoulder.score.toString())),
-                      DataCell(Row(
-                        children: [
-                          ElevatedButton.icon(
-                            label: const Text('Edit'),
-                            icon: const Icon(Icons.edit),
-                            onPressed: () => editScore(scoredBoulder),
-                          ),
-                        ],
-                      )),
+                      DataCell(Text(scoredBoulder.score.toString()))
                     ],
                   );
                 }).toList(),
