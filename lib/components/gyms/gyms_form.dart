@@ -65,7 +65,7 @@ class GymsFormState extends State<GymsForm> {
       final gym = Gym(
         id: widget.gym?.id ?? Uuid().v4(),
         name: fields['name']!.value,
-        activeSeasonId: fields['activeSeasonId']?.value ?? '',
+        activeSeasonId: fields['activeSeasonId']?.value,
         baseMetaData: BaseMetaData(
           createdByUid: widget.gym?.baseMetaData.createdByUid ?? user.uid,
           lastUpdateByUid: user.uid,
@@ -73,6 +73,10 @@ class GymsFormState extends State<GymsForm> {
           lastUpdateAt: DateTime.now().toUtc()
         )
       );
+
+      if(isUpdate) {
+        gym.activeSeasonId = fields['activeSeasonId']?.value;
+      }
 
       if (widget.gym == null) {
         GymService().addGym(gym).then((value) => {
@@ -140,11 +144,11 @@ class GymsFormState extends State<GymsForm> {
                 child: Text(season.name),
               )).toList() : [
                 DropdownMenuItem(
-                  value: 'NO_ACTIVE_SEASON',
+                  value: null,
                   child: Text('No Available Seasons')
                 )
               ],
-              initialValue: widget.gym?.activeSeasonId ?? 'NO_ACTIVE_SEASON',
+              initialValue: widget.gym?.activeSeasonId,
             ),
             SizedBox(
               width: double.infinity,

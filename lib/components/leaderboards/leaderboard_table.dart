@@ -6,7 +6,7 @@ import 'package:boulder_league_app/styles/default_header.dart';
 import 'package:flutter/material.dart';
 
 class LeaderboardTable extends StatefulWidget {
-  final String selectedGymId;
+  final String? selectedGymId;
   final String? selectedSeasonId;
 
   const LeaderboardTable({

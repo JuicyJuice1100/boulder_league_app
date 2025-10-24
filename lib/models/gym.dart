@@ -3,7 +3,7 @@ import 'package:boulder_league_app/models/base_meta_data.dart';
 class Gym {
   final String id;
   final String name;
-  final String? activeSeasonId;
+  String? activeSeasonId;
   final BaseMetaData baseMetaData;
 
   Gym({
@@ -17,7 +17,7 @@ class Gym {
     return Gym(
       id: id,
       name: json['name'] ?? '',
-      activeSeasonId: json['activeSeasonId'] ?? '',
+      activeSeasonId: json['activeSeasonId'],
       baseMetaData: BaseMetaData.fromJson(json['baseMetaData']),
     );
   }
@@ -25,7 +25,7 @@ class Gym {
   Map<String, dynamic> toJson() {
     return {
       'name': name,
-      'activeSeasonId': activeSeasonId ?? '',
+      'activeSeasonId': activeSeasonId,
       'baseMetaData': baseMetaData.toJson(),
     };
   }
