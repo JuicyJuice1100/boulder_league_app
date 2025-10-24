@@ -21,7 +21,7 @@ class LeaderboardSectionState extends State<LeaderboardSection> {
   final GymService _gymService = GymService();
 
   String? selectedSeasonId;
-  String selectedGymId = '';
+  String? selectedGymId;
   bool isLoading = false;
 
   List<Gym> availableGyms = [];
@@ -48,9 +48,9 @@ class LeaderboardSectionState extends State<LeaderboardSection> {
     _gymsSub = _gymService.getGyms().listen((gyms) {
       setState(() {
         availableGyms = gyms;
-        if (gyms.isNotEmpty && selectedGymId.isEmpty) {
+        if (gyms.isNotEmpty && selectedGymId == null) {
           selectedGymId = gyms.first.id;
-          selectedSeasonId = gyms.first.activeSeasonId ?? '';
+          selectedSeasonId = gyms.first.activeSeasonId;
           _initializeLeaderboard();
         }
       });

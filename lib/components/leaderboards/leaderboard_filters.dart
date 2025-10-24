@@ -3,7 +3,7 @@ import 'package:boulder_league_app/models/season.dart';
 import 'package:flutter/material.dart';
 
 class LeaderboardFilters extends StatelessWidget {
-  final String selectedGymId;
+  final String? selectedGymId;
   final String? selectedSeasonId;
   final List<Gym> availableGyms;
   final List<Season> availableSeasons;
@@ -45,12 +45,16 @@ class LeaderboardFilters extends StatelessWidget {
                     child: DropdownButton<String>(
                       value: selectedGymId,
                       isExpanded: true,
-                      items: availableGyms.map((gym) {
+                      items: availableGyms.isNotEmpty ? availableGyms.map((gym) {
                         return DropdownMenuItem(
                           value: gym.id,
                           child: Text(gym.name),
                         );
-                      }).toList(),
+                      }).toList() : [
+                        DropdownMenuItem(
+                          value: null,
+                          child: Text('No Season Available')
+                      )],
                       onChanged: onGymChanged,
                     ),
                   ),
@@ -68,12 +72,16 @@ class LeaderboardFilters extends StatelessWidget {
                     child: DropdownButton<String>(
                       value: selectedSeasonId,
                       isExpanded: true,
-                      items: availableSeasons.map((season) {
+                      items: availableSeasons.isNotEmpty ? availableSeasons.map((season) {
                         return DropdownMenuItem(
                           value: season.id,
                           child: Text(season.name),
                         );
-                      }).toList(),
+                      }).toList() : [
+                        DropdownMenuItem(
+                          value: null,
+                          child: Text('No Season Available')
+                      )],
                       onChanged: onSeasonChanged,
                       hint: const Text('Select a season'),
                     ),

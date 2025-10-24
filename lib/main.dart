@@ -7,6 +7,7 @@ import 'package:boulder_league_app/screens/signup.dart';
 import 'package:boulder_league_app/services/auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:toastification/toastification.dart';
@@ -22,6 +23,16 @@ void main() async {
   FirebaseFirestore.instance.settings = const Settings(
     persistenceEnabled: true
   );
+
+  if (kDebugMode) {
+    try {
+      FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+      await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+    } catch (e) {
+      // ignore: avoid_print
+      print(e);
+    }
+  }
 
   runApp(const MyApp());
 }
