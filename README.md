@@ -102,12 +102,20 @@ The project includes Docker configuration for easy deployment and development.
 - [Docker](https://docs.docker.com/get-docker/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 
+### Initial Setup
+
+The `.env.local` file is optional. If not present, Docker Compose will use the default values defined in `docker-compose.yml`.
+
 ### Running with Docker Compose
 
-To run the entire application stack (Flutter web app + Firebase emulators + proxy) with Docker:
+To run the entire application stack (Flutter web app + Firebase emulators + proxy):
 
 ```bash
+# Using .env.local file (if it exists)
 docker-compose up --build
+
+# Or explicitly specify the env file
+docker-compose --env-file .env.local up --build
 ```
 
 This will start three containers:
@@ -116,28 +124,26 @@ This will start three containers:
 3. **firebase-proxy**: Nginx reverse proxy for the emulator UI
 
 Access points:
-- Flutter Web App: `http://localhost:8000`
-- Firebase Emulator UI: `http://localhost:4000`
-- Firestore Emulator (direct): `localhost:8080`
-- Auth Emulator (direct): `localhost:9099`
+- Flutter Web App: `http://localhost:8000` (configurable via `WEB_PORT` in `.env.local`)
+- Firebase Emulator UI: `http://localhost:4000` (configurable via `FIREBASE_UI_PORT`)
+- Firestore Emulator (direct): `localhost:8080` (configurable via `FIRESTORE_PORT`)
+- Auth Emulator (direct): `localhost:9099` (configurable via `AUTH_PORT`)
 
-The web app runs in your browser and connects directly to the Firebase emulators on ports 8080 and 9099.
+The web app runs in your browser and connects directly to the Firebase emulators on the configured ports.
 
 ### Running Individual Services
 
-Run only the web app:
+You can run specific services using Docker Compose:
+
 ```bash
+# Run only the web app (requires emulators to be running)
 docker-compose up web
-```
 
-Run Firebase emulators with proxy:
-```bash
-docker-compose up firebase firebase-proxy
-```
-
-Run only Firebase emulators (without proxy):
-```bash
+# Run only Firebase emulators
 docker-compose up firebase
+
+# Run Firebase emulators with proxy
+docker-compose up firebase firebase-proxy
 ```
 
 ### Stopping Services
@@ -149,6 +155,27 @@ docker-compose down
 # Stop and remove volumes (clears emulator data)
 docker-compose down -v
 ```
+
+### Environment Configuration
+
+The `.env.local` file contains all configurable environment variables:
+
+```env
+# Flutter Web App Configuration
+USE_EMULATOR=true
+
+# Firebase Emulator Hosts and Ports
+FIRESTORE_HOST=localhost
+FIRESTORE_PORT=8080
+AUTH_HOST=localhost
+AUTH_PORT=9099
+
+# Container Port Mappings
+WEB_PORT=8000
+FIREBASE_UI_PORT=4000
+```
+
+**Note for Web Apps:** Flutter web apps run in the browser, not inside Docker containers. Therefore, emulator hosts should always be `localhost` since the browser connects from the host machine.
 
 ### Building for Production
 
@@ -165,53 +192,42 @@ Run the production image:
 docker run -p 8000:80 boulder-league-app:latest
 ```
 
-### Customizing Emulator Configuration
-
-You can customize the emulator connection by passing build arguments:
-
-```bash
-docker-compose build --build-arg FIRESTORE_HOST=custom-host web
-```
-
-Available build arguments:
-- `USE_EMULATOR`: Enable/disable emulator mode (default: `true` for Docker, `false` for production)
-- `FIRESTORE_HOST`: Firestore emulator hostname (default: `localhost`)
-- `FIRESTORE_PORT`: Firestore emulator port (default: `8080`)
-- `AUTH_HOST`: Auth emulator hostname (default: `localhost`)
-- `AUTH_PORT`: Auth emulator port (default: `9099`)
-
-For local development outside Docker, the app automatically connects to `localhost:8080` (Firestore) and `localhost:9099` (Auth) when running in debug mode.
-
-**Note for Web Apps:** Flutter web apps run in the browser, not inside Docker containers. Therefore, they always connect to `localhost` on the host machine's exposed emulator ports, even when the emulators themselves run in Docker.
-
 ### Docker Architecture
 
-The setup uses a three-container architecture:
+The setup uses a three-container architecture defined in a single `docker-compose.yml` file:
+
+**File Structure:**
+- `docker-compose.yml` - Defines all services with environment variable support
+- `.env.local` - Optional environment variable overrides (gitignored)
+- `.env.example` - Example environment configuration template
 
 **1. Web Container (`boulder_league_web`)**
 - Multi-stage build using Flutter official image for building
 - Nginx alpine for serving the production build
-- Exposed on port 8000
+- Port configurable via `WEB_PORT` (default: 8000)
 - Dockerfile: `Dockerfile`
 
 **2. Firebase Container (`boulder_league_firebase`)**
 - Node.js alpine with Firebase CLI and OpenJDK 21 LTS
 - Runs Auth and Firestore emulators
-- Exposes ports 8080 (Firestore) and 9099 (Auth) to host
+- Ports configurable via `FIRESTORE_PORT` and `AUTH_PORT`
 - Loads test data on startup
 - Dockerfile: `Dockerfile.firebase`
 
 **3. Firebase Proxy Container (`boulder_league_firebase_proxy`)**
 - Nginx alpine reverse proxy
-- Provides access to Firebase Emulator UI on port 4000
+- Provides access to Firebase Emulator UI
+- Port configurable via `FIREBASE_UI_PORT` (default: 4000)
 - Routes UI traffic to Firebase container
 - Dockerfile: `Dockerfile.proxy`
 
-**Architecture Notes:**
-- **Web app browser connectivity**: Since Flutter web runs in the browser, it connects to emulators via `localhost:8080` and `localhost:9099` from the host machine
-- **Emulator UI access**: The proxy provides a convenient single port (4000) for the Firebase Emulator UI
-- **Clean separation**: Each service has a single responsibility
-- **Network isolation**: Backend services communicate through a dedicated Docker bridge network
+**Architecture Benefits:**
+- **Simple and clean**: Single compose file with sensible defaults
+- **Environment-based configuration**: Optional `.env.local` for customization
+- **Web app browser connectivity**: Flutter web connects to emulators via exposed localhost ports
+- **Clean separation**: Each service has a single, well-defined responsibility
+- **Network isolation**: Services communicate through a dedicated Docker bridge network
+- **Flexible deployment**: Can run services individually or all together
 
 ## Additional Resources
 
