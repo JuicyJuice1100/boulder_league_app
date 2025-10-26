@@ -11,6 +11,10 @@ Before setting up the project, ensure you have the following installed:
 - **Flutter SDK**: Latest stable version
 - **Firebase CLI**: For running local emulators
 
+### Docker Alternative
+
+Alternatively, if you have Docker and Docker Compose installed, you can skip the manual setup and use the containerized environment (see [Docker Setup](#docker-setup) below).
+
 ## Local Development Setup
 
 ### 1. Install Flutter
@@ -89,8 +93,108 @@ flutter devices
   - Firestore: 8080
   - UI: Enabled (default port)
 
+## Docker Setup
+
+The project includes Docker configuration for easy deployment and development.
+
+### Prerequisites for Docker
+
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/)
+
+### Running with Docker Compose
+
+To run the entire application stack (Flutter web app + Firebase emulators + proxy) with Docker:
+
+```bash
+docker-compose up --build
+```
+
+This will start three containers:
+1. **web**: Flutter web application served on `http://localhost:8000`
+2. **firebase**: Firebase emulators (Auth & Firestore) running internally with test data
+3. **firebase-proxy**: Nginx reverse proxy providing unified access to emulators on `http://localhost:4000`
+
+Access points:
+- Flutter Web App: `http://localhost:8000`
+- Firebase Emulator UI: `http://localhost:4000`
+- Firestore API (via proxy): `http://localhost:4000/firestore/`
+- Auth API (via proxy): `http://localhost:4000/auth/`
+
+### Running Individual Services
+
+Run only the web app:
+```bash
+docker-compose up web
+```
+
+Run Firebase emulators with proxy:
+```bash
+docker-compose up firebase firebase-proxy
+```
+
+Run only Firebase emulators (without proxy):
+```bash
+docker-compose up firebase
+```
+
+### Stopping Services
+
+```bash
+# Stop all services
+docker-compose down
+
+# Stop and remove volumes (clears emulator data)
+docker-compose down -v
+```
+
+### Building for Production
+
+To build just the Docker image for the web app:
+
+```bash
+docker build -t boulder-league-app:latest .
+```
+
+Run the production image:
+```bash
+docker run -p 8000:80 boulder-league-app:latest
+```
+
+### Docker Architecture
+
+The setup uses a three-container architecture:
+
+**1. Web Container (`boulder_league_web`)**
+- Multi-stage build using Flutter official image for building
+- Nginx alpine for serving the production build
+- Exposed on port 8000
+- Dockerfile: `Dockerfile`
+
+**2. Firebase Container (`boulder_league_firebase`)**
+- Node.js alpine with Firebase CLI
+- Runs Auth and Firestore emulators
+- Internal only (no direct host access)
+- Loads test data on startup
+- Dockerfile: `Dockerfile.firebase`
+
+**3. Firebase Proxy Container (`boulder_league_firebase_proxy`)**
+- Nginx alpine reverse proxy
+- Routes traffic to Firebase emulators
+- Provides unified access point on port 4000
+- Handles WebSocket upgrades for real-time features
+- Dockerfile: `Dockerfile.proxy`
+
+**Benefits of this architecture:**
+- **Security**: Firebase emulators not directly exposed to host
+- **Flexibility**: Easy to add authentication, rate limiting, or caching at proxy level
+- **Scalability**: Can add multiple Firebase instances behind the proxy
+- **Clean separation**: Each service has a single responsibility
+- **Network isolation**: Services communicate through a dedicated Docker bridge network
+
 ## Additional Resources
 
 - [Flutter Documentation](https://docs.flutter.dev/)
 - [Firebase Emulator Suite](https://firebase.google.com/docs/emulator-suite)
 - [Flutter Firebase Setup](https://firebase.google.com/docs/flutter/setup)
+- [Docker Documentation](https://docs.docker.com/)

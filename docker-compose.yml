@@ -1,0 +1,63 @@
+services:
+  # Flutter Web Application
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:80"
+    container_name: boulder_league_web
+    restart: unless-stopped
+    networks:
+      - boulder_league_network
+    depends_on:
+      firebase-proxy:
+        condition: service_started
+    environment:
+      - NODE_ENV=production
+
+  # Firebase Emulators (internal - no direct external access)
+  firebase:
+    build:
+      context: .
+      dockerfile: Dockerfile.firebase
+    container_name: boulder_league_firebase
+    restart: unless-stopped
+    networks:
+      - boulder_league_network
+    volumes:
+      - firebase-data:/firebase/.cache/firebase/emulators
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    # No ports exposed to host - only accessible via proxy
+
+  # Firebase Emulator Proxy (nginx reverse proxy)
+  firebase-proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile.proxy
+    ports:
+      - "4000:80"     # Proxy port (UI and API gateway)
+    container_name: boulder_league_firebase_proxy
+    restart: unless-stopped
+    networks:
+      - boulder_league_network
+    depends_on:
+      firebase:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+networks:
+  boulder_league_network:
+    driver: bridge
+
+volumes:
+  firebase-data:
