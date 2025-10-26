@@ -1,0 +1,40 @@
+# Git
+.git/
+.github/
+.gitignore
+
+# Build outputs
+build/
+.dart_tool/
+*.iml
+
+# IDE
+.idea/
+.vscode/
+.claude/
+
+# Platform-specific
+android/
+ios/
+linux/
+macos/
+windows/
+
+# Logs
+*.log
+
+# Documentation
+README.md
+.metadata
+
+# Firebase
+.firebaserc
+
+# Testing
+test/
+
+# Misc
+.DS_Store
+*.swp
+*.swo
+*~

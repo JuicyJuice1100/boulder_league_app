@@ -50,7 +50,7 @@ class LeaderboardSectionState extends State<LeaderboardSection> {
         availableGyms = gyms;
         if (gyms.isNotEmpty && selectedGymId == null) {
           selectedGymId = gyms.first.id;
-          selectedSeasonId = gyms.first.activeSeasonId;
+          // Don't set selectedSeasonId yet - wait for seasons to load
           _initializeLeaderboard();
         }
       });
@@ -64,6 +64,35 @@ class LeaderboardSectionState extends State<LeaderboardSection> {
     _seasonsSub = _seasonService.getSeasons(SeasonFilters(gymId: selectedGymId)).listen((seasons) {
       setState(() {
         availableSeasons = seasons;
+
+        // Remove duplicates based on season ID
+        final seen = <String>{};
+        final uniqueSeasons = seasons.where((season) {
+          return seen.add(season.id);
+        }).toList();
+        availableSeasons = uniqueSeasons;
+
+        // Only set selectedSeasonId after seasons are loaded
+        if (selectedSeasonId == null && uniqueSeasons.isNotEmpty) {
+          // Try to find the gym's active season, or use the first available
+          final gym = availableGyms.firstWhere(
+            (g) => g.id == selectedGymId,
+            orElse: () => availableGyms.first
+          );
+
+          final activeSeason = uniqueSeasons.firstWhere(
+            (s) => s.id == gym.activeSeasonId,
+            orElse: () => uniqueSeasons.first
+          );
+
+          selectedSeasonId = activeSeason.id;
+        } else if (selectedSeasonId != null) {
+          // Verify selectedSeasonId exists in the unique list
+          final exists = uniqueSeasons.any((s) => s.id == selectedSeasonId);
+          if (!exists && uniqueSeasons.isNotEmpty) {
+            selectedSeasonId = uniqueSeasons.first.id;
+          }
+        }
       });
     });
   }

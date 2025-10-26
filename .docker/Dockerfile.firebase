@@ -1,0 +1,26 @@
+# Dockerfile for Firebase Emulators
+FROM node:20-alpine
+
+# Install OpenJDK 21 LTS (required for Firebase emulators)
+RUN apk add --no-cache openjdk21-jre
+
+# Install Firebase CLI
+RUN npm install -g firebase-tools
+
+# Install curl for healthchecks
+RUN apk add --no-cache curl
+
+# Create working directory
+WORKDIR /firebase
+
+# Copy Firebase configuration files
+COPY firebase.json ./
+COPY firestore.rules ./
+COPY firestore.indexes.json ./
+COPY default-test-data ./default-test-data
+
+# Expose emulator ports
+EXPOSE 4000 8080 9099
+
+# Start Firebase emulators with imported test data
+CMD ["firebase", "emulators:start", "--import", "./default-test-data", "--project", "boulder-league-app", "--only", "auth,firestore"]

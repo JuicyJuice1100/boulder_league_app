@@ -1,5 +1,6 @@
 import 'package:boulder_league_app/app_global.dart';
 import 'package:boulder_league_app/auth_provider.dart';
+import 'package:boulder_league_app/env_config.dart';
 import 'package:boulder_league_app/screens/account.dart';
 import 'package:boulder_league_app/screens/home.dart';
 import 'package:boulder_league_app/screens/login.dart';
@@ -24,13 +25,30 @@ void main() async {
     persistenceEnabled: true
   );
 
-  if (kDebugMode) {
+  // Configure emulators based on environment variables or debug mode
+  final bool shouldUseEmulator = EnvConfig.useEmulator || kDebugMode;
+
+  if (shouldUseEmulator) {
     try {
-      FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
-      await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+      // Print configuration for debugging
+      if (kDebugMode) {
+        EnvConfig.printConfig();
+      }
+
+      FirebaseFirestore.instance.useFirestoreEmulator(
+        EnvConfig.firestoreHost,
+        EnvConfig.firestorePort,
+      );
+      await FirebaseAuth.instance.useAuthEmulator(
+        EnvConfig.authHost,
+        EnvConfig.authPort,
+      );
+
+      // ignore: avoid_print
+      print('Connected to Firebase emulators at ${EnvConfig.firestoreHost}');
     } catch (e) {
       // ignore: avoid_print
-      print(e);
+      print('Error connecting to emulators: $e');
     }
   }
 

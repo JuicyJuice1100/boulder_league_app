@@ -1,0 +1,69 @@
+services:
+  # Firebase Emulators - starts first
+  firebase:
+    build:
+      context: ..
+      dockerfile: .docker/Dockerfile.firebase
+    container_name: boulder_league_firebase
+    restart: always
+    networks:
+      - boulder_league_network
+    ports:
+      - "${FIRESTORE_PORT:-8080}:8080"   # Firestore - exposed for web app browser access
+      - "${AUTH_PORT:-9099}:9099"        # Auth - exposed for web app browser access
+    volumes:
+      - firebase-data:/firebase/.cache/firebase/emulators
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  # Firebase Emulator Proxy - starts after firebase is healthy
+  firebase-proxy:
+    build:
+      context: ..
+      dockerfile: .docker/Dockerfile.proxy
+    ports:
+      - "${FIREBASE_UI_PORT:-4000}:80"   # Proxy port (UI and API gateway)
+    container_name: boulder_league_firebase_proxy
+    restart: always
+    networks:
+      - boulder_league_network
+    depends_on:
+      firebase:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Flutter Web Application - starts after proxy is ready
+  web:
+    build:
+      context: ..
+      dockerfile: .docker/Dockerfile
+      args:
+        USE_EMULATOR: ${USE_EMULATOR:-true}
+        FIRESTORE_HOST: ${FIRESTORE_HOST:-localhost}
+        FIRESTORE_PORT: ${FIRESTORE_PORT:-8080}
+        AUTH_HOST: ${AUTH_HOST:-localhost}
+        AUTH_PORT: ${AUTH_PORT:-9099}
+    ports:
+      - "${WEB_PORT:-8000}:80"
+    container_name: boulder_league_web
+    restart: always
+    networks:
+      - boulder_league_network
+    depends_on:
+      firebase-proxy:
+        condition: service_started
+
+networks:
+  boulder_league_network:
+    driver: bridge
+
+volumes:
+  firebase-data:

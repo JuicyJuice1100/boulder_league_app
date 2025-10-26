@@ -14,6 +14,9 @@ migrate_working_dir/
 .github/
 .claude/
 
+# Environment files
+.env
+
 # IntelliJ related
 *.iml
 *.ipr
