@@ -4,6 +4,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        USE_EMULATOR: "true"
+        FIRESTORE_HOST: "localhost"
+        FIRESTORE_PORT: "8080"
+        AUTH_HOST: "localhost"
+        AUTH_PORT: "9099"
     ports:
       - "8000:80"
     container_name: boulder_league_web
@@ -16,7 +22,7 @@ services:
     environment:
       - NODE_ENV=production
 
-  # Firebase Emulators (internal - no direct external access)
+  # Firebase Emulators
   firebase:
     build:
       context: .
@@ -25,6 +31,9 @@ services:
     restart: unless-stopped
     networks:
       - boulder_league_network
+    ports:
+      - "8080:8080"   # Firestore - exposed for web app browser access
+      - "9099:9099"   # Auth - exposed for web app browser access
     volumes:
       - firebase-data:/firebase/.cache/firebase/emulators
     healthcheck:
@@ -33,7 +42,6 @@ services:
       timeout: 10s
       retries: 5
       start_period: 40s
-    # No ports exposed to host - only accessible via proxy
 
   # Firebase Emulator Proxy (nginx reverse proxy)
   firebase-proxy:

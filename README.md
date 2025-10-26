@@ -112,14 +112,16 @@ docker-compose up --build
 
 This will start three containers:
 1. **web**: Flutter web application served on `http://localhost:8000`
-2. **firebase**: Firebase emulators (Auth & Firestore) running internally with test data
-3. **firebase-proxy**: Nginx reverse proxy providing unified access to emulators on `http://localhost:4000`
+2. **firebase**: Firebase emulators (Auth & Firestore) with test data
+3. **firebase-proxy**: Nginx reverse proxy for the emulator UI
 
 Access points:
 - Flutter Web App: `http://localhost:8000`
 - Firebase Emulator UI: `http://localhost:4000`
-- Firestore API (via proxy): `http://localhost:4000/firestore/`
-- Auth API (via proxy): `http://localhost:4000/auth/`
+- Firestore Emulator (direct): `localhost:8080`
+- Auth Emulator (direct): `localhost:9099`
+
+The web app runs in your browser and connects directly to the Firebase emulators on ports 8080 and 9099.
 
 ### Running Individual Services
 
@@ -150,16 +152,37 @@ docker-compose down -v
 
 ### Building for Production
 
-To build just the Docker image for the web app:
+To build the Docker image without emulator support (for production deployment):
 
 ```bash
-docker build -t boulder-league-app:latest .
+docker build \
+  --build-arg USE_EMULATOR=false \
+  -t boulder-league-app:latest .
 ```
 
 Run the production image:
 ```bash
 docker run -p 8000:80 boulder-league-app:latest
 ```
+
+### Customizing Emulator Configuration
+
+You can customize the emulator connection by passing build arguments:
+
+```bash
+docker-compose build --build-arg FIRESTORE_HOST=custom-host web
+```
+
+Available build arguments:
+- `USE_EMULATOR`: Enable/disable emulator mode (default: `true` for Docker, `false` for production)
+- `FIRESTORE_HOST`: Firestore emulator hostname (default: `localhost`)
+- `FIRESTORE_PORT`: Firestore emulator port (default: `8080`)
+- `AUTH_HOST`: Auth emulator hostname (default: `localhost`)
+- `AUTH_PORT`: Auth emulator port (default: `9099`)
+
+For local development outside Docker, the app automatically connects to `localhost:8080` (Firestore) and `localhost:9099` (Auth) when running in debug mode.
+
+**Note for Web Apps:** Flutter web apps run in the browser, not inside Docker containers. Therefore, they always connect to `localhost` on the host machine's exposed emulator ports, even when the emulators themselves run in Docker.
 
 ### Docker Architecture
 
@@ -172,25 +195,23 @@ The setup uses a three-container architecture:
 - Dockerfile: `Dockerfile`
 
 **2. Firebase Container (`boulder_league_firebase`)**
-- Node.js alpine with Firebase CLI
+- Node.js alpine with Firebase CLI and OpenJDK 21 LTS
 - Runs Auth and Firestore emulators
-- Internal only (no direct host access)
+- Exposes ports 8080 (Firestore) and 9099 (Auth) to host
 - Loads test data on startup
 - Dockerfile: `Dockerfile.firebase`
 
 **3. Firebase Proxy Container (`boulder_league_firebase_proxy`)**
 - Nginx alpine reverse proxy
-- Routes traffic to Firebase emulators
-- Provides unified access point on port 4000
-- Handles WebSocket upgrades for real-time features
+- Provides access to Firebase Emulator UI on port 4000
+- Routes UI traffic to Firebase container
 - Dockerfile: `Dockerfile.proxy`
 
-**Benefits of this architecture:**
-- **Security**: Firebase emulators not directly exposed to host
-- **Flexibility**: Easy to add authentication, rate limiting, or caching at proxy level
-- **Scalability**: Can add multiple Firebase instances behind the proxy
+**Architecture Notes:**
+- **Web app browser connectivity**: Since Flutter web runs in the browser, it connects to emulators via `localhost:8080` and `localhost:9099` from the host machine
+- **Emulator UI access**: The proxy provides a convenient single port (4000) for the Firebase Emulator UI
 - **Clean separation**: Each service has a single responsibility
-- **Network isolation**: Services communicate through a dedicated Docker bridge network
+- **Network isolation**: Backend services communicate through a dedicated Docker bridge network
 
 ## Additional Resources
 
