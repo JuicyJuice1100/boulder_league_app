@@ -2,8 +2,8 @@ services:
   # Firebase Emulators - starts first
   firebase:
     build:
-      context: .
-      dockerfile: Dockerfile.firebase
+      context: ..
+      dockerfile: .docker/Dockerfile.firebase
     container_name: boulder_league_firebase
     restart: always
     networks:
@@ -14,7 +14,7 @@ services:
     volumes:
       - firebase-data:/firebase/.cache/firebase/emulators
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://${AUTH_HOST}:${FIREBASE_UI_PORT}"]
+      test: ["CMD", "curl", "-f", "http://localhost:4000"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -23,8 +23,8 @@ services:
   # Firebase Emulator Proxy - starts after firebase is healthy
   firebase-proxy:
     build:
-      context: .
-      dockerfile: Dockerfile.proxy
+      context: ..
+      dockerfile: .docker/Dockerfile.proxy
     ports:
       - "${FIREBASE_UI_PORT:-4000}:80"   # Proxy port (UI and API gateway)
     container_name: boulder_league_firebase_proxy
@@ -35,7 +35,7 @@ services:
       firebase:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://${AUTH_HOST}/health"]
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -43,8 +43,8 @@ services:
   # Flutter Web Application - starts after proxy is ready
   web:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: .docker/Dockerfile
       args:
         USE_EMULATOR: ${USE_EMULATOR:-true}
         FIRESTORE_HOST: ${FIRESTORE_HOST:-localhost}

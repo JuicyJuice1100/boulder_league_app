@@ -104,18 +104,25 @@ The project includes Docker configuration for easy deployment and development.
 
 ### Initial Setup
 
-The `.env.local` file is optional. If not present, Docker Compose will use the default values defined in `docker-compose.yml`.
+
+The `.env.local` file is optional. If not present, Docker Compose will use the default values defined in the compose file.
 
 ### Running with Docker Compose
 
-To run the entire application stack (Flutter web app + Firebase emulators + proxy):
+All Docker files are organized in the `.docker` folder. To run the entire application stack (Flutter web app + Firebase emulators + proxy):
 
 ```bash
 # Using .env.local file (if it exists)
-docker-compose up --build
+docker-compose -f .docker/docker-compose.yml up --build
 
 # Or explicitly specify the env file
-docker-compose --env-file .env.local up --build
+docker-compose -f .docker/docker-compose.yml --env-file .env.local up --build
+```
+
+For convenience, you can create an alias:
+```bash
+alias dc='docker-compose -f .docker/docker-compose.yml'
+dc up --build
 ```
 
 This will start three containers:
@@ -137,23 +144,23 @@ You can run specific services using Docker Compose:
 
 ```bash
 # Run only the web app (requires emulators to be running)
-docker-compose up web
+docker-compose -f .docker/docker-compose.yml up web
 
 # Run only Firebase emulators
-docker-compose up firebase
+docker-compose -f .docker/docker-compose.yml up firebase
 
 # Run Firebase emulators with proxy
-docker-compose up firebase firebase-proxy
+docker-compose -f .docker/docker-compose.yml up firebase firebase-proxy
 ```
 
 ### Stopping Services
 
 ```bash
 # Stop all services
-docker-compose down
+docker-compose -f .docker/docker-compose.yml down
 
 # Stop and remove volumes (clears emulator data)
-docker-compose down -v
+docker-compose -f .docker/docker-compose.yml down -v
 ```
 
 ### Environment Configuration
@@ -184,6 +191,7 @@ To build the Docker image without emulator support (for production deployment):
 ```bash
 docker build \
   --build-arg USE_EMULATOR=false \
+  -f .docker/Dockerfile \
   -t boulder-league-app:latest .
 ```
 
@@ -194,32 +202,41 @@ docker run -p 8000:80 boulder-league-app:latest
 
 ### Docker Architecture
 
-The setup uses a three-container architecture defined in a single `docker-compose.yml` file:
+The setup uses a three-container architecture with all Docker files organized in the `.docker` folder:
 
 **File Structure:**
-- `docker-compose.yml` - Defines all services with environment variable support
-- `.env.local` - Optional environment variable overrides (gitignored)
-- `.env.example` - Example environment configuration template
+```
+.docker/
+├── docker-compose.yml      # Orchestrates all services
+├── Dockerfile              # Web application build
+├── Dockerfile.firebase     # Firebase emulators
+├── Dockerfile.proxy        # Nginx proxy for emulator UI
+├── nginx.conf              # Web app nginx config
+└── nginx.proxy.conf        # Proxy nginx config
+
+.env.local                  # Optional environment overrides (gitignored)
+.env.example                # Example environment configuration
+```
 
 **1. Web Container (`boulder_league_web`)**
 - Multi-stage build using Flutter official image for building
 - Nginx alpine for serving the production build
 - Port configurable via `WEB_PORT` (default: 8000)
-- Dockerfile: `Dockerfile`
+- Dockerfile: `.docker/Dockerfile`
 
 **2. Firebase Container (`boulder_league_firebase`)**
 - Node.js alpine with Firebase CLI and OpenJDK 21 LTS
 - Runs Auth and Firestore emulators
 - Ports configurable via `FIRESTORE_PORT` and `AUTH_PORT`
 - Loads test data on startup
-- Dockerfile: `Dockerfile.firebase`
+- Dockerfile: `.docker/Dockerfile.firebase`
 
 **3. Firebase Proxy Container (`boulder_league_firebase_proxy`)**
 - Nginx alpine reverse proxy
 - Provides access to Firebase Emulator UI
 - Port configurable via `FIREBASE_UI_PORT` (default: 4000)
 - Routes UI traffic to Firebase container
-- Dockerfile: `Dockerfile.proxy`
+- Dockerfile: `.docker/Dockerfile.proxy`
 
 **Architecture Benefits:**
 - **Simple and clean**: Single compose file with sensible defaults

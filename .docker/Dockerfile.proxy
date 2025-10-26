@@ -5,7 +5,7 @@ FROM nginx:alpine
 RUN rm /etc/nginx/conf.d/default.conf
 
 # Copy custom nginx configuration for proxy
-COPY nginx.proxy.conf /etc/nginx/conf.d/default.conf
+COPY .docker/nginx.proxy.conf /etc/nginx/conf.d/default.conf
 
 # Expose proxy port
 EXPOSE 80
