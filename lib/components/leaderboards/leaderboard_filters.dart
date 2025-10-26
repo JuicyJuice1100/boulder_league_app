@@ -72,16 +72,27 @@ class LeaderboardFilters extends StatelessWidget {
                     child: DropdownButton<String>(
                       value: selectedSeasonId,
                       isExpanded: true,
-                      items: availableSeasons.isNotEmpty ? availableSeasons.map((season) {
-                        return DropdownMenuItem(
-                          value: season.id,
-                          child: Text(season.name),
-                        );
-                      }).toList() : [
-                        DropdownMenuItem(
-                          value: null,
-                          child: Text('No Season Available')
-                      )],
+                      items: availableSeasons.isNotEmpty
+                        ? () {
+                            // Remove duplicates based on season ID
+                            final seen = <String>{};
+                            final uniqueSeasons = availableSeasons.where((season) {
+                              return seen.add(season.id);
+                            }).toList();
+
+                            return uniqueSeasons.map((season) {
+                              return DropdownMenuItem(
+                                value: season.id,
+                                child: Text(season.name),
+                              );
+                            }).toList();
+                          }()
+                        : [
+                            DropdownMenuItem(
+                              value: null,
+                              child: Text('No Season Available')
+                            )
+                          ],
                       onChanged: onSeasonChanged,
                       hint: const Text('Select a season'),
                     ),
