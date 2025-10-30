@@ -51,7 +51,6 @@ app.*.map.json
 # Fastlane
 /fastlane/DO_NOT_SHARE/*
 !/fastlane/DO_NOT_SHARE/README.md
-/fastlane/.env
 /fastlane/report.xml
 /fastlane/test_output
 /fastlane/Gemfile.lock

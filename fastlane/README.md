@@ -39,6 +39,8 @@ Build Android APK only (auto-bumps version)
 
 Build and deploy Android app to Firebase App Distribution (auto-bumps version)
 
+Usage: fastlane android build_and_deploy env:dev|uat|prod
+
 ----
 
 This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.

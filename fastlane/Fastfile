@@ -10,7 +10,11 @@ platform :android do
   end
 
   desc "Build Android APK only (auto-bumps version)"
-  lane :build do
+  lane :build do |options|
+    # Load environment
+    env = options[:env] || "dev"
+    load_env(env)
+
     # Auto-bump version
     version = bump_version()
     version_string = "#{version[:name]}+#{version[:code]}"
@@ -20,11 +24,17 @@ platform :android do
 
     puts "✅ Build complete!"
     puts "📦 Version: #{version_string}"
+    puts "🌍 Environment: #{env}"
     puts "📦 Location: build/app/outputs/flutter-apk/app-release.apk"
   end
 
   desc "Build and deploy Android app to Firebase App Distribution (auto-bumps version)"
+  desc "Usage: fastlane android build_and_deploy env:dev|uat|prod"
   lane :build_and_deploy do |options|
+    # Load environment (default to dev)
+    env = options[:env] || "dev"
+    load_env(env)
+
     # Auto-bump version
     version = bump_version()
     version_string = "#{version[:name]}+#{version[:code]}"
@@ -33,10 +43,11 @@ platform :android do
     build_apk()
 
     # Deploy to Firebase
-    deploy_to_firebase(version[:name], options)
+    deploy_to_firebase(version, options, env)
 
     puts "✅ Build and deployment complete!"
     puts "📦 Version: #{version_string}"
+    puts "🌍 Environment: #{env}"
   end
 
   # Helper methods for lanes
@@ -49,12 +60,25 @@ platform :android do
     puts "✅ APK built successfully!"
   end
 
-  def deploy_to_firebase(version, options = {})
+  def deploy_to_firebase(version, options = {}, env = "dev")
+    # version is a hash with :name and :code
+    version_name = version[:name]
+    version_code = version[:code]
+    version_string = "#{version_name}+#{version_code}"
+
     # Get parameters
-    release_notes = options[:release_notes] || "Version #{version} - New build from Fastlane"
+    release_notes = options[:release_notes] || "Version #{version_name} (Build #{version_code}) - New build from Fastlane"
     groups = options[:groups] || "testers"
 
+    # Get debug mode from environment variable
+    debug_mode = ENV["DEBUG"] == "true"
+
     puts "🚀 Deploying to Firebase App Distribution..."
+    puts "   Version: #{version_string}"
+    puts "   Environment: #{env}"
+    puts "   Release Number: #{version_name}"
+    puts "   Build Number: #{version_code}"
+    puts "   Debug Mode: #{debug_mode}"
 
     # Upload to Firebase App Distribution
     firebase_app_distribution(
@@ -62,10 +86,18 @@ platform :android do
       firebase_cli_token: get_firebase_token(),
       groups: groups,
       release_notes: release_notes,
-      apk_path: "build/app/outputs/flutter-apk/app-release.apk"
+      release_notes_file: nil,
+      apk_path: "build/app/outputs/flutter-apk/app-release.apk",
+      android_artifact_type: "APK",
+      android_artifact_path: "build/app/outputs/flutter-apk/app-release.apk",
+      service_credentials_file: nil,
+      debug: debug_mode
     )
 
     puts "✅ Deployed to Firebase App Distribution!"
+    puts "   Release: #{version_name}"
+    puts "   Build: #{version_code}"
+    puts "   Environment: #{env}"
   end
 
   def bump_version
@@ -97,8 +129,35 @@ platform :android do
 
     File.write(pubspec_path, updated_content)
 
+    # Update local.properties
+    local_properties_path = File.join(Dir.pwd, "..", "android", "local.properties")
+
+    if !File.exist?(local_properties_path)
+      UI.user_error!(
+        "❌ local.properties not found at: #{local_properties_path}\n" +
+        "   Please run 'flutter build apk' or 'flutter run' first to generate this file."
+      )
+    end
+
+    local_properties_content = File.read(local_properties_path)
+
+    # Update flutter.versionName
+    updated_local_properties = local_properties_content.gsub(
+      /^flutter\.versionName=.*/,
+      "flutter.versionName=#{new_version[:name]}"
+    )
+
+    # Update flutter.versionCode
+    updated_local_properties = updated_local_properties.gsub(
+      /^flutter\.versionCode=.*/,
+      "flutter.versionCode=#{new_version[:code]}"
+    )
+
+    File.write(local_properties_path, updated_local_properties)
+
     puts "✅ Version bumped to #{new_version_string}"
     puts "   Updated in pubspec.yaml"
+    puts "   Updated in android/local.properties"
 
     new_version
   end
@@ -109,14 +168,11 @@ def get_firebase_token
   token = ENV["FIREBASE_TOKEN"]
 
   if token.nil? || token.empty?
-    token_file = File.join(Dir.pwd, "DO_NOT_SHARE", "firebase_token.txt")
-    if File.exist?(token_file)
-      token = File.read(token_file).strip
-    end
-  end
-
-  if token.nil? || token.empty?
-    UI.user_error!("❌ Firebase token not found. Run: firebase login:ci")
+    UI.user_error!(
+      "❌ Firebase token not found in environment variables.\n" +
+      "   Please ensure FIREBASE_TOKEN is set in your .env file.\n" +
+      "   Run 'firebase login:ci' to get your token."
+    )
   end
 
   token
@@ -126,14 +182,11 @@ def get_firebase_android_app_id
   app_id = ENV["FIREBASE_ANDROID_APP_ID"]
 
   if app_id.nil? || app_id.empty?
-    app_id_file = File.join(Dir.pwd, "DO_NOT_SHARE", "firebase_android_app_id.txt")
-    if File.exist?(app_id_file)
-      app_id = File.read(app_id_file).strip
-    end
-  end
-
-  if app_id.nil? || app_id.empty?
-    app_id = "1:822562274761:android:a71a7fd2d78c1eb20bfc18"
+    UI.user_error!(
+      "❌ Firebase Android App ID not found in environment variables.\n" +
+      "   Please ensure FIREBASE_ANDROID_APP_ID is set in your .env file.\n" +
+      "   Find this in Firebase Console > Project Settings > General > Your apps"
+    )
   end
 
   app_id
@@ -171,6 +224,31 @@ def get_git_branch
   branch
 rescue
   "main"
+end
+
+def load_env(env)
+  # Validate environment
+  valid_envs = ["dev", "uat", "prod"]
+  unless valid_envs.include?(env)
+    UI.user_error!("❌ Invalid environment: #{env}. Must be one of: #{valid_envs.join(', ')}")
+  end
+
+  # Load environment file from DO_NOT_SHARE folder
+  env_file = File.join(Dir.pwd, "DO_NOT_SHARE", ".env.fastlane.#{env}")
+
+  unless File.exist?(env_file)
+    UI.user_error!(
+      "❌ Environment file not found: #{env_file}\n" +
+      "   Please create DO_NOT_SHARE/.env.fastlane.#{env} file."
+    )
+  end
+
+  # Load the .env file
+  Dotenv.load(env_file)
+
+  puts "✅ Loaded environment: #{env}"
+  puts "   File: DO_NOT_SHARE/.env.fastlane.#{env}"
+  puts "   DEBUG: #{ENV['DEBUG']}"
 end
 
 def calculate_new_version(current_version, branch_name)
