@@ -46,4 +46,12 @@ app.*.map.json
 # Android Studio will place build artifacts here
 /android/app/debug
 /android/app/profile
-/android/app/release
+/android/app/releaseandroid/key.properties
+
+# Fastlane
+/fastlane/DO_NOT_SHARE/*
+!/fastlane/DO_NOT_SHARE/README.md
+/fastlane/.env
+/fastlane/report.xml
+/fastlane/test_output
+/fastlane/Gemfile.lock

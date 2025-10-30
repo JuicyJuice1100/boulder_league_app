@@ -246,9 +246,193 @@ The setup uses a three-container architecture with all Docker files organized in
 - **Network isolation**: Services communicate through a dedicated Docker bridge network
 - **Flexible deployment**: Can run services individually or all together
 
+## Deployment - Android to Firebase App Distribution
+
+The project uses Fastlane to deploy Android builds to Firebase App Distribution for testing.
+
+### Prerequisites
+
+- Ruby 2.6+ (check with `ruby --version`)
+- Bundler (`gem install bundler`)
+- Firebase CLI (`firebase --version`)
+- Android keystore for signing
+
+### One-Time Setup
+
+**1. Install Fastlane Dependencies**
+
+```bash
+cd fastlane
+bundle install
+cd ..
+```
+
+**2. Create Android Keystore and Configure**
+
+Use the interactive setup script:
+
+```bash
+./setup-keystore.sh
+```
+
+This script will:
+- Guide you through creating a new keystore (or use an existing one)
+- Automatically generate the `android/key.properties` file
+- Set proper file permissions for security
+
+Alternatively, you can do it manually:
+
+```bash
+# Create keystore
+keytool -genkey -v -keystore ~/keystores/boulder-league.jks \
+  -keyalg RSA -keysize 2048 -validity 10000 \
+  -alias boulder-league-key
+
+# Create key.properties
+cat > android/key.properties <<EOF
+storePassword=YOUR_KEYSTORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
+keyAlias=boulder-league-key
+storeFile=/absolute/path/to/keystore.jks
+EOF
+
+chmod 600 android/key.properties
+```
+
+**3. Get Firebase Token**
+
+```bash
+firebase login:ci
+```
+
+Save the token to `fastlane/DO_NOT_SHARE/firebase_token.txt`
+
+### Version Management
+
+The project uses Flutter's versioning in `pubspec.yaml` with format `versionName+versionCode` (e.g., `1.0.0+1`).
+
+- **versionName** (1.0.0): Semantic version shown to users (major.minor.patch)
+- **versionCode** (1): Integer build number for Android, auto-incremented
+
+**Check Current Version:**
+```bash
+grep "^version:" pubspec.yaml
+```
+
+**Bump Version (Smart Bumping):**
+```bash
+bundle exec fastlane android bump
+```
+
+Version bumping rules based on git branch:
+- **Release branches** (contains "release", e.g., `releases/1.0.0`): Bumps major version (`1.0.0+1` → `2.0.0+2`)
+- **UAT branches** (contains "uat", e.g., `UAT/1.0.0`): Bumps minor version (`1.0.0+1` → `1.1.0+2`)
+- **Other branches** (main, feature branches, etc.): Bumps patch version (`1.0.0+1` → `1.0.1+2`)
+
+**Note:** versionCode is **always** incremented on every bump.
+
+After bumping, commit the version change:
+```bash
+git add pubspec.yaml
+git commit -m "Bump version to X.X.X+Y"
+```
+
+### Deploy Commands
+
+All build and deploy commands **automatically bump the version** based on your current git branch.
+
+**Build APK Only:**
+```bash
+bundle exec fastlane android build
+```
+
+This will:
+1. Auto-bump version based on branch
+2. Build the release APK
+
+**Build and Deploy to Firebase:**
+```bash
+bundle exec fastlane android build_and_deploy
+```
+
+This will:
+1. Auto-bump version based on branch
+2. Build the release APK
+3. Deploy to Firebase App Distribution
+
+**Manual Version Bump (Optional):**
+```bash
+bundle exec fastlane android bump
+```
+
+Use this if you want to bump the version without building.
+
+**With Custom Release Notes:**
+```bash
+bundle exec fastlane android build_and_deploy release_notes:"Version 1.0.0 - Bug fixes"
+```
+
+**Deploy to Specific Tester Groups:**
+```bash
+bundle exec fastlane android build_and_deploy groups:"internal,beta-testers"
+```
+
+**Note:** Firebase App Distribution tracks both release and build numbers:
+- **Release Number**: Matches the versionName (e.g., "1.0.1")
+- **Build Number**: Matches the versionCode (e.g., "2"), auto-increments each deployment
+
+Example: Deploying version `1.0.1+2` will show as **Release 1.0.1, Build 2** in Firebase.
+
+**Typical Workflow:**
+```bash
+# Option 1: Build and deploy in one command (RECOMMENDED)
+bundle exec fastlane android build_and_deploy
+
+# Option 2: Build first, then decide
+bundle exec fastlane android build
+# ... test the APK locally ...
+# ... then deploy separately if needed ...
+
+# Note: Version is auto-bumped, don't forget to commit
+git add pubspec.yaml
+git commit -m "Bump version to 1.0.1+2"
+git push
+```
+
+### Testing Your Build
+
+Before deploying, test locally:
+
+```bash
+flutter build apk --release
+```
+
+APK will be at: `build/app/outputs/flutter-apk/app-release.apk`
+
+### Troubleshooting
+
+**"Firebase token not found"**
+- Create `fastlane/DO_NOT_SHARE/firebase_token.txt` with your token
+
+**"key.properties not found"**
+- Create `android/key.properties` as shown above
+
+**Build fails**
+- Run `flutter build apk --release` to test manually
+- Check that keystore path is correct
+
+**Ruby/Bundler errors**
+- Run `bundle install` in the `fastlane` directory
+- If using Ruby 3.4+, dependencies are already configured
+
+For detailed documentation, see [fastlane/README.md](fastlane/README.md)
+
+---
+
 ## Additional Resources
 
 - [Flutter Documentation](https://docs.flutter.dev/)
 - [Firebase Emulator Suite](https://firebase.google.com/docs/emulator-suite)
 - [Flutter Firebase Setup](https://firebase.google.com/docs/flutter/setup)
 - [Docker Documentation](https://docs.docker.com/)
+- [Fastlane Documentation](https://docs.fastlane.tools/)
