@@ -246,9 +246,123 @@ The setup uses a three-container architecture with all Docker files organized in
 - **Network isolation**: Services communicate through a dedicated Docker bridge network
 - **Flexible deployment**: Can run services individually or all together
 
+## Deployment - Android to Firebase App Distribution
+
+The project uses Fastlane to deploy Android builds to Firebase App Distribution for testing.
+
+### Prerequisites
+
+- Ruby 2.6+ (check with `ruby --version`)
+- Bundler (`gem install bundler`)
+- Firebase CLI (`firebase --version`)
+- Android keystore for signing
+
+### One-Time Setup
+
+**1. Install Fastlane Dependencies**
+
+```bash
+cd fastlane
+bundle install
+cd ..
+```
+
+**2. Create Android Keystore and Configure**
+
+Use the interactive setup script:
+
+```bash
+./setup-keystore.sh
+```
+
+This script will:
+- Guide you through creating a new keystore (or use an existing one)
+- Automatically generate the `android/key.properties` file
+- Set proper file permissions for security
+
+Alternatively, you can do it manually:
+
+```bash
+# Create keystore
+keytool -genkey -v -keystore ~/keystores/boulder-league.jks \
+  -keyalg RSA -keysize 2048 -validity 10000 \
+  -alias boulder-league-key
+
+# Create key.properties
+cat > android/key.properties <<EOF
+storePassword=YOUR_KEYSTORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
+keyAlias=boulder-league-key
+storeFile=/absolute/path/to/keystore.jks
+EOF
+
+chmod 600 android/key.properties
+```
+
+**3. Get Firebase Token**
+
+```bash
+firebase login:ci
+```
+
+Save the token to `fastlane/DO_NOT_SHARE/firebase_token.txt`
+
+### Deploy Commands
+
+**Build APK Only:**
+```bash
+bundle exec fastlane android build
+```
+
+**Deploy to Firebase App Distribution:**
+```bash
+bundle exec fastlane android deploy
+```
+
+**With Custom Release Notes:**
+```bash
+bundle exec fastlane android deploy release_notes:"Version 1.0.0 - Bug fixes"
+```
+
+**Deploy to Specific Tester Groups:**
+```bash
+bundle exec fastlane android deploy groups:"internal,beta-testers"
+```
+
+### Testing Your Build
+
+Before deploying, test locally:
+
+```bash
+flutter build apk --release
+```
+
+APK will be at: `build/app/outputs/flutter-apk/app-release.apk`
+
+### Troubleshooting
+
+**"Firebase token not found"**
+- Create `fastlane/DO_NOT_SHARE/firebase_token.txt` with your token
+
+**"key.properties not found"**
+- Create `android/key.properties` as shown above
+
+**Build fails**
+- Run `flutter build apk --release` to test manually
+- Check that keystore path is correct
+
+**Ruby/Bundler errors**
+- Run `bundle install` in the `fastlane` directory
+- If using Ruby 3.4+, dependencies are already configured
+
+For detailed documentation, see [fastlane/README.md](fastlane/README.md)
+
+---
+
 ## Additional Resources
 
 - [Flutter Documentation](https://docs.flutter.dev/)
 - [Firebase Emulator Suite](https://firebase.google.com/docs/emulator-suite)
 - [Flutter Firebase Setup](https://firebase.google.com/docs/flutter/setup)
 - [Docker Documentation](https://docs.docker.com/)
+- [Fastlane Documentation](https://docs.fastlane.tools/)

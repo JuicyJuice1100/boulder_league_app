@@ -1,0 +1,75 @@
+# Fastfile for Boulder League App - Android Only
+# Firebase App Distribution
+
+default_platform(:android)
+
+platform :android do
+  desc "Build and deploy Android app to Firebase App Distribution"
+  lane :deploy do |options|
+    # Get parameters
+    release_notes = options[:release_notes] || "New build from Fastlane"
+    groups = options[:groups] || "testers"
+
+    # Build the Android APK
+    gradle(
+      task: "clean assembleRelease",
+      project_dir: "android/"
+    )
+
+    # Upload to Firebase App Distribution
+    firebase_app_distribution(
+      app: get_firebase_android_app_id(),
+      firebase_cli_token: get_firebase_token(),
+      groups: groups,
+      release_notes: release_notes,
+      apk_path: "build/app/outputs/flutter-apk/app-release.apk"
+    )
+
+    puts "✅ Android app successfully deployed to Firebase App Distribution!"
+  end
+
+  desc "Build Android APK only (no deployment)"
+  lane :build do
+    gradle(
+      task: "clean assembleRelease",
+      project_dir: "android/"
+    )
+    puts "✅ Android APK built successfully!"
+    puts "📦 Location: build/app/outputs/flutter-apk/app-release.apk"
+  end
+end
+
+# Helper methods
+def get_firebase_token
+  token = ENV["FIREBASE_TOKEN"]
+
+  if token.nil? || token.empty?
+    token_file = File.join(Dir.pwd, "DO_NOT_SHARE", "firebase_token.txt")
+    if File.exist?(token_file)
+      token = File.read(token_file).strip
+    end
+  end
+
+  if token.nil? || token.empty?
+    UI.user_error!("❌ Firebase token not found. Run: firebase login:ci")
+  end
+
+  token
+end
+
+def get_firebase_android_app_id
+  app_id = ENV["FIREBASE_ANDROID_APP_ID"]
+
+  if app_id.nil? || app_id.empty?
+    app_id_file = File.join(Dir.pwd, "DO_NOT_SHARE", "firebase_android_app_id.txt")
+    if File.exist?(app_id_file)
+      app_id = File.read(app_id_file).strip
+    end
+  end
+
+  if app_id.nil? || app_id.empty?
+    app_id = "1:822562274761:android:a71a7fd2d78c1eb20bfc18"
+  end
+
+  app_id
+end
