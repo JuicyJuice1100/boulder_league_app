@@ -15,13 +15,13 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## Android
 
-### android deploy
+### android bump
 
 ```sh
-[bundle exec] fastlane android deploy
+[bundle exec] fastlane android bump
 ```
 
-Build and deploy Android app to Firebase App Distribution
+Bump version based on current git branch
 
 ### android build
 
@@ -29,7 +29,15 @@ Build and deploy Android app to Firebase App Distribution
 [bundle exec] fastlane android build
 ```
 
-Build Android APK only (no deployment)
+Build Android APK only (auto-bumps version)
+
+### android build_and_deploy
+
+```sh
+[bundle exec] fastlane android build_and_deploy
+```
+
+Build and deploy Android app to Firebase App Distribution (auto-bumps version)
 
 ----
 

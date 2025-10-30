@@ -65,26 +65,65 @@ Save the token to `fastlane/DO_NOT_SHARE/firebase_token.txt`
 
 ## Usage
 
-### Build Only
+### Version Management
+
+**All build and deploy commands auto-bump the version!**
+
+Version format: `versionName+versionCode` (e.g., `1.0.0+1`)
+- **versionName**: User-facing version (major.minor.patch)
+- **versionCode**: Build number (always incremented)
+
+Smart bumping based on branch:
+- `releases/X.X.X` → Major bump (`1.0.0+1` → `2.0.0+2`)
+- `UAT/X.X.X` → Minor bump (`1.0.0+1` → `1.1.0+2`)
+- Other branches → Patch bump (`1.0.0+1` → `1.0.1+2`)
+
+**Check Current Version:**
+```bash
+grep "^version:" pubspec.yaml
+```
+
+**Manual Bump (Optional):**
+```bash
+bundle exec fastlane android bump
+```
+
+---
+
+### Build & Deploy
+
+**Build Only (auto-bumps):**
 ```bash
 bundle exec fastlane android build
 ```
 
-### Deploy to Firebase
+**Build and Deploy (auto-bumps):**
 ```bash
-bundle exec fastlane android deploy
+bundle exec fastlane android build_and_deploy
 ```
 
-### With Options
+**Typical Workflow:**
+```bash
+# One command to build and deploy
+bundle exec fastlane android build_and_deploy
+
+# Don't forget to commit the version bump
+git add pubspec.yaml && git commit -m "Bump version"
+```
+
+---
+
+### Advanced Options
+
 ```bash
 # Custom release notes
-bundle exec fastlane android deploy release_notes:"Version 1.0.0"
+bundle exec fastlane android build_and_deploy release_notes:"Version 1.0.0"
 
 # Specific tester groups
-bundle exec fastlane android deploy groups:"internal,beta"
+bundle exec fastlane android build_and_deploy groups:"internal,beta"
 
 # Both
-bundle exec fastlane android deploy \
+bundle exec fastlane android build_and_deploy \
   release_notes:"Version 1.0.0" \
   groups:"testers"
 ```
@@ -118,6 +157,7 @@ ls -lh build/app/outputs/flutter-apk/app-release.apk
 
 ```
 project/
+├── pubspec.yaml                    # Contains version: versionName+versionCode
 ├── fastlane/
 │   ├── Fastfile                    # Lanes configuration
 │   ├── Gemfile                     # Ruby dependencies

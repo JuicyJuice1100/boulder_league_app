@@ -4,17 +4,57 @@
 default_platform(:android)
 
 platform :android do
-  desc "Build and deploy Android app to Firebase App Distribution"
-  lane :deploy do |options|
-    # Get parameters
-    release_notes = options[:release_notes] || "New build from Fastlane"
-    groups = options[:groups] || "testers"
+  desc "Bump version based on current git branch"
+  lane :bump do
+    bump_version()
+  end
 
-    # Build the Android APK
+  desc "Build Android APK only (auto-bumps version)"
+  lane :build do
+    # Auto-bump version
+    version = bump_version()
+    version_string = "#{version[:name]}+#{version[:code]}"
+
+    # Build APK
+    build_apk()
+
+    puts "✅ Build complete!"
+    puts "📦 Version: #{version_string}"
+    puts "📦 Location: build/app/outputs/flutter-apk/app-release.apk"
+  end
+
+  desc "Build and deploy Android app to Firebase App Distribution (auto-bumps version)"
+  lane :build_and_deploy do |options|
+    # Auto-bump version
+    version = bump_version()
+    version_string = "#{version[:name]}+#{version[:code]}"
+
+    # Build APK
+    build_apk()
+
+    # Deploy to Firebase
+    deploy_to_firebase(version[:name], options)
+
+    puts "✅ Build and deployment complete!"
+    puts "📦 Version: #{version_string}"
+  end
+
+  # Helper methods for lanes
+  def build_apk
+    puts "🔨 Building Android APK..."
     gradle(
       task: "clean assembleRelease",
       project_dir: "android/"
     )
+    puts "✅ APK built successfully!"
+  end
+
+  def deploy_to_firebase(version, options = {})
+    # Get parameters
+    release_notes = options[:release_notes] || "Version #{version} - New build from Fastlane"
+    groups = options[:groups] || "testers"
+
+    puts "🚀 Deploying to Firebase App Distribution..."
 
     # Upload to Firebase App Distribution
     firebase_app_distribution(
@@ -25,17 +65,42 @@ platform :android do
       apk_path: "build/app/outputs/flutter-apk/app-release.apk"
     )
 
-    puts "✅ Android app successfully deployed to Firebase App Distribution!"
+    puts "✅ Deployed to Firebase App Distribution!"
   end
 
-  desc "Build Android APK only (no deployment)"
-  lane :build do
-    gradle(
-      task: "clean assembleRelease",
-      project_dir: "android/"
+  def bump_version
+    current_version = get_version()
+    branch_name = get_git_branch()
+
+    current_version_string = "#{current_version[:name]}+#{current_version[:code]}"
+    puts "📌 Current version: #{current_version_string}"
+    puts "   versionName: #{current_version[:name]}"
+    puts "   versionCode: #{current_version[:code]}"
+    puts "🌿 Current branch: #{branch_name}"
+
+    new_version = calculate_new_version(current_version, branch_name)
+    new_version_string = "#{new_version[:name]}+#{new_version[:code]}"
+
+    puts "⬆️  Bumping version:"
+    puts "   #{current_version[:name]} -> #{new_version[:name]} (versionName)"
+    puts "   #{current_version[:code]} -> #{new_version[:code]} (versionCode)"
+
+    # Update pubspec.yaml
+    pubspec_path = File.join(Dir.pwd, "..", "pubspec.yaml")
+    pubspec_content = File.read(pubspec_path)
+
+    # Replace the version line
+    updated_content = pubspec_content.gsub(
+      /^version:\s*\d+\.\d+\.\d+\+\d+/,
+      "version: #{new_version_string}"
     )
-    puts "✅ Android APK built successfully!"
-    puts "📦 Location: build/app/outputs/flutter-apk/app-release.apk"
+
+    File.write(pubspec_path, updated_content)
+
+    puts "✅ Version bumped to #{new_version_string}"
+    puts "   Updated in pubspec.yaml"
+
+    new_version
   end
 end
 
@@ -72,4 +137,75 @@ def get_firebase_android_app_id
   end
 
   app_id
+end
+
+def get_version
+  pubspec_path = File.join(Dir.pwd, "..", "pubspec.yaml")
+  if File.exist?(pubspec_path)
+    pubspec_content = File.read(pubspec_path)
+    # Match version in format: version: 1.0.0+1
+    if pubspec_content =~ /^version:\s*(\d+\.\d+\.\d+)\+(\d+)/
+      version_name = $1
+      version_code = $2
+      return { name: version_name, code: version_code.to_i }
+    end
+  end
+  { name: "0.0.1", code: 1 }
+end
+
+def get_version_string
+  version = get_version()
+  "#{version[:name]}+#{version[:code]}"
+end
+
+def get_version_name
+  get_version()[:name]
+end
+
+def get_version_code
+  get_version()[:code]
+end
+
+def get_git_branch
+  branch = sh("git rev-parse --abbrev-ref HEAD", log: false).strip
+  branch
+rescue
+  "main"
+end
+
+def calculate_new_version(current_version, branch_name)
+  # current_version is a hash with :name and :code
+  version_name = current_version[:name]
+  version_code = current_version[:code]
+
+  # Parse current version name (major.minor.patch)
+  parts = version_name.split(".").map(&:to_i)
+  major = parts[0] || 0
+  minor = parts[1] || 0
+  patch = parts[2] || 1
+
+  branch_lower = branch_name.downcase
+
+  # Check branch type
+  if branch_lower.include?("release")
+    # Release branch: bump major version (0.0.1 -> 1.0.0)
+    major += 1
+    minor = 0
+    patch = 0
+    puts "🚀 Release branch detected - bumping major version"
+  elsif branch_lower.include?("uat")
+    # UAT branch: bump minor version (0.0.1 -> 0.1.0)
+    minor += 1
+    patch = 0
+    puts "🧪 UAT branch detected - bumping minor version"
+  else
+    # Default/feature branch: bump patch version (0.0.1 -> 0.0.2)
+    patch += 1
+    puts "🔧 Feature/development branch - bumping patch version"
+  end
+
+  new_version_name = "#{major}.#{minor}.#{patch}"
+  new_version_code = version_code + 1
+
+  { name: new_version_name, code: new_version_code }
 end

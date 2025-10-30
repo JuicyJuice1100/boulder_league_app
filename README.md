@@ -307,26 +307,96 @@ firebase login:ci
 
 Save the token to `fastlane/DO_NOT_SHARE/firebase_token.txt`
 
+### Version Management
+
+The project uses Flutter's versioning in `pubspec.yaml` with format `versionName+versionCode` (e.g., `1.0.0+1`).
+
+- **versionName** (1.0.0): Semantic version shown to users (major.minor.patch)
+- **versionCode** (1): Integer build number for Android, auto-incremented
+
+**Check Current Version:**
+```bash
+grep "^version:" pubspec.yaml
+```
+
+**Bump Version (Smart Bumping):**
+```bash
+bundle exec fastlane android bump
+```
+
+Version bumping rules based on git branch:
+- **Release branches** (contains "release", e.g., `releases/1.0.0`): Bumps major version (`1.0.0+1` → `2.0.0+2`)
+- **UAT branches** (contains "uat", e.g., `UAT/1.0.0`): Bumps minor version (`1.0.0+1` → `1.1.0+2`)
+- **Other branches** (main, feature branches, etc.): Bumps patch version (`1.0.0+1` → `1.0.1+2`)
+
+**Note:** versionCode is **always** incremented on every bump.
+
+After bumping, commit the version change:
+```bash
+git add pubspec.yaml
+git commit -m "Bump version to X.X.X+Y"
+```
+
 ### Deploy Commands
+
+All build and deploy commands **automatically bump the version** based on your current git branch.
 
 **Build APK Only:**
 ```bash
 bundle exec fastlane android build
 ```
 
-**Deploy to Firebase App Distribution:**
+This will:
+1. Auto-bump version based on branch
+2. Build the release APK
+
+**Build and Deploy to Firebase:**
 ```bash
-bundle exec fastlane android deploy
+bundle exec fastlane android build_and_deploy
 ```
+
+This will:
+1. Auto-bump version based on branch
+2. Build the release APK
+3. Deploy to Firebase App Distribution
+
+**Manual Version Bump (Optional):**
+```bash
+bundle exec fastlane android bump
+```
+
+Use this if you want to bump the version without building.
 
 **With Custom Release Notes:**
 ```bash
-bundle exec fastlane android deploy release_notes:"Version 1.0.0 - Bug fixes"
+bundle exec fastlane android build_and_deploy release_notes:"Version 1.0.0 - Bug fixes"
 ```
 
 **Deploy to Specific Tester Groups:**
 ```bash
-bundle exec fastlane android deploy groups:"internal,beta-testers"
+bundle exec fastlane android build_and_deploy groups:"internal,beta-testers"
+```
+
+**Note:** Firebase App Distribution tracks both release and build numbers:
+- **Release Number**: Matches the versionName (e.g., "1.0.1")
+- **Build Number**: Matches the versionCode (e.g., "2"), auto-increments each deployment
+
+Example: Deploying version `1.0.1+2` will show as **Release 1.0.1, Build 2** in Firebase.
+
+**Typical Workflow:**
+```bash
+# Option 1: Build and deploy in one command (RECOMMENDED)
+bundle exec fastlane android build_and_deploy
+
+# Option 2: Build first, then decide
+bundle exec fastlane android build
+# ... test the APK locally ...
+# ... then deploy separately if needed ...
+
+# Note: Version is auto-bumped, don't forget to commit
+git add pubspec.yaml
+git commit -m "Bump version to 1.0.1+2"
+git push
 ```
 
 ### Testing Your Build
