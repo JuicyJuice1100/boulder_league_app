@@ -38,3 +38,9 @@ test/
 *.swp
 *.swo
 *~
+
+# Environment files - explicitly ignored by default
+# Only the .env file specified in the build arg will be copied
+.env*
+!.env.local
+!.env

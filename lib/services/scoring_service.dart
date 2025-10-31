@@ -1,11 +1,16 @@
+import 'package:boulder_league_app/env_config.dart';
 import 'package:boulder_league_app/models/base_return_object.dart';
 import 'package:boulder_league_app/models/scored_boulder.dart';
 import 'package:boulder_league_app/models/scored_boulder_filters.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 class ScoringService {
-  final scoreRef = FirebaseFirestore.instance
+  final scoreRef = FirebaseFirestore.instanceFor(
+      app: Firebase.app(),
+      databaseId: EnvConfig.firebaseDatabaseId
+    )
     .collection('scores')
     .withConverter<ScoredBoulder>(
       fromFirestore: (snapshot, options) => ScoredBoulder.fromJson(snapshot.data()!, snapshot.id),
