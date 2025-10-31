@@ -41,5 +41,16 @@
       "host": "0.0.0.0"
     },
     "singleProjectMode": true
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "frameworksBackend": {
+      "region": "us-central1"
+    }
   }
 }
