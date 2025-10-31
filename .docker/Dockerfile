@@ -1,12 +1,9 @@
 # Stage 1: Build the Flutter web application
 FROM ghcr.io/cirruslabs/flutter:stable AS build
 
-# Build arguments for Firebase emulator configuration
-ARG USE_EMULATOR=true
-ARG FIRESTORE_HOST=firebase-proxy
-ARG FIRESTORE_PORT=4000
-ARG AUTH_HOST=firebase-proxy
-ARG AUTH_PORT=4000
+# Build argument to specify which .env file to use
+# Example: --build-arg ENV_FILE=.env.local
+ARG ENV_FILE=.env.local
 
 # Set working directory
 WORKDIR /app
@@ -18,13 +15,36 @@ RUN flutter pub get
 # Copy the rest of the application
 COPY . .
 
-# Build the Flutter web app with environment variables
-RUN flutter build web --release \
-    --dart-define=USE_EMULATOR=${USE_EMULATOR} \
-    --dart-define=FIRESTORE_HOST=${FIRESTORE_HOST} \
-    --dart-define=FIRESTORE_PORT=${FIRESTORE_PORT} \
-    --dart-define=AUTH_HOST=${AUTH_HOST} \
-    --dart-define=AUTH_PORT=${AUTH_PORT}
+# Copy the specified .env file
+# This will fail if the specified ENV_FILE doesn't exist, which is what we want
+COPY ${ENV_FILE} ./.env.build
+
+# Verify the .env file exists and show its contents (for debugging)
+RUN echo "Using environment file: ${ENV_FILE}" && \
+    echo "Contents:" && \
+    cat ./.env.build
+
+# Read .env file and build with dart-define flags
+# This uses a shell script to parse the .env file and pass values to flutter build
+RUN set -a && \
+    . ./.env.build && \
+    set +a && \
+    echo "Building with:" && \
+    echo "  DEBUG_LOGGING=${DEBUG_LOGGING}" && \
+    echo "  USE_EMULATOR=${USE_EMULATOR}" && \
+    echo "  FIRESTORE_HOST=${FIRESTORE_HOST}" && \
+    echo "  FIRESTORE_PORT=${FIRESTORE_PORT}" && \
+    echo "  AUTH_HOST=${AUTH_HOST}" && \
+    echo "  AUTH_PORT=${AUTH_PORT}" && \
+    echo "  FIREBASE_DATABASE_ID=${FIREBASE_DATABASE_ID}" && \
+    flutter build web --release \
+      --dart-define=DEBUG_LOGGING=${DEBUG_LOGGING} \
+      --dart-define=USE_EMULATOR=${USE_EMULATOR} \
+      --dart-define=FIRESTORE_HOST=${FIRESTORE_HOST} \
+      --dart-define=FIRESTORE_PORT=${FIRESTORE_PORT} \
+      --dart-define=AUTH_HOST=${AUTH_HOST} \
+      --dart-define=AUTH_PORT=${AUTH_PORT} \
+      --dart-define=FIREBASE_DATABASE_ID=${FIREBASE_DATABASE_ID}
 
 # Stage 2: Serve with nginx
 FROM nginx:alpine

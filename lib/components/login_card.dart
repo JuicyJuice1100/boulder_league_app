@@ -31,7 +31,7 @@ class LoginCardFormState extends State<LoginCardForm> {
       (result) => {
         if(result.success) {
           ToastNotification.success(result.message, null),
-          AppGlobal.navigatorKey.currentState!.pushNamed('/')
+          AppGlobal.navigatorKey.currentState!.pushNamedAndRemoveUntil('/', (Route route) => false)
         } else {
           ToastNotification.error(result.message, null)
         }

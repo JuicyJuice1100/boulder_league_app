@@ -104,18 +104,20 @@ The project includes Docker configuration for easy deployment and development.
 
 ### Initial Setup
 
-
-The `.env.local` file is optional. If not present, Docker Compose will use the default values defined in the compose file.
+Create a `.env.local` file in the project root (use the provided `.env.local` as a template). This file is **required** for Docker builds and must exist before building the Docker images.
 
 ### Running with Docker Compose
 
 All Docker files are organized in the `.docker` folder. To run the entire application stack (Flutter web app + Firebase emulators + proxy):
 
 ```bash
-# Using .env.local file (if it exists)
+# Build and run using .env (default)
 docker-compose -f .docker/docker-compose.yml up --build
 
-# Or explicitly specify the env file
+# Use a different .env file for the Flutter web app build
+ENV_FILE=.env.local docker-compose -f .docker/docker-compose.yml up --build web
+
+# For port mappings, you can still use --env-file
 docker-compose -f .docker/docker-compose.yml --env-file .env.local up --build
 ```
 
@@ -165,34 +167,69 @@ docker-compose -f .docker/docker-compose.yml down -v
 
 ### Environment Configuration
 
-The `.env.local` file contains all configurable environment variables:
+The `.env.local` file (or any `.env.*` file) contains all configurable environment variables for the Flutter application:
 
 ```env
 # Flutter Web App Configuration
-USE_EMULATOR=true
+USE_EMULATOR=false
 
 # Firebase Emulator Hosts and Ports
+# For web apps: always use 'localhost' since browser connects from host machine
 FIRESTORE_HOST=localhost
 FIRESTORE_PORT=8080
 AUTH_HOST=localhost
 AUTH_PORT=9099
 
-# Container Port Mappings
+# Firebase Database Id
+FIREBASE_DATABASE_ID='boulder-league-app-dev'
+
+# Container Port Mappings (for docker-compose only)
 WEB_PORT=8000
 FIREBASE_UI_PORT=4000
 ```
 
-**Note for Web Apps:** Flutter web apps run in the browser, not inside Docker containers. Therefore, emulator hosts should always be `localhost` since the browser connects from the host machine.
+**Important Notes:**
+- The `.env` file is **required** for Docker builds
+- The .env file is read during the Docker build process and values are compiled into the app using `--dart-define` flags
+- Environment values are baked into the Flutter web build at compile time (not loaded at runtime)
+- For web apps: emulator hosts should always be `localhost` since the browser connects from the host machine
+- Port mappings (`WEB_PORT`, `FIREBASE_UI_PORT`) are only used by docker-compose for host-to-container port mapping
+
+### Creating Environment Files
+
+You can create multiple `.env` files for different environments:
+
+```bash
+# Create a production environment file
+cp .env.local .env.production
+
+# Edit the production file with production values
+# For example, set USE_EMULATOR=false for production
+```
+
+Example `.env.production`:
+```env
+USE_EMULATOR=false
+FIRESTORE_HOST=localhost
+FIRESTORE_PORT=8080
+AUTH_HOST=localhost
+AUTH_PORT=9099
+FIREBASE_DATABASE_ID='boulder-league-app-prod'
+```
 
 ### Building for Production
 
-To build the Docker image without emulator support (for production deployment):
+To build the Docker image for production with a specific environment file:
 
 ```bash
+# Build with .env.production
 docker build \
-  --build-arg USE_EMULATOR=false \
+  --build-arg ENV_FILE=.env.production \
   -f .docker/Dockerfile \
   -t boulder-league-app:latest .
+
+# Or with docker-compose
+ENV_FILE=.env.production docker-compose -f .docker/docker-compose.yml build web
 ```
 
 Run the production image:
@@ -208,14 +245,15 @@ The setup uses a three-container architecture with all Docker files organized in
 ```
 .docker/
 ├── docker-compose.yml      # Orchestrates all services
-├── Dockerfile              # Web application build
+├── Dockerfile              # Web application build (requires .env file)
 ├── Dockerfile.firebase     # Firebase emulators
 ├── Dockerfile.proxy        # Nginx proxy for emulator UI
 ├── nginx.conf              # Web app nginx config
 └── nginx.proxy.conf        # Proxy nginx config
 
-.env.local                  # Optional environment overrides (gitignored)
-.env.example                # Example environment configuration
+.env.local                  # Local environment file (required for Docker builds)
+.env.production             # Production environment file (optional)
+.env                        # Default environment file (optional)
 ```
 
 **1. Web Container (`boulder_league_web`)**

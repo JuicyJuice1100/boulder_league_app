@@ -30,11 +30,6 @@ void main() async {
 
   if (shouldUseEmulator) {
     try {
-      // Print configuration for debugging
-      if (kDebugMode) {
-        EnvConfig.printConfig();
-      }
-
       FirebaseFirestore.instance.useFirestoreEmulator(
         EnvConfig.firestoreHost,
         EnvConfig.firestorePort,
@@ -50,6 +45,11 @@ void main() async {
       // ignore: avoid_print
       print('Error connecting to emulators: $e');
     }
+  }
+
+  // Print configuration for debugging
+  if (kDebugMode || EnvConfig.debugLogging) {
+    EnvConfig.printConfig();
   }
 
   runApp(const MyApp());
