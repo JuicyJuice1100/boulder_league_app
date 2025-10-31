@@ -6,7 +6,9 @@ import 'package:boulder_league_app/components/scores/scores_section.dart';
 import 'package:boulder_league_app/components/seasons/seasons_section.dart';
 import 'package:boulder_league_app/screens/user.dart';
 import 'package:boulder_league_app/services/auth_service.dart';
+import 'package:boulder_league_app/static/static_urls.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -79,6 +81,16 @@ class HomeScreenState extends State<HomeScreen> {
               leading: const Icon(Icons.logout),
               title: const Text('Logout'),
               onTap: AuthService().logout,
+            ),
+            ListTile(
+              leading: const Icon(Icons.feedback),
+              title: const Text('Feedback'),
+              onTap: () => launchUrl(feedbackUrl)
+            ),
+            ListTile(
+              leading: const Icon(Icons.bug_report),
+              title: const Text('Bug Submission'),
+              onTap: () => launchUrl(bugSubmissionUrl)
             ),
           ]
         )
