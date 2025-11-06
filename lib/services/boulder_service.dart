@@ -102,6 +102,9 @@ class BoulderService {
     if (seasonId != null) query = query.where('seasonId', isEqualTo: seasonId);
     if (week != null) query = query.where('week', isEqualTo: week);
 
+    // Order by name
+    query = query.orderBy('name');
+
     return query.snapshots().map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
   }
 }

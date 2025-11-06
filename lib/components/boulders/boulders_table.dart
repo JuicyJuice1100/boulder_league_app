@@ -35,6 +35,9 @@ class _BouldersTableState extends State<BouldersTable> {
 
   Stream<List<Boulder>>? _bouldersStream;
 
+  int _sortColumnIndex = 0;
+  bool _sortAscending = true;
+
   @override
   void initState() {
     super.initState();
@@ -103,41 +106,138 @@ class _BouldersTableState extends State<BouldersTable> {
           return const Center(child: Text('No boulders found.'));
         }
 
+        // Sort boulders based on current sort settings
+        final sortedBoulders = List<Boulder>.from(boulders);
+        sortedBoulders.sort((a, b) {
+          int comparison = 0;
+
+          switch (_sortColumnIndex) {
+            case 0: // Name
+              comparison = a.name.toLowerCase().compareTo(b.name.toLowerCase());
+              break;
+            case 1: // Gym
+              final gymA = widget.availableGyms.firstWhere(
+                (g) => g.id == a.gymId,
+                orElse: () => Gym(
+                  id: a.gymId,
+                  name: a.gymId,
+                  baseMetaData: a.baseMetaData,
+                ),
+              );
+              final gymB = widget.availableGyms.firstWhere(
+                (g) => g.id == b.gymId,
+                orElse: () => Gym(
+                  id: b.gymId,
+                  name: b.gymId,
+                  baseMetaData: b.baseMetaData,
+                ),
+              );
+              comparison = gymA.name.toLowerCase().compareTo(gymB.name.toLowerCase());
+              break;
+            case 2: // Week
+              comparison = a.week.compareTo(b.week);
+              break;
+            case 3: // Season
+              final seasonA = widget.availableSeasons.firstWhere(
+                (season) => season.id == a.seasonId,
+                orElse: () => Season(
+                  id: a.seasonId,
+                  name: 'Unknown Season',
+                  gymId: a.gymId,
+                  startDate: DateTime.now(),
+                  endDate: DateTime.now(),
+                  baseMetaData: BaseMetaData(
+                    createdAt: DateTime.now(),
+                    lastUpdateAt: DateTime.now(),
+                    createdByUid: '',
+                    lastUpdateByUid: ''
+                  )
+                )
+              );
+              final seasonB = widget.availableSeasons.firstWhere(
+                (season) => season.id == b.seasonId,
+                orElse: () => Season(
+                  id: b.seasonId,
+                  name: 'Unknown Season',
+                  gymId: b.gymId,
+                  startDate: DateTime.now(),
+                  endDate: DateTime.now(),
+                  baseMetaData: BaseMetaData(
+                    createdAt: DateTime.now(),
+                    lastUpdateAt: DateTime.now(),
+                    createdByUid: '',
+                    lastUpdateByUid: ''
+                  )
+                )
+              );
+              comparison = seasonA.name.toLowerCase().compareTo(seasonB.name.toLowerCase());
+              break;
+          }
+
+          return _sortAscending ? comparison : -comparison;
+        });
+
         return Center(
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: SizedBox(
               width: MediaQuery.of(context).size.width,
               child: DataTable(
+                sortColumnIndex: _sortColumnIndex,
+                sortAscending: _sortAscending,
                 showCheckboxColumn: false,
                 headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
-                columns: const [
+                columns: [
                   DataColumn(
-                    label: Text(
-                      'Gym',
-                      style: defaultHeaderStyle,
-                    ),
-                  ),
-                  DataColumn(
-                    label: Text(
+                    label: const Text(
                       'Name',
                       style: defaultHeaderStyle,
                     ),
+                    onSort: (columnIndex, ascending) {
+                      setState(() {
+                        _sortColumnIndex = columnIndex;
+                        _sortAscending = ascending;
+                      });
+                    },
                   ),
                   DataColumn(
-                    label: Text(
+                    label: const Text(
+                      'Gym',
+                      style: defaultHeaderStyle,
+                    ),
+                    onSort: (columnIndex, ascending) {
+                      setState(() {
+                        _sortColumnIndex = columnIndex;
+                        _sortAscending = ascending;
+                      });
+                    },
+                  ),
+                  DataColumn(
+                    label: const Text(
                       'Week',
                       style: defaultHeaderStyle,
                     ),
+                    onSort: (columnIndex, ascending) {
+                      setState(() {
+                        _sortColumnIndex = columnIndex;
+                        _sortAscending = ascending;
+                      });
+                    },
                   ),
                   DataColumn(
-                    label: Text(
+                    label: const Text(
                       'Season',
                       style: defaultHeaderStyle,
                     ),
+                    onSort: (columnIndex, ascending) {
+                      setState(() {
+                        _sortColumnIndex = columnIndex;
+                        _sortAscending = ascending;
+                      });
+                    },
                   )
                 ],
-                rows: boulders.map((boulder) {
+                rows: sortedBoulders.map((boulder) {
                   final gym = widget.availableGyms.firstWhere(
                     (g) => g.id == boulder.gymId,
                     orElse: () => Gym(
@@ -154,8 +254,8 @@ class _BouldersTableState extends State<BouldersTable> {
                       }
                     },
                     cells: [
-                      DataCell(Text(gym.name)),
                       DataCell(Text(boulder.name)),
+                      DataCell(Text(gym.name)),
                       DataCell(Text(boulder.week.toString())),
                       DataCell(() {
                         final season = widget.availableSeasons.firstWhere(

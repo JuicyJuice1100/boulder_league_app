@@ -97,6 +97,9 @@ class SeasonService {
     if (startDate != null) query = query.where('startDate', isGreaterThanOrEqualTo: startDate);
     if (endDate != null) query = query.where('week', isLessThan: endDate);
 
+    // Order by name
+    query = query.orderBy('name');
+
     return query.snapshots().map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
   }
 }

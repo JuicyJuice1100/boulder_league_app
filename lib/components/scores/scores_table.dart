@@ -44,6 +44,9 @@ class _ScoresTableState extends State<ScoresTable> {
   bool isLoading = false;
   StreamSubscription<List<Boulder>>? _boulderSub;
 
+  int _sortColumnIndex = 0;
+  bool _sortAscending = true;
+
   @override
   void initState() {
     super.initState();
@@ -142,41 +145,169 @@ class _ScoresTableState extends State<ScoresTable> {
           return const Center(child: Text('No scores found.'));
         }
 
+        // Sort scored boulders based on current sort settings
+        final sortedScoredBoulders = List<ScoredBoulder>.from(scoredBoulders);
+        sortedScoredBoulders.sort((a, b) {
+          int comparison = 0;
+
+          switch (_sortColumnIndex) {
+            case 0: // Boulder name
+              final boulderA = boulders.firstWhere(
+                (boulder) => boulder.id == a.boulderId,
+                orElse: () => Boulder(
+                  id: a.boulderId,
+                  name: 'Unknown Boulder',
+                  gymId: a.gymId,
+                  week: 0,
+                  seasonId: widget.selectedSeasonId ?? '',
+                  baseMetaData: BaseMetaData(
+                    createdAt: DateTime.now(),
+                    lastUpdateAt: DateTime.now(),
+                    createdByUid: '',
+                    lastUpdateByUid: '',
+                  ),
+                ),
+              );
+              final boulderB = boulders.firstWhere(
+                (boulder) => boulder.id == b.boulderId,
+                orElse: () => Boulder(
+                  id: b.boulderId,
+                  name: 'Unknown Boulder',
+                  gymId: b.gymId,
+                  week: 0,
+                  seasonId: widget.selectedSeasonId ?? '',
+                  baseMetaData: BaseMetaData(
+                    createdAt: DateTime.now(),
+                    lastUpdateAt: DateTime.now(),
+                    createdByUid: '',
+                    lastUpdateByUid: '',
+                  ),
+                ),
+              );
+              comparison = boulderA.name.toLowerCase().compareTo(boulderB.name.toLowerCase());
+              break;
+            case 1: // Season
+              final seasonA = widget.availableSeasons.firstWhere(
+                (season) => season.id == a.seasonId,
+                orElse: () => Season(
+                  id: a.seasonId,
+                  name: 'Unknown Season',
+                  gymId: a.gymId,
+                  startDate: DateTime.now(),
+                  endDate: DateTime.now(),
+                  baseMetaData: BaseMetaData(
+                    createdAt: DateTime.now(),
+                    lastUpdateAt: DateTime.now(),
+                    createdByUid: '',
+                    lastUpdateByUid: '',
+                  ),
+                ),
+              );
+              final seasonB = widget.availableSeasons.firstWhere(
+                (season) => season.id == b.seasonId,
+                orElse: () => Season(
+                  id: b.seasonId,
+                  name: 'Unknown Season',
+                  gymId: b.gymId,
+                  startDate: DateTime.now(),
+                  endDate: DateTime.now(),
+                  baseMetaData: BaseMetaData(
+                    createdAt: DateTime.now(),
+                    lastUpdateAt: DateTime.now(),
+                    createdByUid: '',
+                    lastUpdateByUid: '',
+                  ),
+                ),
+              );
+              comparison = seasonA.name.toLowerCase().compareTo(seasonB.name.toLowerCase());
+              break;
+            case 2: // Attempts
+              comparison = a.attempts.compareTo(b.attempts);
+              break;
+            case 3: // Completed
+              comparison = (a.completed ? 1 : 0).compareTo(b.completed ? 1 : 0);
+              break;
+            case 4: // Score
+              comparison = a.score.compareTo(b.score);
+              break;
+          }
+
+          return _sortAscending ? comparison : -comparison;
+        });
+
         return Center(
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: SizedBox(
               width: MediaQuery.of(context).size.width,
               child: DataTable(
+                sortColumnIndex: _sortColumnIndex,
+                sortAscending: _sortAscending,
                 showCheckboxColumn: false,
                 headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
-                columns: const [
+                columns: [
                   DataColumn(
-                    label: Text(
+                    label: const Text(
                       'Boulder',
                       style: defaultHeaderStyle,
                     ),
+                    onSort: (columnIndex, ascending) {
+                      setState(() {
+                        _sortColumnIndex = columnIndex;
+                        _sortAscending = ascending;
+                      });
+                    },
                   ),
                   DataColumn(
-                    label: Text(
+                    label: const Text(
+                      'Season',
+                      style: defaultHeaderStyle,
+                    ),
+                    onSort: (columnIndex, ascending) {
+                      setState(() {
+                        _sortColumnIndex = columnIndex;
+                        _sortAscending = ascending;
+                      });
+                    },
+                  ),
+                  DataColumn(
+                    label: const Text(
                       'Attempts',
                       style: defaultHeaderStyle,
                     ),
+                    onSort: (columnIndex, ascending) {
+                      setState(() {
+                        _sortColumnIndex = columnIndex;
+                        _sortAscending = ascending;
+                      });
+                    },
                   ),
                   DataColumn(
-                    label: Text(
+                    label: const Text(
                       'Completed',
                       style: defaultHeaderStyle,
                     ),
+                    onSort: (columnIndex, ascending) {
+                      setState(() {
+                        _sortColumnIndex = columnIndex;
+                        _sortAscending = ascending;
+                      });
+                    },
                   ),
                   DataColumn(
-                    label: Text(
+                    label: const Text(
                       'Score',
                       style: defaultHeaderStyle,
                     ),
+                    onSort: (columnIndex, ascending) {
+                      setState(() {
+                        _sortColumnIndex = columnIndex;
+                        _sortAscending = ascending;
+                      });
+                    },
                   )
                 ],
-                rows: scoredBoulders.map((scoredBoulder) {
+                rows: sortedScoredBoulders.map((scoredBoulder) {
                   return DataRow(
                     onSelectChanged: (selected) {
                       if(selected != null && selected) {
@@ -213,6 +344,38 @@ class _ScoresTableState extends State<ScoresTable> {
                             );
 
                             return Text(boulder.name);
+                          }
+                        )
+                      ),
+                      DataCell(
+                        Builder(
+                          builder: (context) {
+                            if (isLoading) {
+                              return const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2)
+                              );
+                            }
+
+                            final season = widget.availableSeasons.firstWhere(
+                              (s) => s.id == scoredBoulder.seasonId,
+                              orElse: () => Season(
+                                id: scoredBoulder.seasonId,
+                                name: 'Unknown Season',
+                                gymId: scoredBoulder.gymId,
+                                startDate: DateTime.now(),
+                                endDate: DateTime.now(),
+                                baseMetaData: BaseMetaData(
+                                  createdAt: DateTime.now(),
+                                  lastUpdateAt: DateTime.now(),
+                                  createdByUid: '',
+                                  lastUpdateByUid: ''
+                                )
+                              )
+                            );
+
+                            return Text(season.name);
                           }
                         )
                       ),

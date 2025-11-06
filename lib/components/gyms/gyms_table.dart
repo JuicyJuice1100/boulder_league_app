@@ -15,6 +15,9 @@ class _GymsTableState extends State<GymsTable> {
   final GymService _gymService = GymService();
   Stream<List<Gym>>? _gymsStream;
 
+  int _sortColumnIndex = 0;
+  bool _sortAscending = true;
+
   @override
   void initState() {
     super.initState();
@@ -63,29 +66,60 @@ class _GymsTableState extends State<GymsTable> {
           return const Center(child: Text('No gyms found.'));
         }
 
+        // Sort gyms based on current sort settings
+        final sortedGyms = List<Gym>.from(gyms);
+        sortedGyms.sort((a, b) {
+          int comparison = 0;
+
+          switch (_sortColumnIndex) {
+            case 0: // Name
+              comparison = a.name.toLowerCase().compareTo(b.name.toLowerCase());
+              break;
+            case 1: // Created At
+              comparison = a.baseMetaData.createdAt.compareTo(b.baseMetaData.createdAt);
+              break;
+          }
+
+          return _sortAscending ? comparison : -comparison;
+        });
+
         return Center(
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: SizedBox(
               width: MediaQuery.of(context).size.width,
               child: DataTable(
+                sortColumnIndex: _sortColumnIndex,
+                sortAscending: _sortAscending,
                 showCheckboxColumn: false,
                 headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
-                columns: const [
+                columns: [
                   DataColumn(
-                    label: Text(
+                    label: const Text(
                       'Name',
                       style: defaultHeaderStyle,
                     ),
+                    onSort: (columnIndex, ascending) {
+                      setState(() {
+                        _sortColumnIndex = columnIndex;
+                        _sortAscending = ascending;
+                      });
+                    },
                   ),
                   DataColumn(
-                    label: Text(
+                    label: const Text(
                       'Created At',
                       style: defaultHeaderStyle,
                     ),
+                    onSort: (columnIndex, ascending) {
+                      setState(() {
+                        _sortColumnIndex = columnIndex;
+                        _sortAscending = ascending;
+                      });
+                    },
                   ),
                 ],
-                rows: gyms.map((gym) {
+                rows: sortedGyms.map((gym) {
                   return DataRow(
                     onSelectChanged: (selected) {
                       if(selected != null && selected) {

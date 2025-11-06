@@ -85,6 +85,9 @@ class GymService {
   Stream<List<Gym>> getGyms() {
     Query<Gym> query = gymRef;
 
+    // Order by name
+    query = query.orderBy('name');
+
     return query.snapshots().map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
   }
 }

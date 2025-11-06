@@ -8,7 +8,6 @@ import 'package:boulder_league_app/models/season.dart';
 import 'package:boulder_league_app/services/scoring_service.dart';
 import 'package:boulder_league_app/services/boulder_service.dart';
 import 'package:uuid/uuid.dart';
-import 'package:boulder_league_app/static/weeks.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:boulder_league_app/helpers/score_calculator.dart';
 import 'package:flutter/material.dart';
