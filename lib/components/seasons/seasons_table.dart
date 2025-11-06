@@ -25,6 +25,9 @@ class _SeasonsTableState extends State<SeasonsTable> {
   final SeasonService _seasonService = SeasonService();
   Stream<List<Season>>? _seasonsStream;
 
+  int _sortColumnIndex = 0;
+  bool _sortAscending = true;
+
   @override
   void initState() {
     super.initState();
@@ -87,6 +90,26 @@ class _SeasonsTableState extends State<SeasonsTable> {
           return const Center(child: Text('No seasons found.'));
         }
 
+        // Sort seasons based on current sort settings
+        final sortedSeasons = List<Season>.from(seasons);
+        sortedSeasons.sort((a, b) {
+          int comparison = 0;
+
+          switch (_sortColumnIndex) {
+            case 0: // Name
+              comparison = a.name.toLowerCase().compareTo(b.name.toLowerCase());
+              break;
+            case 1: // Start Date
+              comparison = a.startDate.compareTo(b.startDate);
+              break;
+            case 2: // End Date
+              comparison = a.endDate.compareTo(b.endDate);
+              break;
+          }
+
+          return _sortAscending ? comparison : -comparison;
+        });
+
         // Wrap table in Expanded so it fills parent height
         return Center(
           child: SingleChildScrollView(
@@ -94,29 +117,49 @@ class _SeasonsTableState extends State<SeasonsTable> {
             child: SizedBox(
               width: MediaQuery.of(context).size.width, // full width
               child: DataTable(
+                sortColumnIndex: _sortColumnIndex,
+                sortAscending: _sortAscending,
                 showCheckboxColumn: false,
                 headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
-                columns: const [
+                columns: [
                   DataColumn(
-                    label: Text(
+                    label: const Text(
                       'Name',
                       style: defaultHeaderStyle,
                     ),
+                    onSort: (columnIndex, ascending) {
+                      setState(() {
+                        _sortColumnIndex = columnIndex;
+                        _sortAscending = ascending;
+                      });
+                    },
                   ),
                   DataColumn(
-                    label: Text(
+                    label: const Text(
                       'Start',
                       style: defaultHeaderStyle,
                     ),
+                    onSort: (columnIndex, ascending) {
+                      setState(() {
+                        _sortColumnIndex = columnIndex;
+                        _sortAscending = ascending;
+                      });
+                    },
                   ),
                   DataColumn(
-                    label: Text(
+                    label: const Text(
                       'End',
                       style: defaultHeaderStyle,
                     ),
+                    onSort: (columnIndex, ascending) {
+                      setState(() {
+                        _sortColumnIndex = columnIndex;
+                        _sortAscending = ascending;
+                      });
+                    },
                   )
                 ],
-                rows: seasons.map((season) {
+                rows: sortedSeasons.map((season) {
                   final gym = widget.availableGyms.firstWhere(
                     (g) => g.id == season.gymId,
                     orElse: () => Gym(
