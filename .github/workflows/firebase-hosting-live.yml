@@ -30,5 +30,6 @@ jobs:
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
+          channelId: live
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BOULDER_LEAGUE_APP }}
           projectId: boulder-league-app
