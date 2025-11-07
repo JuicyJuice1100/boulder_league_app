@@ -16,7 +16,8 @@ jobs:
 
       - name: Create .env file
         run: |
-          cat > $GITHUB_WORKSPACE/.env << EOF
+          echo "Creating .env file in: $(pwd)"
+          cat > .env << 'EOF'
           # Release Environment Configuration
           # This file contains environment variables for production deployment
 
@@ -24,15 +25,26 @@ jobs:
 
           # Container Port Mappings
           WEB_PORT=8000
-
-          APPCHECK_RECAPTCHA_SITE_KEY='${{ secrets.APPCHECK_RECAPTCHA_SITE_KEY }}'
           EOF
+
+          # Append the secret separately to avoid heredoc issues
+          echo "APPCHECK_RECAPTCHA_SITE_KEY='${{ secrets.APPCHECK_RECAPTCHA_SITE_KEY }}'" >> .env
+
+          echo ".env file created successfully"
 
       - name: Verify .env file was created
         run: |
-          ls -la $GITHUB_WORKSPACE/.env
-          echo "Contents:"
-          cat $GITHUB_WORKSPACE/.env
+          echo "Verifying .env file..."
+          echo "Current directory: $(pwd)"
+          ls -la .env || echo "ERROR: .env not found!"
+          if [ -f .env ]; then
+            echo "File size: $(wc -c < .env) bytes"
+            echo "Contents (secrets masked):"
+            cat .env | grep -v "RECAPTCHA"
+          else
+            echo "ERROR: .env file was not created!"
+            exit 1
+          fi
 
       - name: Upload .env file as artifact
         uses: actions/upload-artifact@v4
