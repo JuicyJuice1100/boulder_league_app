@@ -7,8 +7,8 @@ import 'package:boulder_league_app/screens/login.dart';
 import 'package:boulder_league_app/screens/signup.dart';
 import 'package:boulder_league_app/services/auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:toastification/toastification.dart';
@@ -25,10 +25,14 @@ void main() async {
     persistenceEnabled: true
   );
 
-  // Configure emulators based on environment variables or debug mode
-  final bool shouldUseEmulator = EnvConfig.useEmulator || kDebugMode;
+  FirebaseAppCheck.instance.activate(
+    providerWeb: ReCaptchaV3Provider(EnvConfig.appCheckRecaptchaSiteKey)
+  );
 
-  if (shouldUseEmulator) {
+  if (EnvConfig.environment != 'release') {
+    // Print configuration for debugging
+    EnvConfig.printConfig();
+
     try {
       FirebaseFirestore.instance.useFirestoreEmulator(
         EnvConfig.firestoreHost,
@@ -45,11 +49,6 @@ void main() async {
       // ignore: avoid_print
       print('Error connecting to emulators: $e');
     }
-  }
-
-  // Print configuration for debugging
-  if (kDebugMode || EnvConfig.debugLogging) {
-    EnvConfig.printConfig();
   }
 
   runApp(const MyApp());

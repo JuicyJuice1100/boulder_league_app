@@ -30,21 +30,19 @@ RUN set -a && \
     . ./.env.build && \
     set +a && \
     echo "Building with:" && \
-    echo "  DEBUG_LOGGING=${DEBUG_LOGGING}" && \
-    echo "  USE_EMULATOR=${USE_EMULATOR}" && \
+    echo "  ENV=${ENV}" && \
     echo "  FIRESTORE_HOST=${FIRESTORE_HOST}" && \
     echo "  FIRESTORE_PORT=${FIRESTORE_PORT}" && \
     echo "  AUTH_HOST=${AUTH_HOST}" && \
     echo "  AUTH_PORT=${AUTH_PORT}" && \
-    echo "  FIREBASE_DATABASE_ID=${FIREBASE_DATABASE_ID}" && \
+    echo "  APPCHECK_RECAPTCHA_SITE_KEY=${APPCHECK_RECAPTCHA_SITE_KEY}" && \
     flutter build web --release \
-      --dart-define=DEBUG_LOGGING=${DEBUG_LOGGING} \
-      --dart-define=USE_EMULATOR=${USE_EMULATOR} \
+      --dart-define=ENV=${ENV} \
       --dart-define=FIRESTORE_HOST=${FIRESTORE_HOST} \
       --dart-define=FIRESTORE_PORT=${FIRESTORE_PORT} \
       --dart-define=AUTH_HOST=${AUTH_HOST} \
       --dart-define=AUTH_PORT=${AUTH_PORT} \
-      --dart-define=FIREBASE_DATABASE_ID=${FIREBASE_DATABASE_ID}
+      --dart-define=APPCHECK_RECAPTCHA_SITE_KEY=${APPCHECK_RECAPTCHA_SITE_KEY}
 
 # Stage 2: Serve with nginx
 FROM nginx:alpine

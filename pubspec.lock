@@ -5,10 +5,10 @@ packages:
     dependency: transitive
     description:
       name: _flutterfire_internals
-      sha256: f871a7d1b686bea1f13722aa51ab31554d05c81f47054d6de48cc8c45153508b
+      sha256: "8a1f5f3020ef2a74fb93f7ab3ef127a8feea33a7a2276279113660784ee7516a"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.63"
+    version: "1.3.64"
   async:
     dependency: transitive
     description:
@@ -113,6 +113,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.3"
+  firebase_app_check:
+    dependency: "direct main"
+    description:
+      name: firebase_app_check
+      sha256: "4d00b502f510ee97cdb395e95a31a8b871fc96cb917ffc60591528d3c9735986"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.1+2"
+  firebase_app_check_platform_interface:
+    dependency: transitive
+    description:
+      name: firebase_app_check_platform_interface
+      sha256: "7d104d01b00e5dec367dc79184ad99bd1941f2d839b5ef41156b2330c18af13f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.1+2"
+  firebase_app_check_web:
+    dependency: transitive
+    description:
+      name: firebase_app_check_web
+      sha256: "885a1a7b8e33c52afaf9c5d75eca616ae310d6ea90322e9a462f8c154ad16b64"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.2"
   firebase_auth:
     dependency: "direct main"
     description:
@@ -141,10 +165,10 @@ packages:
     dependency: "direct main"
     description:
       name: firebase_core
-      sha256: "132e1c311bc41e7d387b575df0aacdf24efbf4930365eb61042be5bde3978f03"
+      sha256: "1f2dfd9f535d81f8b06d7a50ecda6eac1e6922191ed42e09ca2c84bd2288927c"
       url: "https://pub.dev"
     source: hosted
-    version: "4.2.0"
+    version: "4.2.1"
   firebase_core_platform_interface:
     dependency: transitive
     description:
@@ -157,10 +181,10 @@ packages:
     dependency: transitive
     description:
       name: firebase_core_web
-      sha256: ecde2def458292404a4fcd3731ee4992fd631a0ec359d2d67c33baa8da5ec8ae
+      sha256: ff18fabb0ad0ed3595d2f2c85007ecc794aadecdff5b3bb1460b7ee47cded398
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.0"
+    version: "3.3.0"
   fixnum:
     dependency: transitive
     description:
