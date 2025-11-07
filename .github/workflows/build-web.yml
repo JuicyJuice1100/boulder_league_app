@@ -1,0 +1,55 @@
+name: Build Flutter Web
+
+on:
+  workflow_call:
+    inputs:
+      base-href:
+        description: 'Base href for the web build (e.g., /boulder_league_app/)'
+        required: false
+        type: string
+        default: '/'
+      artifact-name:
+        description: 'Name for the uploaded artifact (leave empty to skip artifact upload)'
+        required: false
+        type: string
+        default: ''
+    secrets:
+      APPCHECK_RECAPTCHA_SITE_KEY:
+        description: 'reCAPTCHA site key for App Check'
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version-file: pubspec.yaml
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Print Flutter info
+        shell: bash
+        run: |
+          echo CACHE-PATH=${{ steps.flutter-action.outputs.CACHE-PATH }}
+          echo CACHE-KEY=${{ steps.flutter-action.outputs.CACHE-KEY }}
+          echo CHANNEL=${{ steps.flutter-action.outputs.CHANNEL }}
+          echo VERSION=${{ steps.flutter-action.outputs.VERSION }}
+          echo ARCHITECTURE=${{ steps.flutter-action.outputs.ARCHITECTURE }}
+
+      - name: Build web release
+        run: flutter build web --release --base-href=${{ inputs.base-href }} --dart-define=APPCHECK_RECAPTCHA_SITE_KEY='${{ secrets.APPCHECK_RECAPTCHA_SITE_KEY }}'
+
+      - name: Upload build artifact
+        if: inputs.artifact-name != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: ./build/web
