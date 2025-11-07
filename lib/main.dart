@@ -25,9 +25,10 @@ void main() async {
     persistenceEnabled: true
   );
 
-  FirebaseAppCheck.instance.activate(
-    providerWeb: ReCaptchaV3Provider(EnvConfig.appCheckRecaptchaSiteKey)
-  );
+  // Commenting out for now until we set up App Check properly
+  // FirebaseAppCheck.instance.activate(
+  //   providerWeb: ReCaptchaV3Provider(EnvConfig.appCheckRecaptchaSiteKey)
+  // );
 
   if (EnvConfig.environment != 'release') {
     // Print configuration for debugging
