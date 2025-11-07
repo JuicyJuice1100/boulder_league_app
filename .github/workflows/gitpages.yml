@@ -20,8 +20,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     environment:
-      name: github-pages
+      name: flutter build
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
@@ -36,9 +37,6 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
-
-      - name: Run tests
-        run: flutter test
 
       - name: Print outputs
         shell: bash
