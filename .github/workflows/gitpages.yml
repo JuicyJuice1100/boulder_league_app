@@ -48,7 +48,7 @@ jobs:
           echo ARCHITECTURE=${{ steps.flutter-action.outputs.ARCHITECTURE }}
 
       - name: Build web release
-        run: flutter build web --release --dart-define=APPCHECK_RECAPTCHA_SITE_KEY='${{ secrets.APPCHECK_RECAPTCHA_SITE_KEY }}'
+        run: flutter build web --release --base-href=/boulder_league_app/ --dart-define=APPCHECK_RECAPTCHA_SITE_KEY='${{ secrets.APPCHECK_RECAPTCHA_SITE_KEY }}'
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -60,8 +60,8 @@ jobs:
   deploy:
     needs: build
     permissions:
-          pages: write      # to deploy to Pages
-          id-token: write   # to verify the deployment originates from an appropriate source
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
 
     # Deploy to the github-pages environment
     environment:
