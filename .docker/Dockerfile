@@ -3,7 +3,7 @@ FROM ghcr.io/cirruslabs/flutter:stable AS build
 
 # Build argument to specify which .env file to use
 # Example: --build-arg ENV_FILE=.env.local
-ARG ENV_FILE=.env.local
+ARG ENV_FILE=.env
 
 # Set working directory
 WORKDIR /app
