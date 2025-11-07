@@ -19,44 +19,13 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/build-web.yml
+    with:
+      base-href: /boulder_league_app/
+      artifact-name: web-build
+    secrets:
+      APPCHECK_RECAPTCHA_SITE_KEY: ${{ secrets.APPCHECK_RECAPTCHA_SITE_KEY }}
 
-    environment:
-      name: flutter build
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          flutter-version-file: pubspec.yaml
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Print outputs
-        shell: bash
-        run: |
-          echo CACHE-PATH=${{ steps.flutter-action.outputs.CACHE-PATH }}
-          echo CACHE-KEY=${{ steps.flutter-action.outputs.CACHE-KEY }}
-          echo CHANNEL=${{ steps.flutter-action.outputs.CHANNEL }}
-          echo VERSION=${{ steps.flutter-action.outputs.VERSION }}
-          echo ARCHITECTURE=${{ steps.flutter-action.outputs.ARCHITECTURE }}
-
-      - name: Build web release
-        run: flutter build web --release --base-href=/boulder_league_app/ --dart-define=APPCHECK_RECAPTCHA_SITE_KEY='${{ secrets.APPCHECK_RECAPTCHA_SITE_KEY }}'
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact for GitHub Pages
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./build/web
   deploy:
     needs: build
     permissions:
@@ -71,7 +40,20 @@ jobs:
     # Specify runner + deployment step
     runs-on: ubuntu-latest
     steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: web-build
+          path: build/web
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact for GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4 # or specific "vX.X.X" version tag for this action
-
+        uses: actions/deploy-pages@v4
