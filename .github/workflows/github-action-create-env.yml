@@ -32,23 +32,11 @@ jobs:
 
           echo ".env file created successfully"
 
-      - name: Verify .env file was created
-        run: |
-          echo "Verifying .env file..."
-          echo "Current directory: $(pwd)"
-          ls -la .env || echo "ERROR: .env not found!"
-          if [ -f .env ]; then
-            echo "File size: $(wc -c < .env) bytes"
-            echo "Contents (secrets masked):"
-            cat .env | grep -v "RECAPTCHA"
-          else
-            echo "ERROR: .env file was not created!"
-            exit 1
-          fi
-
       - name: Upload .env file as artifact
         uses: actions/upload-artifact@v4
         with:
           name: env-file
           path: ${{ github.workspace }}/.env
           retention-days: 1
+          if-no-files-found: error
+          include-hidden-files: true
