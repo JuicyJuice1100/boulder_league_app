@@ -1,0 +1,41 @@
+name: Docker Compose Web Build
+
+on:
+  workflow_call:
+
+jobs:
+  docker-compose:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download .env file
+        uses: actions/download-artifact@v4
+        with:
+          name: env-file
+          path: .
+
+      - name: Verify .env file
+        run: |
+          echo "Contents of .env file:"
+          cat .env
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build web service for release
+        run: |
+          docker build -f .docker/Dockerfile.release -t boulder_league_web:latest --build-arg ENV_FILE=.env .
+
+      - name: Export Docker image
+        run: |
+          docker save boulder_league_web:latest | gzip > boulder_league_web.tar.gz
+
+      - name: Upload Docker image as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: boulder_league_web.tar.gz
+          retention-days: 1

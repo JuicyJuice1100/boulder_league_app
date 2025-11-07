@@ -44,7 +44,7 @@ services:
   web:
     build:
       context: ..
-      dockerfile: .docker/Dockerfile
+      dockerfile: .docker/Dockerfile.local
       args:
         # Specify which .env file to use for the build
         # Default: .env
