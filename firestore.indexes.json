@@ -1,4 +1,43 @@
 {
-  "indexes": [],
+  "indexes": [
+    {
+      "collectionGroup": "boulders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "gymId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "name",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "__name__",
+          "order": "ASCENDING"
+        }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "seasons",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "gymId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "name",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "__name__",
+          "order": "ASCENDING"
+        }
+      ],
+      "density": "SPARSE_ALL"
+    }
+  ],
   "fieldOverrides": []
 }
