@@ -1,5 +1,21 @@
 {
   "projects": {
     "default": "boulder-league-app"
-  }
+  },
+  "targets": {
+    "boulder-league-app": {
+      "hosting": {
+        "dev": [
+          "boulder-league-app-dev"
+        ],
+        "uat": [
+          "boulder-league-app-uat"
+        ],
+        "prod": [
+          "boulder-league-app"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

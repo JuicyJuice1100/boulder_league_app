@@ -42,7 +42,8 @@
     },
     "singleProjectMode": true
   },
-  "hosting": {
+  "hosting": [{
+    "target": "dev",
     "public": "build/web",
     "ignore": [
       "firebase.json",
@@ -52,5 +53,29 @@
     "frameworksBackend": {
       "region": "us-central1"
     }
-  }
+  },
+{
+    "target": "uat",
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "frameworksBackend": {
+      "region": "us-central1"
+    }
+  },
+{
+    "target": "prod",
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "frameworksBackend": {
+      "region": "us-central1"
+    }
+  }]
 }
