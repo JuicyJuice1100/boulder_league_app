@@ -3,16 +3,9 @@
 /// This class handles configuration for connecting to Firebase emulators
 /// either locally or through a Docker proxy.
 class EnvConfig {
-  static const bool debugLogging = bool.fromEnvironment(
-    'DEBUG_LOGGING',
-    defaultValue: false,
-  );
-
-  /// Flag to enable Firebase emulator mode
-  /// We default to true as we don't want to touch the real database unless this is set
-  static const bool useEmulator = bool.fromEnvironment(
-    'USE_EMULATOR',
-    defaultValue: true,
+  static const String environment = String.fromEnvironment(
+    'ENV',
+    defaultValue: 'development',
   );
 
   /// Host for Firestore emulator
@@ -47,8 +40,8 @@ class EnvConfig {
     defaultValue: 9099,
   );
 
-  static const String firebaseDatabaseId = String.fromEnvironment(
-    'FIREBASE_DATABASE_ID',
+  static const String appCheckRecaptchaSiteKey = String.fromEnvironment(
+    'APPCHECK_RECAPTCHA_SITE_KEY',
     defaultValue: ''
   );
 
@@ -57,9 +50,7 @@ class EnvConfig {
     // ignore: avoid_print
     print('=== Firebase Emulator Configuration ===');
     // ignore: avoid_print
-    print('DEBUG_LOG: $debugLogging');
-    // ignore: avoid_print
-    print('USE_EMULATOR: $useEmulator');
+    print('ENV: $environment');
     // ignore: avoid_print
     print('FIRESTORE_HOST: $firestoreHost');
     // ignore: avoid_print
@@ -69,7 +60,7 @@ class EnvConfig {
     // ignore: avoid_print
     print('AUTH_PORT: $authPort');
     // ignore: avoid_print
-    print('FIREBASE_DATABASE_ID: $firebaseDatabaseId');
+    print('APPCHECK_RECAPTCHA_SITE_KEY: $appCheckRecaptchaSiteKey');
     // ignore: avoid_print
     print('=======================================');
   }

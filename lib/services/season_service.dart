@@ -1,16 +1,11 @@
-import 'package:boulder_league_app/env_config.dart';
 import 'package:boulder_league_app/models/base_return_object.dart';
 import 'package:boulder_league_app/models/season.dart';
 import 'package:boulder_league_app/models/season_filters.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 class SeasonService {
-  final seasonRef = FirebaseFirestore.instanceFor(
-      app: Firebase.app(),
-      databaseId: EnvConfig.firebaseDatabaseId
-    )
+  final seasonRef = FirebaseFirestore.instance
     .collection('seasons')
     .withConverter<Season>(
       fromFirestore: (snapshot, options) => Season.fromJson(snapshot.data()!, snapshot.id),
