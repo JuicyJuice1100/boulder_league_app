@@ -9,6 +9,7 @@ import 'package:boulder_league_app/services/auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:toastification/toastification.dart';
@@ -30,18 +31,18 @@ void main() async {
   //   providerWeb: ReCaptchaV3Provider(EnvConfig.appCheckRecaptchaSiteKey)
   // );
 
-  if (EnvConfig.environment != 'release') {
+  if (kDebugMode) {
     // Print configuration for debugging
     EnvConfig.printConfig();
 
     try {
       FirebaseFirestore.instance.useFirestoreEmulator(
-        EnvConfig.firestoreHost,
-        EnvConfig.firestorePort,
+        'localhost',
+        8080,
       );
       await FirebaseAuth.instance.useAuthEmulator(
-        EnvConfig.authHost,
-        EnvConfig.authPort,
+        'localhost',
+        9099,
       );
 
       // ignore: avoid_print
