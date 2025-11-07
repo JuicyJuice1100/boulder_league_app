@@ -1,0 +1,135 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Sets permissions for GitHub Pages deployment
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  create-env:
+    name: Create Environment File
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create .env file
+        run: |
+          echo "Creating .env file in: $(pwd)"
+          cat > .env << 'EOF'
+          # Release Environment Configuration
+          # This file contains environment variables for production deployment
+
+          ENV='release'
+
+          # Container Port Mappings
+          WEB_PORT=8000
+          EOF
+
+          # Append the secret separately to avoid heredoc issues
+          echo "APPCHECK_RECAPTCHA_SITE_KEY='${{ secrets.APPCHECK_RECAPTCHA_SITE_KEY }}'" >> .env
+
+          echo ".env file created successfully"
+
+      - name: Upload .env file as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: env-file
+          path: ${{ github.workspace }}/.env
+          retention-days: 1
+          if-no-files-found: error
+          include-hidden-files: true
+
+  docker-compose:
+    name: Build Web with Docker Compose
+    needs: create-env
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download .env file
+        uses: actions/download-artifact@v4
+        with:
+          name: env-file
+          path: .
+
+      - name: Verify .env file
+        run: |
+          echo "Contents of .env file:"
+          cat .env
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build web service for release
+        run: |
+          docker build -f .docker/Dockerfile.release -t boulder_league_web:latest --build-arg ENV_FILE=.env .
+
+      - name: Export Docker image
+        run: |
+          docker save boulder_league_web:latest | gzip > boulder_league_web.tar.gz
+
+      - name: Upload Docker image as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: boulder_league_web.tar.gz
+          retention-days: 1
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: docker-compose
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download Docker image
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image
+          path: .
+
+      - name: Load and extract Docker image
+        run: |
+          docker load < boulder_league_web.tar.gz
+
+          # Create a container from the image without running it
+          CONTAINER_ID=$(docker create boulder_league_web:latest)
+
+          # Extract the web files from the nginx html directory
+          docker cp $CONTAINER_ID:/usr/share/nginx/html ./github-pages-deploy
+
+          # Clean up the container
+          docker rm $CONTAINER_ID
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact for GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./github-pages-deploy
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
