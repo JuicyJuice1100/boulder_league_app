@@ -18,8 +18,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
-    name: Build and Deploy to GitHub Pages
+  build:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -38,6 +37,18 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Run tests
+        run: flutter test
+
+      - name: Print outputs
+        shell: bash
+        run: |
+          echo CACHE-PATH=${{ steps.flutter-action.outputs.CACHE-PATH }}
+          echo CACHE-KEY=${{ steps.flutter-action.outputs.CACHE-KEY }}
+          echo CHANNEL=${{ steps.flutter-action.outputs.CHANNEL }}
+          echo VERSION=${{ steps.flutter-action.outputs.VERSION }}
+          echo ARCHITECTURE=${{ steps.flutter-action.outputs.ARCHITECTURE }}
+
       - name: Build web release
         run: flutter build web --release --dart-define=APPCHECK_RECAPTCHA_SITE_KEY='${{ secrets.APPCHECK_RECAPTCHA_SITE_KEY }}'
 
@@ -48,7 +59,21 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./build/web
+  deploy:
+    needs: build
+    permissions:
+          pages: write      # to deploy to Pages
+          id-token: write   # to verify the deployment originates from an appropriate source
 
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    # Specify runner + deployment step
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v4 # or specific "vX.X.X" version tag for this action
+
