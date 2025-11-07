@@ -1,0 +1,73 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Sets permissions for GitHub Pages deployment
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  create-env:
+    name: Create Environment File
+    uses: ./.github/workflows/github-action-create-env.yml
+    secrets:
+      APPCHECK_RECAPTCHA_SITE_KEY: ${{ secrets.APPCHECK_RECAPTCHA_SITE_KEY }}
+
+  docker-compose:
+    name: Build Web with Docker Compose
+    needs: create-env
+    uses: ./.github/workflows/github-action-docker-compose.yml
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: docker-compose
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download Docker image
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image
+          path: .
+
+      - name: Load and extract Docker image
+        run: |
+          docker load < boulder_league_web.tar.gz
+
+          # Create a container from the image without running it
+          CONTAINER_ID=$(docker create boulder_league_web:latest)
+
+          # Extract the web files from the nginx html directory
+          docker cp $CONTAINER_ID:/usr/share/nginx/html ./github-pages-deploy
+
+          # Clean up the container
+          docker rm $CONTAINER_ID
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact for GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./github-pages-deploy
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

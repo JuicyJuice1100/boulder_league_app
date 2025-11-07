@@ -1,0 +1,44 @@
+name: Create Environment File
+
+on:
+  workflow_call:
+    secrets:
+      APPCHECK_RECAPTCHA_SITE_KEY:
+        required: true
+
+jobs:
+  create-env:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create .env file
+        run: |
+          cat > .env << EOF
+          # Release Environment Configuration
+          # This file contains environment variables for production deployment
+
+          ENV='release'
+
+          # Firebase Emulator Hosts and Ports
+          # For web apps: always use 'localhost' since browser connects from host machine
+          FIRESTORE_HOST=localhost
+          FIRESTORE_PORT=8080
+          AUTH_HOST=localhost
+          AUTH_PORT=9099
+
+          # Container Port Mappings
+          WEB_PORT=8000
+          FIREBASE_UI_PORT=4000
+
+          APPCHECK_RECAPTCHA_SITE_KEY='${{ secrets.APPCHECK_RECAPTCHA_SITE_KEY }}'
+          EOF
+
+      - name: Upload .env file as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: env-file
+          path: .env
+          retention-days: 1
