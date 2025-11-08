@@ -134,7 +134,11 @@ class _LeaderboardTableState extends State<LeaderboardTable> {
         return Center(
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: DataTable(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: MediaQuery.of(context).size.width,
+              ),
+              child: DataTable(
               dataRowMaxHeight: double.infinity,
               horizontalMargin: 6,
               headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
@@ -227,6 +231,7 @@ class _LeaderboardTableState extends State<LeaderboardTable> {
                   ],
                 );
               }).toList(),
+              ),
             ),
           )
         );

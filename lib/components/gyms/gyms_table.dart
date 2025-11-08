@@ -140,7 +140,11 @@ class _GymsTableState extends State<GymsTable> {
         return Center(
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: DataTable(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: MediaQuery.of(context).size.width,
+              ),
+              child: DataTable(
               sortColumnIndex: _sortColumnIndex,
               sortAscending: _sortAscending,
               showCheckboxColumn: false,
@@ -216,6 +220,7 @@ class _GymsTableState extends State<GymsTable> {
                   ],
                 );
               }).toList(),
+              ),
             ),
           )
         );
