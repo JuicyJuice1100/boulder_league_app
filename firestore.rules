@@ -3,15 +3,16 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /{document=**} {
-      // Allow read access only if the user is signed in
-      allow read: if request.auth != null;
+      // Allow read, create, update access only if the user is signed in
+      // we will want to use reCAPTCHA in the future for create and update
+      allow read, create, update: if request.auth != null;
 
       // Allow create and update ONLY if:
       // 1. The request comes from an App Check verified app (reCAPTCHA verification)
       // 2. AND the user is signed in
       // Note: request.app != null validates the reCAPTCHA token from App Check
       // Note can't test reCAPTCHA when testing using firebase emulator
-      allow create, update: if request.app != null && request.auth != null;
+      // allow create, update: if request.app != null && request.auth != null;
 
       // Deny delete for everyone
       allow delete: if false;

@@ -110,91 +110,87 @@ class _SeasonsTableState extends State<SeasonsTable> {
           return _sortAscending ? comparison : -comparison;
         });
 
-        // Wrap table in Expanded so it fills parent height
         return Center(
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width, // full width
-              child: DataTable(
-                sortColumnIndex: _sortColumnIndex,
-                sortAscending: _sortAscending,
-                showCheckboxColumn: false,
-                headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
-                columns: [
-                  DataColumn(
-                    label: const Text(
-                      'Name',
-                      style: defaultHeaderStyle,
-                    ),
-                    onSort: (columnIndex, ascending) {
-                      setState(() {
-                        _sortColumnIndex = columnIndex;
-                        _sortAscending = ascending;
-                      });
-                    },
+            child: DataTable(
+              sortColumnIndex: _sortColumnIndex,
+              sortAscending: _sortAscending,
+              showCheckboxColumn: false,
+              headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
+              columns: [
+                DataColumn(
+                  label: const Text(
+                    'Name',
+                    style: defaultHeaderStyle,
                   ),
-                  DataColumn(
-                    label: const Text(
-                      'Start',
-                      style: defaultHeaderStyle,
-                    ),
-                    onSort: (columnIndex, ascending) {
-                      setState(() {
-                        _sortColumnIndex = columnIndex;
-                        _sortAscending = ascending;
-                      });
-                    },
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      _sortColumnIndex = columnIndex;
+                      _sortAscending = ascending;
+                    });
+                  },
+                ),
+                DataColumn(
+                  label: const Text(
+                    'Start',
+                    style: defaultHeaderStyle,
                   ),
-                  DataColumn(
-                    label: const Text(
-                      'End',
-                      style: defaultHeaderStyle,
-                    ),
-                    onSort: (columnIndex, ascending) {
-                      setState(() {
-                        _sortColumnIndex = columnIndex;
-                        _sortAscending = ascending;
-                      });
-                    },
-                  )
-                ],
-                rows: sortedSeasons.map((season) {
-                  final gym = widget.availableGyms.firstWhere(
-                    (g) => g.id == season.gymId,
-                    orElse: () => Gym(
-                      id: season.gymId,
-                      name: season.gymId,
-                      baseMetaData: season.baseMetaData,
-                    ),
-                  );
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      _sortColumnIndex = columnIndex;
+                      _sortAscending = ascending;
+                    });
+                  },
+                ),
+                DataColumn(
+                  label: const Text(
+                    'End',
+                    style: defaultHeaderStyle,
+                  ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      _sortColumnIndex = columnIndex;
+                      _sortAscending = ascending;
+                    });
+                  },
+                )
+              ],
+              rows: sortedSeasons.map((season) {
+                final gym = widget.availableGyms.firstWhere(
+                  (g) => g.id == season.gymId,
+                  orElse: () => Gym(
+                    id: season.gymId,
+                    name: season.gymId,
+                    baseMetaData: season.baseMetaData,
+                  ),
+                );
 
-                  return DataRow(
-                    color:  WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
-                      if (season.id == gym.activeSeasonId) {
-                        return Theme.of(context).colorScheme.primary.withValues(alpha: 0.15);
-                      }
-                      return null;  // Use the default value.
-                    }),
-                    onSelectChanged: (selected) {
-                      if(selected != null && selected) {
-                        _editSeason(season);
-                      }
-                    },
-                    cells: [
-                      DataCell(Text(season.name)),
-                      DataCell(Text(
-                        DateFormat.yMd().format(season.startDate),
-                      )),
-                      DataCell(Text(
-                        DateFormat.yMd().format(season.endDate),
-                      )),
-                    ],
-                  );
-                }).toList(),
-              ),
+                return DataRow(
+                  color:  WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
+                    if (season.id == gym.activeSeasonId) {
+                      return Theme.of(context).colorScheme.primary.withValues(alpha: 0.15);
+                    }
+                    return null;  // Use the default value.
+                  }),
+                  onSelectChanged: (selected) {
+                    if(selected != null && selected) {
+                      _editSeason(season);
+                    }
+                  },
+                  cells: [
+                    DataCell(Text(season.name)),
+                    DataCell(Text(
+                      DateFormat.yMd().format(season.startDate),
+                    )),
+                    DataCell(Text(
+                      DateFormat.yMd().format(season.endDate),
+                    )),
+                  ],
+                );
+              }).toList(),
             ),
-          ),
+          )
         );
       },
     );

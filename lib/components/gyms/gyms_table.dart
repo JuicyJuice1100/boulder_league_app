@@ -1,8 +1,13 @@
 import 'package:boulder_league_app/components/gyms/gyms_form.dart';
+import 'package:boulder_league_app/models/season.dart';
+import 'package:boulder_league_app/services/season_service.dart';
 import 'package:boulder_league_app/styles/default_header.dart';
 import 'package:flutter/material.dart';
 import 'package:boulder_league_app/models/gym.dart';
 import 'package:boulder_league_app/services/gym_service.dart';
+import 'dart:async';
+
+import 'package:intl/intl.dart';
 
 class GymsTable extends StatefulWidget {
   const GymsTable({super.key});
@@ -13,7 +18,10 @@ class GymsTable extends StatefulWidget {
 
 class _GymsTableState extends State<GymsTable> {
   final GymService _gymService = GymService();
+  final SeasonService _seasonService = SeasonService();
   Stream<List<Gym>>? _gymsStream;
+  List<Season> _seasons = [];
+  StreamSubscription<List<Season>>? _seasonsSub;
 
   int _sortColumnIndex = 0;
   bool _sortAscending = true;
@@ -22,11 +30,26 @@ class _GymsTableState extends State<GymsTable> {
   void initState() {
     super.initState();
     _updateGyms();
+    _loadSeasons();
+  }
+
+  @override
+  void dispose() {
+    _seasonsSub?.cancel();
+    super.dispose();
   }
 
   void _updateGyms() {
     setState(() {
       _gymsStream = _gymService.getGyms();
+    });
+  }
+
+  void _loadSeasons() {
+    _seasonsSub = _seasonService.getSeasons(null).listen((seasons) {
+      setState(() {
+        _seasons = seasons;
+      });
     });
   }
 
@@ -75,7 +98,38 @@ class _GymsTableState extends State<GymsTable> {
             case 0: // Name
               comparison = a.name.toLowerCase().compareTo(b.name.toLowerCase());
               break;
-            case 1: // Created At
+            case 1: // Active Season
+              final seasonA = a.activeSeasonId != null
+                  ? _seasons.firstWhere(
+                      (s) => s.id == a.activeSeasonId,
+                      orElse: () => Season(
+                        id: '',
+                        name: '',
+                        gymId: a.id,
+                        startDate: DateTime.now(),
+                        endDate: DateTime.now(),
+                        baseMetaData: a.baseMetaData,
+                      ),
+                    )
+                  : null;
+              final seasonB = b.activeSeasonId != null
+                  ? _seasons.firstWhere(
+                      (s) => s.id == b.activeSeasonId,
+                      orElse: () => Season(
+                        id: '',
+                        name: '',
+                        gymId: b.id,
+                        startDate: DateTime.now(),
+                        endDate: DateTime.now(),
+                        baseMetaData: b.baseMetaData,
+                      ),
+                    )
+                  : null;
+              final nameA = seasonA?.name ?? '-';
+              final nameB = seasonB?.name ?? '-';
+              comparison = nameA.toLowerCase().compareTo(nameB.toLowerCase());
+              break;
+            case 2: // Created At
               comparison = a.baseMetaData.createdAt.compareTo(b.baseMetaData.createdAt);
               break;
           }
@@ -86,57 +140,84 @@ class _GymsTableState extends State<GymsTable> {
         return Center(
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width,
-              child: DataTable(
-                sortColumnIndex: _sortColumnIndex,
-                sortAscending: _sortAscending,
-                showCheckboxColumn: false,
-                headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
-                columns: [
-                  DataColumn(
-                    label: const Text(
-                      'Name',
-                      style: defaultHeaderStyle,
-                    ),
-                    onSort: (columnIndex, ascending) {
-                      setState(() {
-                        _sortColumnIndex = columnIndex;
-                        _sortAscending = ascending;
-                      });
-                    },
+            child: DataTable(
+              sortColumnIndex: _sortColumnIndex,
+              sortAscending: _sortAscending,
+              showCheckboxColumn: false,
+              headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
+              columns: [
+                DataColumn(
+                  label: const Text(
+                    'Name',
+                    style: defaultHeaderStyle,
                   ),
-                  DataColumn(
-                    label: const Text(
-                      'Created At',
-                      style: defaultHeaderStyle,
-                    ),
-                    onSort: (columnIndex, ascending) {
-                      setState(() {
-                        _sortColumnIndex = columnIndex;
-                        _sortAscending = ascending;
-                      });
-                    },
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      _sortColumnIndex = columnIndex;
+                      _sortAscending = ascending;
+                    });
+                  },
+                ),
+                DataColumn(
+                  label: const Text(
+                    'Active Season',
+                    style: defaultHeaderStyle,
                   ),
-                ],
-                rows: sortedGyms.map((gym) {
-                  return DataRow(
-                    onSelectChanged: (selected) {
-                      if(selected != null && selected) {
-                        _editGym(gym);
-                      }
-                    },
-                    cells: [
-                      DataCell(Text(gym.name)),
-                      DataCell(Text(
-                        gym.baseMetaData.createdAt.toString().split(' ')[0],
-                      )),
-                    ],
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      _sortColumnIndex = columnIndex;
+                      _sortAscending = ascending;
+                    });
+                  },
+                ),
+                DataColumn(
+                  label: const Text(
+                    'Created At',
+                    style: defaultHeaderStyle,
+                  ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      _sortColumnIndex = columnIndex;
+                      _sortAscending = ascending;
+                    });
+                  },
+                ),
+              ],
+              rows: sortedGyms.map((gym) {
+                // Get active season name or '-'
+                String activeSeasonName = '-';
+                if (gym.activeSeasonId != null) {
+                  final activeSeason = _seasons.firstWhere(
+                    (s) => s.id == gym.activeSeasonId,
+                    orElse: () => Season(
+                      id: '',
+                      name: '-',
+                      gymId: gym.id,
+                      startDate: DateTime.now(),
+                      endDate: DateTime.now(),
+                      baseMetaData: gym.baseMetaData,
+                    ),
                   );
-                }).toList(),
-              ),
+                  activeSeasonName = activeSeason.name;
+                }
+
+                return DataRow(
+                  onSelectChanged: (selected) {
+                    if(selected != null && selected) {
+                      _editGym(gym);
+                    }
+                  },
+                  cells: [
+                    DataCell(Text(gym.name)),
+                    DataCell(Text(activeSeasonName)),
+                    DataCell(Text(
+                      DateFormat.yMd().format(gym.baseMetaData.createdAt),
+                    )),
+                  ],
+                );
+              }).toList(),
             ),
-          ),
+          )
         );
       },
     );

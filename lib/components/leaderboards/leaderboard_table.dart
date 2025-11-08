@@ -134,104 +134,101 @@ class _LeaderboardTableState extends State<LeaderboardTable> {
         return Center(
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width,
-              child: DataTable(
-                dataRowMaxHeight: double.infinity,
-                horizontalMargin: 6,
-                headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
-                columns: const [
-                  DataColumn(
-                    label: Text(
-                      'Rank',
-                      style: defaultHeaderStyle,
-                    ),
+            child: DataTable(
+              dataRowMaxHeight: double.infinity,
+              horizontalMargin: 6,
+              headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
+              columns: const [
+                DataColumn(
+                  label: Text(
+                    'Rank',
+                    style: defaultHeaderStyle,
                   ),
-                  DataColumn(
-                    label: Text(
-                      'User',
-                      style: defaultHeaderStyle,
-                    ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'User',
+                    style: defaultHeaderStyle,
                   ),
-                  DataColumn(
-                    label: Text(
-                      'Total Score',
-                      style: defaultHeaderStyle,
-                    ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Total Score',
+                    style: defaultHeaderStyle,
                   ),
-                ],
-                rows: entries.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final leaderboardEntry = entry.value;
-                  final rank = index + 1;
+                ),
+              ],
+              rows: entries.asMap().entries.map((entry) {
+                final index = entry.key;
+                final leaderboardEntry = entry.value;
+                final rank = index + 1;
 
-                  // Highlight top 3
-                  Color? rowColor;
-                  if (rank == 1) {
-                    rowColor = Colors.amber[100];
-                  } else if (rank == 2) {
-                    rowColor = Colors.grey[300];
-                  } else if (rank == 3) {
-                    rowColor = Colors.orange[100];
-                  }
+                // Highlight top 3
+                Color? rowColor;
+                if (rank == 1) {
+                  rowColor = Colors.amber[100];
+                } else if (rank == 2) {
+                  rowColor = Colors.grey[300];
+                } else if (rank == 3) {
+                  rowColor = Colors.orange[100];
+                }
 
-                  return DataRow(
-                    color: rowColor != null
-                        ? WidgetStateProperty.all(rowColor)
-                        : null,
-                    cells: [
-                      DataCell(
-                        Row(
-                          children: [
-                            if (rank <= 3)
-                              Icon(
-                                Icons.emoji_events,
-                                color: rank == 1
-                                    ? Colors.amber[700]
-                                    : rank == 2
-                                        ? Colors.grey[700]
-                                        : Colors.orange[700],
-                                size: 20,
-                              ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '$rank',
-                              style: TextStyle(
-                                fontWeight: rank <= 3
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
+                return DataRow(
+                  color: rowColor != null
+                      ? WidgetStateProperty.all(rowColor)
+                      : null,
+                  cells: [
+                    DataCell(
+                      Row(
+                        children: [
+                          if (rank <= 3)
+                            Icon(
+                              Icons.emoji_events,
+                              color: rank == 1
+                                  ? Colors.amber[700]
+                                  : rank == 2
+                                      ? Colors.grey[700]
+                                      : Colors.orange[700],
+                              size: 20,
                             ),
-                          ],
-                        ),
-                      ),
-                      DataCell(
-                        Text(
-                          leaderboardEntry.userName,
-                          style: TextStyle(
-                            fontWeight: rank <= 3
-                                ? FontWeight.bold
-                                : FontWeight.normal,
+                          const SizedBox(width: 4),
+                          Text(
+                            '$rank',
+                            style: TextStyle(
+                              fontWeight: rank <= 3
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
                           ),
+                        ],
+                      ),
+                    ),
+                    DataCell(
+                      Text(
+                        leaderboardEntry.userName,
+                        style: TextStyle(
+                          fontWeight: rank <= 3
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                         ),
                       ),
-                      DataCell(
-                        Text(
-                          leaderboardEntry.totalScore.toString(),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: rank <= 3
-                                ? Theme.of(context).primaryColor
-                                : null,
-                          ),
+                    ),
+                    DataCell(
+                      Text(
+                        leaderboardEntry.totalScore.toString(),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: rank <= 3
+                              ? Theme.of(context).primaryColor
+                              : null,
                         ),
                       ),
-                    ],
-                  );
-                }).toList(),
-              ),
+                    ),
+                  ],
+                );
+              }).toList(),
             ),
-          ),
+          )
         );
       },
     );

@@ -180,108 +180,105 @@ class _BouldersTableState extends State<BouldersTable> {
         return Center(
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width,
-              child: DataTable(
-                sortColumnIndex: _sortColumnIndex,
-                sortAscending: _sortAscending,
-                showCheckboxColumn: false,
-                headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
-                columns: [
-                  DataColumn(
-                    label: const Text(
-                      'Name',
-                      style: defaultHeaderStyle,
-                    ),
-                    onSort: (columnIndex, ascending) {
-                      setState(() {
-                        _sortColumnIndex = columnIndex;
-                        _sortAscending = ascending;
-                      });
-                    },
+            child: DataTable(
+              sortColumnIndex: _sortColumnIndex,
+              sortAscending: _sortAscending,
+              showCheckboxColumn: false,
+              headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
+              columns: [
+                DataColumn(
+                  label: const Text(
+                    'Name',
+                    style: defaultHeaderStyle,
                   ),
-                  DataColumn(
-                    label: const Text(
-                      'Gym',
-                      style: defaultHeaderStyle,
-                    ),
-                    onSort: (columnIndex, ascending) {
-                      setState(() {
-                        _sortColumnIndex = columnIndex;
-                        _sortAscending = ascending;
-                      });
-                    },
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      _sortColumnIndex = columnIndex;
+                      _sortAscending = ascending;
+                    });
+                  },
+                ),
+                DataColumn(
+                  label: const Text(
+                    'Gym',
+                    style: defaultHeaderStyle,
                   ),
-                  DataColumn(
-                    label: const Text(
-                      'Week',
-                      style: defaultHeaderStyle,
-                    ),
-                    onSort: (columnIndex, ascending) {
-                      setState(() {
-                        _sortColumnIndex = columnIndex;
-                        _sortAscending = ascending;
-                      });
-                    },
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      _sortColumnIndex = columnIndex;
+                      _sortAscending = ascending;
+                    });
+                  },
+                ),
+                DataColumn(
+                  label: const Text(
+                    'Week',
+                    style: defaultHeaderStyle,
                   ),
-                  DataColumn(
-                    label: const Text(
-                      'Season',
-                      style: defaultHeaderStyle,
-                    ),
-                    onSort: (columnIndex, ascending) {
-                      setState(() {
-                        _sortColumnIndex = columnIndex;
-                        _sortAscending = ascending;
-                      });
-                    },
-                  )
-                ],
-                rows: sortedBoulders.map((boulder) {
-                  final gym = widget.availableGyms.firstWhere(
-                    (g) => g.id == boulder.gymId,
-                    orElse: () => Gym(
-                      id: boulder.gymId,
-                      name: boulder.gymId,
-                      baseMetaData: boulder.baseMetaData,
-                    ),
-                  );
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      _sortColumnIndex = columnIndex;
+                      _sortAscending = ascending;
+                    });
+                  },
+                ),
+                DataColumn(
+                  label: const Text(
+                    'Season',
+                    style: defaultHeaderStyle,
+                  ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      _sortColumnIndex = columnIndex;
+                      _sortAscending = ascending;
+                    });
+                  },
+                )
+              ],
+              rows: sortedBoulders.map((boulder) {
+                final gym = widget.availableGyms.firstWhere(
+                  (g) => g.id == boulder.gymId,
+                  orElse: () => Gym(
+                    id: boulder.gymId,
+                    name: boulder.gymId,
+                    baseMetaData: boulder.baseMetaData,
+                  ),
+                );
 
-                  return DataRow(
-                    onSelectChanged: (selected) {
-                      if(selected != null && selected) {
-                        _editBoulder(boulder);
-                      }
-                    },
-                    cells: [
-                      DataCell(Text(boulder.name)),
-                      DataCell(Text(gym.name)),
-                      DataCell(Text(boulder.week.toString())),
-                      DataCell(() {
-                        final season = widget.availableSeasons.firstWhere(
-                          (season) => season.id == boulder.seasonId,
-                          orElse: () => Season(
-                            id: boulder.seasonId,
-                            name: 'Unknown Season',
-                            gymId: boulder.gymId,
-                            startDate: DateTime.now(),
-                            endDate: DateTime.now(),
-                            baseMetaData: BaseMetaData(
-                              createdAt: DateTime.now(),
-                              lastUpdateAt: DateTime.now(),
-                              createdByUid: '',
-                              lastUpdateByUid: ''
-                            )
+                return DataRow(
+                  onSelectChanged: (selected) {
+                    if(selected != null && selected) {
+                      _editBoulder(boulder);
+                    }
+                  },
+                  cells: [
+                    DataCell(Text(boulder.name)),
+                    DataCell(Text(gym.name)),
+                    DataCell(Text(boulder.week.toString())),
+                    DataCell(() {
+                      final season = widget.availableSeasons.firstWhere(
+                        (season) => season.id == boulder.seasonId,
+                        orElse: () => Season(
+                          id: boulder.seasonId,
+                          name: 'Unknown Season',
+                          gymId: boulder.gymId,
+                          startDate: DateTime.now(),
+                          endDate: DateTime.now(),
+                          baseMetaData: BaseMetaData(
+                            createdAt: DateTime.now(),
+                            lastUpdateAt: DateTime.now(),
+                            createdByUid: '',
+                            lastUpdateByUid: ''
                           )
-                        );
-                        return Text(season.name);
-                      }()),
-                    ],
-                  );
-                }).toList(),
-              ),
+                        )
+                      );
+                      return Text(season.name);
+                    }()),
+                  ],
+                );
+              }).toList(),
             ),
-          ),
+          )
         );
       },
     );

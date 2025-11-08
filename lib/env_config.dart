@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
+
 /// Environment configuration for Firebase emulators
 ///
 /// This class handles configuration for connecting to Firebase emulators
@@ -45,12 +48,27 @@ class EnvConfig {
     defaultValue: ''
   );
 
+  /// Get the appropriate emulator host based on platform
+  /// - Android emulator: 10.0.2.2 (special alias to host machine)
+  /// - iOS simulator/Web: localhost
+  static String getEmulatorHost() {
+    if (kIsWeb) {
+      return 'localhost';
+    }
+    if (Platform.isAndroid) {
+      return '10.0.2.2';
+    }
+    return 'localhost';
+  }
+
   /// Print current configuration (useful for debugging)
   static void printConfig() {
     // ignore: avoid_print
     print('=== Firebase Emulator Configuration ===');
     // ignore: avoid_print
     print('ENV: $environment');
+    // ignore: avoid_print
+    print('Platform emulator host: ${getEmulatorHost()}');
     // ignore: avoid_print
     print('FIRESTORE_HOST: $firestoreHost');
     // ignore: avoid_print
