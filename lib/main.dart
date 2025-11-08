@@ -7,7 +7,6 @@ import 'package:boulder_league_app/screens/login.dart';
 import 'package:boulder_league_app/screens/signup.dart';
 import 'package:boulder_league_app/services/auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -36,17 +35,20 @@ void main() async {
     EnvConfig.printConfig();
 
     try {
+      // Use platform-specific emulator host (10.0.2.2 for Android, localhost for others)
+      final emulatorHost = EnvConfig.getEmulatorHost();
+
       FirebaseFirestore.instance.useFirestoreEmulator(
-        'localhost',
-        8080,
+        emulatorHost,
+        EnvConfig.firestorePort,
       );
       await FirebaseAuth.instance.useAuthEmulator(
-        'localhost',
-        9099,
+        emulatorHost,
+        EnvConfig.authPort,
       );
 
       // ignore: avoid_print
-      print('Connected to Firebase emulators at ${EnvConfig.firestoreHost}');
+      print('Connected to Firebase emulators at $emulatorHost');
     } catch (e) {
       // ignore: avoid_print
       print('Error connecting to emulators: $e');
