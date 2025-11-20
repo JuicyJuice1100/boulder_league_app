@@ -89,6 +89,15 @@ flutter devices
   - Firestore: 8080
   - UI: Enabled (default port)
 
+## Documentation
+
+Comprehensive auto-generated documentation including sequence diagrams, flow diagrams, and API reference is available at:
+
+- [Documentation Index](documentation/docs-generator/2025-11-20-15-45/README.md)
+- [Sequence Diagrams](documentation/docs-generator/2025-11-20-15-45/sequence-diagrams.md)
+- [Flow Diagrams](documentation/docs-generator/2025-11-20-15-45/flow-diagrams.md)
+- [API Documentation](documentation/docs-generator/2025-11-20-15-45/api-documentation.md)
+
 ## Mobile Deployment
 
 For Android deployment using Fastlane and Firebase App Distribution, see [MOBILE_README.md](MOBILE_README.md).

@@ -1,8 +1,10 @@
 # Boulder League App - Main Context for AI Agents
 
-**Version:** 1.0.0
-**Last Updated:** October 29, 2025
+**Version:** 1.1.0
+**Last Updated:** November 20, 2025
 **Project:** Boulder Climbing League Management Application
+
+> **Documentation:** For detailed UML diagrams and API documentation, see [documentation/docs-generator/2025-11-20-15-45](../documentation/docs-generator/2025-11-20-15-45/README.md)
 
 ---
 

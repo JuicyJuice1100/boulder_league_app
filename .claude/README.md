@@ -137,6 +137,29 @@ When you make significant changes to the codebase:
    - Update MAIN_CONTEXT.md with new Comment model and CommentService
    - Instructions.md automatically tells future Claude instances to read the updated context
 
+## Available Agents
+
+### docs-generator
+**Location:** `.claude/agents/docs-generator.md`
+
+Generates comprehensive documentation including:
+- Sequence diagrams (Mermaid)
+- Flow diagrams (Mermaid)
+- API documentation (Swagger-style markdown)
+- README index
+
+**Output:** `documentation/docs-generator/[YYYY-MM-DD-HH-MM]/`
+
+**Usage:**
+```
+Run the docs-generator agent to create updated documentation
+```
+
+## Generated Documentation
+
+The latest auto-generated documentation is available at:
+- [documentation/docs-generator/2025-11-20-15-45](../documentation/docs-generator/2025-11-20-15-45/README.md)
+
 ## Getting Help
 
 If Claude isn't following the instructions:
